@@ -119,6 +119,7 @@ Mirage.prototype.CopyResourceSupply = function(cmpResourceSupply)
 	this.killBeforeGather = cmpResourceSupply.GetKillBeforeGather();
 	this.maxGatherers = cmpResourceSupply.GetMaxGatherers();
 	this.numGatherers = cmpResourceSupply.GetNumGatherers();
+	this.numEnroute = cmpResourceSupply.GetNumEnroute();
 };
 
 Mirage.prototype.GetMaxAmount = function() { return this.maxAmount; };
@@ -128,6 +129,7 @@ Mirage.prototype.IsInfinite = function() { return this.isInfinite; };
 Mirage.prototype.GetKillBeforeGather = function() { return this.killBeforeGather; };
 Mirage.prototype.GetMaxGatherers = function() { return this.maxGatherers; };
 Mirage.prototype.GetNumGatherers = function() { return this.numGatherers; };
+Mirage.prototype.GetNumEnroute = function() { return this.numEnroute; };
 
 // Market data
 

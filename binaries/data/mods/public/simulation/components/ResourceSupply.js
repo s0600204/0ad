@@ -29,11 +29,12 @@ ResourceSupply.prototype.Init = function()
 	// Current resource amount (non-negative)
 	this.amount = this.GetMaxAmount();
 
-	this.gatherers = [];	// list of IDs for each players
+	this.gatherers = [];	// list of all IDs from all players
+	this.enroute = [];		// list of IDs for each player
 	let cmpPlayerManager = Engine.QueryInterface(SYSTEM_ENTITY, IID_PlayerManager);	// system component so that's safe.
 	let numPlayers = cmpPlayerManager.GetNumPlayers();
 	for (let i = 0; i <= numPlayers; ++i)	// use "<=" because we want Gaia too.
-		this.gatherers.push([]);
+		this.enroute.push([]);
 
 	this.infinite = !isFinite(+this.template.Amount);
 
@@ -78,7 +79,14 @@ ResourceSupply.prototype.GetMaxGatherers = function()
 
 ResourceSupply.prototype.GetNumGatherers = function()
 {
-	return this.gatherers.reduce((a, b) => a + b.length, 0);
+	return this.gatherers.length;
+};
+
+ResourceSupply.prototype.GetNumEnroute = function(player)
+{
+	if (player === undefined)
+		return 0;
+	return this.enroute[player].length;
 };
 
 /* The rate of each additionnal gatherer rate follow a geometric sequence, with diminishingReturns as common ratio. */
@@ -130,9 +138,29 @@ ResourceSupply.prototype.GetType = function()
 
 ResourceSupply.prototype.IsAvailable = function(player, gathererID)
 {
-	if (this.GetNumGatherers() < this.GetMaxGatherers() || this.gatherers[player].indexOf(gathererID) !== -1)
+	let numOfGatherers = this.GetNumGatherers() + this.GetNumEnroute(player);
+	let unitAlreadyGathering = (this.gatherers.indexOf(gathererID) !== -1);
+	let unitAlreadyEnroute = (this.enroute[player].indexOf(gathererID) !== -1);
+	
+	if (numOfGatherers < this.GetMaxGatherers() || unitAlreadyGathering || unitAlreadyEnroute)
 		return true;
+	
 	return false;
+};
+
+ResourceSupply.prototype.AddEnrouteGatherer = function(player, gathererID)
+{
+	if (!this.IsAvailable(player, gathererID))
+		return false;
+	
+	if (this.enroute[player].indexOf(gathererID) === -1)
+	{
+		this.enroute[player].push(gathererID);
+		// broadcast message, mainly useful for the AIs.
+	/*	Engine.PostMessage(this.entity, MT_ResourceSupplyNumGatherersEnrouteChanged, { "to": this.GetNumEnroute(player) });	*/
+	}
+	
+	return true;
 };
 
 ResourceSupply.prototype.AddGatherer = function(player, gathererID)
@@ -140,9 +168,9 @@ ResourceSupply.prototype.AddGatherer = function(player, gathererID)
 	if (!this.IsAvailable(player, gathererID))
 		return false;
 
-	if (this.gatherers[player].indexOf(gathererID) === -1)
+	if (this.gatherers.indexOf(gathererID) === -1)
 	{
-		this.gatherers[player].push(gathererID);
+		this.gatherers.push(gathererID);
 		// broadcast message, mainly useful for the AIs.
 		Engine.PostMessage(this.entity, MT_ResourceSupplyNumGatherersChanged, { "to": this.GetNumGatherers() });
 	}
@@ -150,25 +178,35 @@ ResourceSupply.prototype.AddGatherer = function(player, gathererID)
 	return true;
 };
 
-// should this return false if the gatherer didn't gather from said resource?
-ResourceSupply.prototype.RemoveGatherer = function(gathererID, player)
+ResourceSupply.prototype.RemoveEnrouteGatherer = function(gathererID, player)
 {
-	// this can happen if the unit is dead
 	if (player === undefined || player === -1)
 	{
-		for (var i = 0; i < this.gatherers.length; ++i)
-			this.RemoveGatherer(gathererID, i);
+		for (let i = 0; i < this.enroute.length; ++i)
+			this.RemoveEnrouteGatherer(gathererID, i, "self");
 	}
 	else
 	{
-		var index = this.gatherers[player].indexOf(gathererID);
+		let index = this.enroute[player].indexOf(gathererID);
 		if (index !== -1)
 		{
-			this.gatherers[player].splice(index,1);
+			this.enroute[player].splice(index, 1);
 			// broadcast message, mainly useful for the AIs.
-			Engine.PostMessage(this.entity, MT_ResourceSupplyNumGatherersChanged, { "to": this.GetNumGatherers() });
-			return;
+	/*		Engine.PostMessage(this.entity, MT_ResourceSupplyNumGatherersEnrouteChanged, { "to": this.GetNumEnroute(player) });	*/
 		}
+	}
+};
+
+// should this return false if the gatherer didn't gather from said resource?
+ResourceSupply.prototype.RemoveGatherer = function(gathererID)
+{
+	let index = this.gatherers.indexOf(gathererID);
+	if (index !== -1)
+	{
+		this.gatherers.splice(index, 1);
+		// broadcast message, mainly useful for the AIs.
+		Engine.PostMessage(this.entity, MT_ResourceSupplyNumGatherersChanged, { "to": this.GetNumGatherers() });
+		return;
 	}
 };
 
