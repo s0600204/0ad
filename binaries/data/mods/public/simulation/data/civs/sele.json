@@ -1,6 +1,6 @@
 {
 	"Code":"sele",
-	"Culture":"sele",
+	"Culture":[ "succe" ],
 	"Name":"Seleucids",
 	"Emblem":"session/portraits/emblems/emblem_seleucids.png",
 	"History":"The Macedonian-Greek dynasty that ruled most of Alexander's former empire.",
