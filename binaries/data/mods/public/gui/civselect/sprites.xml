@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<sprites>
+	
+	<sprite name="EmblemDefault"/>
+	
+	<sprite name="EmblemDisable"/>
+	
+	<sprite name="EmblemOver">
+		<image
+			texture="session/portraits/emblems/states/hover.png"
+		/>
+	</sprite>
+	
+	<sprite name="EmblemPress">
+		<image
+			texture="session/portraits/emblems/states/click.png"
+		/>
+	</sprite>
+	
+</sprites>

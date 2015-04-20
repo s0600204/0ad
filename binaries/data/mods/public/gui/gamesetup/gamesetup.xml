@@ -100,10 +100,30 @@
 							>
 								<translatableAttribute id="tooltip">Configure AI settings.</translatableAttribute>
 							</object>
-							<object name="playerCiv[n]" type="dropdown" style="ModernDropDown" size="50%+69 2 85% 30" tooltip_style="onscreenToolTip">
+							<object name="playerCiv[n]" type="dropdown" style="ModernDropDown" size="50%+69 2 85%-16 30" tooltip_style="onscreenToolTip">
 								<translatableAttribute id="tooltip">Select player's civilization.</translatableAttribute>
 							</object>
 							<object name="playerCivText[n]" type="text" style="ModernLabelText" size="50%+65 0 85% 30"/>
+							
+							<object name="playerCivselectButton[n]"
+								type="button"
+								sprite="iconInfoGold"
+								sprite_over="iconInfoWhite"
+								size="85%-16 6 85% 22"
+								tooltip_style="onscreenToolTip"
+							>
+								<translatableAttribute id="tooltip">AOM-style interface</translatableAttribute>
+								<action on="Press"><![CDATA[
+									var player = this.name.slice(22, -1);
+									var dropdown = Engine.GetGUIObjectByName("playerCiv["+player+"]");
+									Engine.PushGuiPage("page_civselect.xml", {
+										"player": player,
+										"current": dropdown.list_data[dropdown.selected],
+										"callback": "setCiv"
+									});
+								]]></action>
+							</object>
+							
 							<object name="playerTeam[n]" type="dropdown" style="ModernDropDown" size="85%+5 2 100%-5 30" tooltip_style="onscreenToolTip">
 								<translatableAttribute id="tooltip">Select player's team.</translatableAttribute>
 							</object>
