@@ -4,7 +4,7 @@ var g_CivData = {};
 var g_GroupingData = {};
 var g_player = 0;
 var g_selected = "athen";
-var g_currentGroup = "none";
+var g_groupChoice = "none";
 var g_groupLimit = 8;
 var g_emblemLimit = 16;
 
@@ -54,6 +54,7 @@ function draw_grouped (group)
 	var grp = 0;
 	var emb = 0;
 	var vOffset = 8;
+	g_groupChoice = group;
 	var grouping = g_GroupingData[group];
 	for (let code in grouping)
 	{
@@ -64,8 +65,11 @@ function draw_grouped (group)
 		grpObj.size = grpSize;
 		grpObj.hidden = false;
 		
-		let grpHeading = Engine.GetGUIObjectByName("groupHeading["+grp+"]");
+		let grpHeading = Engine.GetGUIObjectByName("civGroup["+grp+"]_heading");
 		grpHeading.caption = grouping[code].Name;
+		let grpBtn = Engine.GetGUIObjectByName("civGroup["+grp+"]_btn");
+		setBtnFunc(grpBtn, selectGroup, [ code ]);
+		grpBtn.hidden = (code === "nogroup") ? true : false;
 		let range = [ emb ];
 		
 		for (let civ of grouping[code].civlist)
@@ -73,7 +77,7 @@ function draw_grouped (group)
 			let embObj = Engine.GetGUIObjectByName("emblem["+emb+"]_img");
 			embObj.sprite = "stretched:"+g_CivData[civ].Emblem;
 			let embBtn = Engine.GetGUIObjectByName("emblem["+emb+"]_btn");
-			setBtnFunc (embBtn, selectCiv, [ civ ]);
+			setBtnFunc(embBtn, selectCiv, [ civ ]);
 			Engine.GetGUIObjectByName("emblem["+emb+"]").hidden = false;
 			emb++;
 		}
@@ -99,7 +103,7 @@ function draw_ungrouped ()
 		let embObj = Engine.GetGUIObjectByName("emblem["+emb+"]_img");
 		embObj.sprite = "stretched:"+g_CivData[civ].Emblem;
 		let embBtn = Engine.GetGUIObjectByName("emblem["+emb+"]_btn");
-		setBtnFunc (embBtn, selectCiv, [ civ ]);
+		setBtnFunc(embBtn, selectCiv, [ civ ]);
 		Engine.GetGUIObjectByName("emblem["+emb+"]").hidden = false;
 		emb++;
 	}
@@ -114,18 +118,50 @@ function selectCiv (code)
 {
 	g_selected = code;
 	
-	var heading = Engine.GetGUIObjectByName("selectedCiv_heading");
+	var heading = Engine.GetGUIObjectByName("selected_heading");
 	heading.caption = g_CivData[code].Name;
 	
-	var history = Engine.GetGUIObjectByName("selectedCiv_history");
+	var civList = Engine.GetGUIObjectByName("selected_civs");
+	civList.hidden = true;
+	
+	var history = Engine.GetGUIObjectByName("selected_history");
 	history.caption = g_CivData[code].History;
+	
+	var size = history.parent.size;
+	size.top = 48;
+	history.parent.size = size;
+	
+	var choice = Engine.GetGUIObjectByName("selected_text");
+	choice.caption = "You have selected the "+g_CivData[code].Name;
 	
 }
 
-function selectGroup ()
+function selectGroup (code)
 {
+	var heading = Engine.GetGUIObjectByName("selected_heading");
+	heading.caption = g_GroupingData[g_groupChoice][code].Name;
 	
+	var civList = Engine.GetGUIObjectByName("selected_civs");
+	civList.hidden = false;
+	civList.caption = "";
+	let civCount = 0;
+	for (let civ of g_GroupingData[g_groupChoice][code].civlist)
+	{
+		civList.caption += g_CivData[civ].Name+"\n";
+		civCount++;
+	}
 	
+	var history = Engine.GetGUIObjectByName("selected_history");
+	history.caption = g_GroupingData[g_groupChoice][code].History;
+	var size = history.parent.size;
+	size.top = 18 * civCount + 64;
+	history.parent.size = size;
+	
+	var choice = Engine.GetGUIObjectByName("selected_text");
+	choice.caption = "A civ will be picked at random from "+ g_GroupingData[g_groupChoice][code].Name;
+	
+	civCount = Math.floor(Math.random() * civCount);
+	g_selected = g_GroupingData[g_groupChoice][code].civlist[civCount]
 }
 
 function setBtnFunc (btn, func, vars = null)

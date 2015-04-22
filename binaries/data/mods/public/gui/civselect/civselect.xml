@@ -49,7 +49,7 @@
 				<repeat count="8" var="g">
 					<object size="8 8 100%-8 24+72+16" name="civGroup[g]">
 						<object
-							name="groupHeading[g]"
+							name="civGroup[g]_heading"
 							type="text"
 							font="sans-16"
 							textcolor="white"
@@ -57,6 +57,12 @@
 							size="2 0 50% 24">
 							<translatableAttribute id="caption">A group:</translatableAttribute>
 						</object>
+						<object name="civGroup[g]_btn"
+							type="button"
+							sprite="iconInfoGold"
+							sprite_over="iconInfoWhite"
+							size="100%-16-8 0 100%-8 16"
+						/>
 						<object sprite="ModernGoldLine" type="image" size="0 24 100% 25" />
 					</object>
 				</repeat>
@@ -64,11 +70,11 @@
 			</object>
 		</object>
 
-		<object sprite="ModernDarkBoxGold" type="image" size="70%+8 32 100%-16 100%-54">
+		<object sprite="ModernDarkBoxGold" type="image" size="70%+8 32 100%-16 100%-70">
 			
 			<!-- Selection Details -->
 			<object
-				name="selectedCiv_heading"
+				name="selected_heading"
 				type="text"
 				font="sans-bold-24"
 				textcolor="white"
@@ -76,9 +82,18 @@
 				size="0 12 100% 40"
 			/>
 			
+			<object
+				name="selected_civs"
+				type="text"
+				font="sans-16"
+				textcolor="white"
+				text_align="center"
+				size="4 44 100%-4 100%-4"
+			/>
+			
 			<object size="8 48 100%-8 100%-8" type="image" sprite="ModernDarkBoxGold">
 				<object
-					name="selectedCiv_history"
+					name="selected_history"
 					type="text"
 					font="sans-14"
 					textcolor="white"
@@ -88,6 +103,15 @@
 			</object>
 			
 		</object>
+		<object
+			name="selected_text"
+			type="text"
+			font="sans-12"
+			textcolor="green"
+			text_align="center"
+			text_valign="bottom"
+			size="70%+8 100%-64 100%-16 100%-48"
+		/>
 
 		<!-- Close the dialog -->
 		<object
