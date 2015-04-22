@@ -6,7 +6,7 @@ var g_player = 0;
 var g_selected = "athen";
 var g_groupChoice = "none";
 var g_groupLimit = 8;
-var g_emblemLimit = 16;
+var g_emblemLimit = 32;
 
 /**
  * Run when UI Page loaded.
@@ -37,8 +37,8 @@ function initCivs ()
 	// Cache civ data
 	g_CivData = loadCivData(true);
 	
-	// Cache culture data
-	g_GroupingData.culture = loadCultureData(Object.keys(g_CivData));
+	// Cache grouping data
+	g_GroupingData.culture = loadGroupData("Culture", Object.keys(g_CivData));
 }
 
 function chooseGrouping (choice)
@@ -58,6 +58,8 @@ function draw_grouped (group)
 	var grouping = g_GroupingData[group];
 	for (let code in grouping)
 	{
+		if (emb >= g_emblemLimit)
+			continue;
 		
 		let grpObj = Engine.GetGUIObjectByName("civGroup["+grp+"]");
 		let grpSize = grpObj.size;
@@ -69,11 +71,16 @@ function draw_grouped (group)
 		grpHeading.caption = grouping[code].Name;
 		let grpBtn = Engine.GetGUIObjectByName("civGroup["+grp+"]_btn");
 		setBtnFunc(grpBtn, selectGroup, [ code ]);
-		grpBtn.hidden = (code === "nogroup") ? true : false;
+		grpBtn.hidden = (code === "groupless") ? true : false;
 		let range = [ emb ];
 		
 		for (let civ of grouping[code].civlist)
 		{
+			if (emb >= g_emblemLimit)
+			{
+				error("Reached maximum limit of emblem objects.");
+				continue;
+			}
 			let embObj = Engine.GetGUIObjectByName("emblem["+emb+"]_img");
 			embObj.sprite = "stretched:"+g_CivData[civ].Emblem;
 			let embBtn = Engine.GetGUIObjectByName("emblem["+emb+"]_btn");
@@ -158,7 +165,10 @@ function selectGroup (code)
 	history.parent.size = size;
 	
 	var choice = Engine.GetGUIObjectByName("selected_text");
-	choice.caption = "A civ will be picked at random from "+ g_GroupingData[g_groupChoice][code].Name;
+	if (g_GroupingData[g_groupChoice][code].Singular)
+		choice.caption = "A "+g_GroupingData[g_groupChoice][code].Singular+" civ will be picked at random."; 
+	else
+		choice.caption = "A civ will be picked at random from this group";
 	
 	civCount = Math.floor(Math.random() * civCount);
 	g_selected = g_GroupingData[g_groupChoice][code].civlist[civCount]

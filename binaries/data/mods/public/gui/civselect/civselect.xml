@@ -39,7 +39,7 @@
 			<!-- draw space -->
 			<object sprite="ModernDarkBoxGold" type="image" size="0 40 100% 100%">
 				
-				<repeat count="16" var="em">
+				<repeat count="32" var="em">
 					<object name="emblem[em]" size="4 8 4+64 8+64">
 						<object type="image" style="EmblemImage" name="emblem[em]_img"/>
 						<object type="button" style="EmblemButton" name="emblem[em]_btn"/>

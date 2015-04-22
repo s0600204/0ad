@@ -66,41 +66,42 @@ function gridArrayRepeatedObjects (basename, splitvar, limit, vMargin, vOffset =
 	return (lastObj.size.bottom - firstObj.size.top);
 }
 
-function loadCultureData (civCodes)
+function loadGroupData (grouping, civCodes)
 {
-	var cultureData = {};
-	cultureData.nogroup = {
-		"Name" : "Ungrouped",
-		"Code" : "nogroup",
-		"History" : "-",
-		"civlist": []
-	};
+	var groupData = {};
+	var groupless = [];
 	
 	for (let code of civCodes)
 	{
 		let civ = g_CivData[code];
-		let grouped = false;
-		let cultures = civ.Culture;
-		if (typeof cultures === "string")
-			cultures = [ cultures ];
+		let nogroup = true;
+		let groups = civ[grouping] || [];
+		if (typeof groups === "string")
+			groups = [ groups ];
 		
-		for (let culture of cultures)
+		for (let grp of groups)
 		{
-			if (cultureData[culture] === undefined)
+			if (groupData[grp] === undefined)
 			{
-				let data = Engine.ReadJSONFile("simulation/data/civs/cultures/"+culture+".json");
+				let data = Engine.ReadJSONFile("simulation/data/civs/"+grouping.toLowerCase()+"s/"+grp+".json");
 				if (!data)
 					continue;
 				
-				cultureData[culture] = data;
-				cultureData[culture].civlist = [];
+				groupData[grp] = data;
+				groupData[grp].civlist = [];
 			}
-			cultureData[culture].civlist.push(code);
-			grouped = true;
+			groupData[grp].civlist.push(code);
+			nogroup = false;
 		}
-		if (!grouped)
-			cultureData.nogroup.civlist.push(code);
+		if (nogroup)
+			groupless.push(code);
 	}
-	return cultureData;
+	if (groupless.length > 0)
+		groupData.groupless = {
+			"Name" : "Ungrouped",
+			"Code" : "groupless",
+			"History" : "-",
+			"civlist": groupless
+		};
+	return groupData;
 }
-
