@@ -32,7 +32,7 @@
 	
 				<object name="groupSelection" type="dropdown" style="ModernDropDown" size="100%-160 0 100% 26">
 					<translatableAttribute id="tooltip">Choose how to group civs</translatableAttribute>
-					<action on="SelectionChange">/*selectCiv(this.list_data[this.selected]);*/</action>
+					<action on="SelectionChange">chooseGrouping(this.list_data[this.selected]);</action>
 				</object>
 			</object>
 			
@@ -40,9 +40,24 @@
 			<object sprite="ModernDarkBoxGold" type="image" size="0 40 100% 100%">
 				
 				<repeat count="16" var="em">
-					<object name="emblem[em]" size="4 8 4+96 8+96">
+					<object name="emblem[em]" size="4 8 4+64 8+64">
 						<object type="image" style="EmblemImage" name="emblem[em]_img"/>
 						<object type="button" style="EmblemButton" name="emblem[em]_btn"/>
+					</object>
+				</repeat>
+				
+				<repeat count="8" var="g">
+					<object size="8 8 100%-8 24+72+16" name="civGroup[g]">
+						<object
+							name="groupHeading[g]"
+							type="text"
+							font="sans-16"
+							textcolor="white"
+							text_align="left"
+							size="2 0 50% 24">
+							<translatableAttribute id="caption">A group:</translatableAttribute>
+						</object>
+						<object sprite="ModernGoldLine" type="image" size="0 24 100% 25" />
 					</object>
 				</repeat>
 				

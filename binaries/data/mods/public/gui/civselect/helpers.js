@@ -20,10 +20,15 @@ function horizSpaceRepeatedObjects (basename, splitvar, limit, margin)
 	}
 }
 
-function gridArrayRepeatedObjects (basename, splitvar, limit, vMargin)
+function gridArrayRepeatedObjects (basename, splitvar, limit, vMargin, vOffset = 0)
 {
+	if (typeof limit === "number")
+		limit = [0, (limit-1), limit];
+	else
+		limit[2] = limit[1] - limit[0] + 1;
+	
 	basename = basename.split("["+splitvar+"]", 2);
-	var firstObj = Engine.GetGUIObjectByName(basename.join("[0]"));
+	var firstObj = Engine.GetGUIObjectByName(basename.join("["+limit[0]+"]"));
 	
 	var child = firstObj.getComputedSize();
 	child.width = child.right - child.left;
@@ -40,20 +45,62 @@ function gridArrayRepeatedObjects (basename, splitvar, limit, vMargin)
 	child.width += hMargin;
 	child.height += vMargin;
 	
-	var i = 0;
-	for (let r = 0; r < Math.floor(limit/rowLength); ++r)
+	var i = limit[0];
+	for (let r = 0; r < Math.ceil(limit[2]/rowLength); ++r)
 	{
-		for (let c = 0; c < rowLength	; ++c)
+		for (let c = 0; c < rowLength; ++c)
 		{
 			let newSize = new GUISize();
 			newSize.left = c * child.width + hMargin;
 			newSize.right = (c+1) * child.width;
-			newSize.top = r * child.height + vMargin;
-			newSize.bottom = (r+1) * child.height;
+			newSize.top = r * child.height + vMargin + vOffset;
+			newSize.bottom = (r+1) * child.height + vOffset;
 			Engine.GetGUIObjectByName(basename.join("["+ i++ +"]")).size = newSize;
+			
+			if (i > limit[1])
+				break;
 		}
 	}
 	
+	var lastObj = Engine.GetGUIObjectByName(basename.join("["+(i-1)+"]"));
+	return (lastObj.size.bottom - firstObj.size.top);
+}
+
+function loadCultureData (civCodes)
+{
+	var cultureData = {};
+	cultureData.nogroup = {
+		"Name" : "Ungrouped",
+		"Code" : "nogroup",
+		"History" : "-",
+		"civlist": []
+	};
 	
+	for (let code of civCodes)
+	{
+		let civ = g_CivData[code];
+		let grouped = false;
+		let cultures = civ.Culture;
+		if (typeof cultures === "string")
+			cultures = [ cultures ];
+		
+		for (let culture of cultures)
+		{
+			if (cultureData[culture] === undefined)
+			{
+				let data = Engine.ReadJSONFile("simulation/data/civs/cultures/"+culture+".json");
+				if (!data)
+					continue;
+				
+				cultureData[culture] = data;
+				cultureData[culture].civlist = [];
+			}
+			cultureData[culture].civlist.push(code);
+			grouped = true;
+		}
+		if (!grouped)
+			cultureData.nogroup.civlist.push(code);
+	}
+	return cultureData;
 }
 
