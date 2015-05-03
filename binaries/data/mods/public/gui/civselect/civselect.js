@@ -15,30 +15,35 @@ function init (settings)
 {
 //	warn(uneval(settings));
 	
-	initCivs();
+	// Cache civ data
+	g_CivData = loadCivData(true);
 	
 	g_player = settings.player;
 	if (settings.current !== "random")
 		g_selected = settings.current;
 	
+	// Cache grouping data and create list
+	var grpList = [ "Ungrouped" ];
+	var grpList_data = [ "nogroup" ];
+	for (let grp of Engine.BuildDirEntList("simulation/data/civs/grouping/", "*.json", false))
+	{
+		let data = Engine.ReadJSONFile(grp);
+		if (!data)
+			continue;
+		
+		translateObjectKeys(data, [ "ListEntry" ]);
+		g_GroupingData[data.Code] = loadGroupingSchema(data.Folder, data.CivAttribute);
+		grpList.push(data.ListEntry);
+		grpList_data.push(data.Code);
+		
+	}
+	
 	var grpSel = Engine.GetGUIObjectByName("groupSelection");
-	grpSel.list = [ "Ungrouped", "By Culture" ];
-	grpSel.list_data = [ "nogroup", "culture" ];
+	grpSel.list = grpList;
+	grpSel.list_data = grpList_data;
 	grpSel.selected = 0;
 	
 	selectCiv(g_selected);
-}
-
-/**
- * Load civ data
- */
-function initCivs ()
-{
-	// Cache civ data
-	g_CivData = loadCivData(true);
-	
-	// Cache grouping data
-	g_GroupingData.culture = loadGroupData("Culture", Object.keys(g_CivData));
 }
 
 function chooseGrouping (choice)

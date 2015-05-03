@@ -66,16 +66,22 @@ function gridArrayRepeatedObjects (basename, splitvar, limit, vMargin, vOffset =
 	return (lastObj.size.bottom - firstObj.size.top);
 }
 
-function loadGroupData (grouping, civCodes)
+/**
+ * Load Data about a grouping schema
+ * 
+ * @param attr The JSON attribute in the Civ JSON files that lists which of the groups in this schema that civ belongs to
+ * @param folder The folder containing the groups of this schema
+ */
+function loadGroupingSchema (folder, attr)
 {
 	var groupData = {};
 	var groupless = [];
 	
-	for (let code of civCodes)
+	for (let code of Object.keys(g_CivData))
 	{
 		let civ = g_CivData[code];
 		let nogroup = true;
-		let groups = civ[grouping] || [];
+		let groups = civ[attr] || [];
 		if (typeof groups === "string")
 			groups = [ groups ];
 		
@@ -83,7 +89,7 @@ function loadGroupData (grouping, civCodes)
 		{
 			if (groupData[grp] === undefined)
 			{
-				let data = Engine.ReadJSONFile("simulation/data/civs/"+grouping.toLowerCase()+"s/"+grp+".json");
+				let data = Engine.ReadJSONFile("simulation/data/civs/"+folder+"/"+grp+".json");
 				if (!data)
 					continue;
 				
