@@ -135,10 +135,7 @@
 			<translatableAttribute id="caption">Select</translatableAttribute>
 			<action on="Press">
 				<![CDATA[
-					Engine.PopGuiPageCB({
-						"player": g_player,
-						"civ": g_selected
-					});
+					returnCiv();
 				]]>
 			</action>
 		</object>

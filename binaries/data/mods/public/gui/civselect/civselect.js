@@ -3,7 +3,10 @@
 var g_CivData = {};
 var g_GroupingData = {};
 var g_player = 0;
-var g_selected = "athen";
+var g_selected = {
+	"isGroup": false,
+	"code": "athen"
+};
 var g_groupChoice = "none";
 var g_groupLimit = 8;
 var g_emblemLimit = 32;
@@ -19,8 +22,13 @@ function init (settings)
 	g_CivData = loadCivData(true);
 	
 	g_player = settings.player;
-	if (settings.current !== "random")
-		g_selected = settings.current;
+	if (settings.current !== "random" && Object.keys(g_CivData).indexOf(settings.current) > -1)
+		g_selected.code = settings.current;
+	else
+	{
+		var num = Math.floor(Math.random() * Object.keys(g_CivData).length);
+		g_selected.code = Object.keys(g_CivData)[num];
+	}
 	
 	// Cache grouping data and create list
 	var grpList = [ "Ungrouped" ];
@@ -43,7 +51,7 @@ function init (settings)
 	grpSel.list_data = grpList_data;
 	grpSel.selected = 0;
 	
-	selectCiv(g_selected);
+	selectCiv(g_selected.code);
 }
 
 function chooseGrouping (choice)
@@ -128,7 +136,8 @@ function draw_ungrouped ()
 
 function selectCiv (code)
 {
-	g_selected = code;
+	g_selected.isGroup = false;
+	g_selected.code = code;
 	
 	var heading = Engine.GetGUIObjectByName("selected_heading");
 	heading.caption = g_CivData[code].Name;
@@ -150,6 +159,9 @@ function selectCiv (code)
 
 function selectGroup (code)
 {
+	g_selected.isGroup = true;
+	g_selected.code = code;
+	
 	var heading = Engine.GetGUIObjectByName("selected_heading");
 	heading.caption = g_GroupingData[g_groupChoice][code].Name;
 	
@@ -175,8 +187,7 @@ function selectGroup (code)
 	else
 		choice.caption = "A civ will be picked at random from this group";
 	
-	civCount = Math.floor(Math.random() * civCount);
-	g_selected = g_GroupingData[g_groupChoice][code].civlist[civCount]
+	
 }
 
 function setBtnFunc (btn, func, vars = null)
@@ -184,3 +195,18 @@ function setBtnFunc (btn, func, vars = null)
 	btn.onPress = function () { func.apply(null, vars); };
 }
 
+function returnCiv ()
+{
+	let code = g_selected.code;
+	if (g_selected.isGroup)
+	{
+		// pick random(-ish) civ from group's list
+		let num = g_GroupingData[g_groupChoice][code].civlist.length;
+		num = Math.floor(Math.random() * num);
+		code = g_GroupingData[g_groupChoice][code].civlist[num]
+	}
+	Engine.PopGuiPageCB({
+			"player": g_player,
+			"civ": code
+		});
+}
