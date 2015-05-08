@@ -69,6 +69,8 @@ function draw_grouped (group)
 	var vOffset = 8;
 	g_groupChoice = group;
 	var grouping = g_GroupingData[group];
+	for (let civ in g_CivData)
+		g_CivData[civ].embs = [];
 	for (let code in grouping)
 	{
 		if (emb >= g_emblemLimit)
@@ -80,8 +82,11 @@ function draw_grouped (group)
 		grpObj.size = grpSize;
 		grpObj.hidden = false;
 		
+		g_GroupingData[g_groupChoice][code].embs = [];
+		
 		let grpHeading = Engine.GetGUIObjectByName("civGroup["+grp+"]_heading");
 		grpHeading.caption = grouping[code].Name;
+		
 		let grpBtn = Engine.GetGUIObjectByName("civGroup["+grp+"]_btn");
 		setBtnFunc(grpBtn, selectGroup, [ code ]);
 		grpBtn.hidden = (code === "groupless") ? true : false;
@@ -94,8 +99,15 @@ function draw_grouped (group)
 				error("Reached maximum limit of emblem objects.");
 				continue;
 			}
-			let embObj = Engine.GetGUIObjectByName("emblem["+emb+"]_img");
-			embObj.sprite = "stretched:"+g_CivData[civ].Emblem;
+			g_CivData[civ].embs.push(emb);
+			g_GroupingData[g_groupChoice][code].embs.push(emb);
+			
+			let embImg = Engine.GetGUIObjectByName("emblem["+emb+"]_img");
+			embImg.sprite = "stretched:";
+			if (civ !== g_selected.code && code !== g_selected.code)
+				embImg.sprite += "grayscale:";
+			embImg.sprite += g_CivData[civ].Emblem;
+			
 			let embBtn = Engine.GetGUIObjectByName("emblem["+emb+"]_btn");
 			setBtnFunc(embBtn, selectCiv, [ civ ]);
 			Engine.GetGUIObjectByName("emblem["+emb+"]").hidden = false;
@@ -120,8 +132,14 @@ function draw_ungrouped ()
 	var emb = 0;
 	for (let civ in g_CivData)
 	{	
-		let embObj = Engine.GetGUIObjectByName("emblem["+emb+"]_img");
-		embObj.sprite = "stretched:"+g_CivData[civ].Emblem;
+		g_CivData[civ].embs = [ emb ];
+		
+		let embImg = Engine.GetGUIObjectByName("emblem["+emb+"]_img");
+		embImg.sprite = "stretched:";
+		if (civ !== g_selected.code)
+			embImg.sprite += "grayscale:";
+		embImg.sprite += g_CivData[civ].Emblem;
+		
 		let embBtn = Engine.GetGUIObjectByName("emblem["+emb+"]_btn");
 		setBtnFunc(embBtn, selectCiv, [ civ ]);
 		Engine.GetGUIObjectByName("emblem["+emb+"]").hidden = false;
@@ -136,6 +154,8 @@ function draw_ungrouped ()
 
 function selectCiv (code)
 {
+	highlightEmblems(g_CivData[code].embs);
+	
 	g_selected.isGroup = false;
 	g_selected.code = code;
 	
@@ -154,11 +174,12 @@ function selectCiv (code)
 	
 	var choice = Engine.GetGUIObjectByName("selected_text");
 	choice.caption = "You have selected the "+g_CivData[code].Name;
-	
 }
 
 function selectGroup (code)
 {
+	highlightEmblems(g_GroupingData[g_groupChoice][code].embs);
+	
 	g_selected.isGroup = true;
 	g_selected.code = code;
 	
@@ -186,8 +207,21 @@ function selectGroup (code)
 		choice.caption = "A "+g_GroupingData[g_groupChoice][code].Singular+" civ will be picked at random."; 
 	else
 		choice.caption = "A civ will be picked at random from this group";
+}
+
+function highlightEmblems (embs = [], gray = false)
+{
+	if (!gray)
+		if (g_selected.isGroup)
+			highlightEmblems(g_GroupingData[g_groupChoice][g_selected.code].embs, true);
+		else
+			highlightEmblems(g_CivData[g_selected.code].embs, true);
 	
-	
+	for (let e of embs) {
+		var embImg = Engine.GetGUIObjectByName("emblem["+e+"]_img");
+		var sprite = embImg.sprite.split(":");
+		embImg.sprite = "stretched:" + ((gray)?"grayscale:":"") + sprite.pop();
+	}
 }
 
 function setBtnFunc (btn, func, vars = null)
@@ -203,7 +237,7 @@ function returnCiv ()
 		// pick random(-ish) civ from group's list
 		let num = g_GroupingData[g_groupChoice][code].civlist.length;
 		num = Math.floor(Math.random() * num);
-		code = g_GroupingData[g_groupChoice][code].civlist[num]
+		code = g_GroupingData[g_groupChoice][code].civlist[num];
 	}
 	Engine.PopGuiPageCB({
 			"player": g_player,
