@@ -1407,6 +1407,7 @@ function updateGUIObjects()
 		let pAssignmentText = Engine.GetGUIObjectByName("playerAssignmentText["+i+"]");
 		let pCiv = Engine.GetGUIObjectByName("playerCiv["+i+"]");
 		let pCivText = Engine.GetGUIObjectByName("playerCivText["+i+"]");
+		let pCivButton = Engine.GetGUIObjectByName("playerCivButton["+i+"]");
 		let pTeam = Engine.GetGUIObjectByName("playerTeam["+i+"]");
 		let pTeamText = Engine.GetGUIObjectByName("playerTeamText["+i+"]");
 		let pColor = Engine.GetGUIObjectByName("playerColor["+i+"]");
@@ -1415,6 +1416,7 @@ function updateGUIObjects()
 		let pDefs = g_DefaultPlayerData ? g_DefaultPlayerData[i] : {};
 
 		let color = getSetting(pData, pDefs, "Color");
+
 		pColor.sprite = "color:" + rgbToGuiColor(color) + " 100";
 		pName.caption = translate(getSetting(pData, pDefs, "Name"));
 
@@ -1430,6 +1432,7 @@ function updateGUIObjects()
 
 		hideControl("playerAssignment["+i+"]", "playerAssignmentText["+i+"]", g_IsController);
 		hideControl("playerCiv["+i+"]", "playerCivText["+i+"]", notScenario);
+		hideControl("playerCivButton["+i+"]", "playerCivText["+i+"]", notScenario);
 		hideControl("playerTeam["+i+"]", "playerTeamText["+i+"]", notScenario);
 
 		// Allow host to chose player colors on non-scenario maps
