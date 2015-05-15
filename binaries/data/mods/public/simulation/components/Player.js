@@ -223,7 +223,7 @@ Player.prototype.GetResourceCounts = function()
 	return this.resourceCount;
 };
 
-Player.prototype.RemoveResourceGatherer = function(gatherer, force)
+Player.prototype.RemoveResourceGatherer = function(gatherer, force = false)
 {
 	let cmpResourceGatherer = Engine.QueryInterface(gatherer, IID_ResourceGatherer);
 	if (!cmpResourceGatherer)

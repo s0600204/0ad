@@ -43,7 +43,7 @@ Promotion.prototype.Promote = function(promotedTemplateName)
 	var cmpPromotedUnitPosition = Engine.QueryInterface(promotedUnitEntity, IID_Position);
 	if (cmpCurrentUnitPosition.IsInWorld())
 	{
-		var pos = cmpCurrentUnitPosition.GetPosition2D();
+		let pos = cmpCurrentUnitPosition.GetPosition2D();
 		cmpPromotedUnitPosition.JumpTo(pos.x, pos.y);
 	}
 	var rot = cmpCurrentUnitPosition.GetRotation();
@@ -75,15 +75,15 @@ Promotion.prototype.Promote = function(promotedTemplateName)
 		cmpPromotedUnitResourceGatherer.SetLastCarriedType(cmpCurrentUnitResourceGatherer.GetLastCarriedType());
 	}
 
-	var cmpCurrentUnitAI = Engine.QueryInterface(this.entity, IID_UnitAI);
-	var cmpPromotedUnitAI = Engine.QueryInterface(promotedUnitEntity, IID_UnitAI);
-	var pos = cmpCurrentUnitAI.GetHeldPosition();
+	let cmpCurrentUnitAI = Engine.QueryInterface(this.entity, IID_UnitAI);
+	let cmpPromotedUnitAI = Engine.QueryInterface(promotedUnitEntity, IID_UnitAI);
+	let pos = cmpCurrentUnitAI.GetHeldPosition();
 	if (pos)
 		cmpPromotedUnitAI.SetHeldPosition(pos.x, pos.z);
 	if (cmpCurrentUnitAI.GetStanceName())
 		cmpPromotedUnitAI.SwitchToStance(cmpCurrentUnitAI.GetStanceName());
 
-	var orders = cmpCurrentUnitAI.GetOrders();
+	let orders = cmpCurrentUnitAI.GetOrders();
 	if (cmpCurrentUnitAI.IsGarrisoned())
 		cmpPromotedUnitAI.SetGarrisoned();
 	if (cmpCurrentUnitPosition.IsInWorld())	// do not cheer if not visibly garrisoned
@@ -96,8 +96,9 @@ Promotion.prototype.Promote = function(promotedTemplateName)
 	{
 		let cmpPlayer = cmpPromotedUnitAI.GetOwner(promotedUnitEntity);
 		if (cmpPlayer)
-			cmpPromotedUnitAI.SetGathering( cmpPlayer.AddResourceGatherer(promotedUnitEntity,
-					cmpCurrentUnitResourceGatherer.GetLastGathered()) );
+			cmpPromotedUnitAI.SetGathering(cmpPlayer.AddResourceGatherer(
+					promotedUnitEntity, cmpCurrentUnitResourceGatherer.GetLastGathered()
+				));
 	}
 
 	var workOrders = cmpCurrentUnitAI.GetWorkOrders();

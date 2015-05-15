@@ -956,9 +956,11 @@ UnitAI.prototype.UnitFsmSpec = {
 				// TODO: Should we issue a gather-near-position order
 				// if the target isn't gatherable/doesn't exist anymore?
 				else
+				{
 					// Out of range; move there in formation
 					this.PushOrderFront("WalkToTargetRange", { "target": msg.data.target, "min": 0, "max": 10 });
 					this.SetNextState("GATHER");
+				}
 				return;
 			}
 			this.CallMemberFunction("Gather", [msg.data.target, false]);
@@ -1217,11 +1219,20 @@ UnitAI.prototype.UnitFsmSpec = {
 				if (cmpMirage && cmpMirage.ResourceSupply())
 					this.gatheringTarget = cmpMirage.parent;
 
+				let gatheringType = this.orderQueue[1].data.type;
 				let cmpOwnership = Engine.QueryInterface(this.entity, IID_Ownership);
+				let cmpPlayer = this.GetOwnerPlayer(this.entity);
 				let cmpSupply = Engine.QueryInterface(this.gatheringTarget, IID_ResourceSupply);
 				if (cmpSupply)
 					for (let memb of this.members)
+					{
 						cmpSupply.AddEnrouteGatherer(cmpOwnership.GetOwner(), memb);
+						if (cmpPlayer && cmpPlayer.AddResourceGatherer(memb, gatheringType))
+						{
+							let cmpUnitAI = Engine.QueryInterface(memb, IID_UnitAI);
+							cmpUnitAI.isGatherer = true;
+						}
+					}
 			},
 			
 			"MoveCompleted": function(msg) {
@@ -1230,12 +1241,22 @@ UnitAI.prototype.UnitFsmSpec = {
 					// remove members from the list of entities approaching the Resource.
 					let cmpOwnership = Engine.QueryInterface(this.entity, IID_Ownership);
 					let cmpSupply = Engine.QueryInterface(this.gatheringTarget, IID_ResourceSupply);
-					if (cmpSupply && cmpOwnership)
-						for (let memb of this.members)
-							cmpSupply.RemoveEnrouteGatherer(memb, cmpOwnership.GetOwner());
-					else if (cmpSupply)
-						for (let memb of this.members)
-							cmpSupply.RemoveEnrouteGatherer(memb);
+					let cmpPlayer = this.GetOwnerPlayer(this.entity);
+
+					for (let memb of this.members)
+					{
+						if (cmpSupply)
+							if (cmpOwnership)
+								cmpSupply.RemoveEnrouteGatherer(memb, cmpOwnership.GetOwner());
+							else
+								cmpSupply.RemoveEnrouteGatherer(memb);
+
+						if (cmpPlayer && cmpPlayer.RemoveResourceGatherer(memb, false))
+						{
+							let cmpUnitAI = Engine.QueryInterface(memb, IID_UnitAI);
+							cmpUnitAI.isGatherer = false;
+						}
+					}
 				}
 				this.FinishOrder();
 			},
@@ -1243,13 +1264,23 @@ UnitAI.prototype.UnitFsmSpec = {
 			"leave": function(msg) {
 				let cmpOwnership = Engine.QueryInterface(this.entity, IID_Ownership);
 				let cmpSupply = Engine.QueryInterface(this.gatheringTarget, IID_ResourceSupply);
-				if (cmpSupply)
-					if (cmpOwnership)
-						for (let memb of this.members)
+				let cmpPlayer = this.GetOwnerPlayer(this.entity);
+
+				for (let memb of this.members)
+				{
+					if (cmpSupply)
+						if (cmpOwnership)
 							cmpSupply.RemoveEnrouteGatherer(memb, cmpOwnership.GetOwner());
-					else
-						for (let memb of this.members)
+						else
 							cmpSupply.RemoveEnrouteGatherer(memb);
+
+					if (cmpPlayer && cmpPlayer.RemoveResourceGatherer(memb, false))
+					{
+						let cmpUnitAI = Engine.QueryInterface(memb, IID_UnitAI);
+						cmpUnitAI.isGatherer = false;
+					}
+				}
+
 				delete this.gatheringTarget;
 			}
 		},
@@ -2258,6 +2289,11 @@ UnitAI.prototype.UnitFsmSpec = {
 						}
 						return true;
 					}
+
+					let cmpPlayer = this.GetOwnerPlayer(this.entity);
+					if (cmpPlayer && cmpPlayer.AddResourceGatherer(this.entity, this.order.data.type))
+						this.isGatherer = true;
+
 					return false;
 				},
 
@@ -2270,11 +2306,22 @@ UnitAI.prototype.UnitFsmSpec = {
 						let cmpSupply = Engine.QueryInterface(this.gatheringTarget, IID_ResourceSupply);
 						if (cmpSupply)
 							cmpSupply.RemoveEnrouteGatherer(this.entity, cmpOwnership.GetOwner());
-						
+
+						let cmpPlayer = this.GetOwnerPlayer(this.entity);
+						if (cmpPlayer)
+							cmpPlayer.RemoveResourceGatherer(this.entity, false);
+
+						if (!this.order.data.target)
+							return;
+
 						this.gatheringTarget = this.order.data.target;
 						cmpSupply = Engine.QueryInterface(this.gatheringTarget, IID_ResourceSupply);
 						if (cmpSupply)
+						{
 							cmpSupply.AddEnrouteGatherer(cmpOwnership.GetOwner(), this.entity);
+							if (cmpPlayer)
+								cmpPlayer.AddResourceGatherer(this.entity, this.order.data.type);
+						}
 					}
 				},
 
@@ -2284,12 +2331,16 @@ UnitAI.prototype.UnitFsmSpec = {
 						// We failed to reach the target
 
 						// remove us from the list of entities gathering from Resource.
-						var cmpOwnership = Engine.QueryInterface(this.entity, IID_Ownership);
-						var cmpSupply = Engine.QueryInterface(this.gatheringTarget, IID_ResourceSupply);
+						let cmpOwnership = Engine.QueryInterface(this.entity, IID_Ownership);
+						let cmpSupply = Engine.QueryInterface(this.gatheringTarget, IID_ResourceSupply);
 						if (cmpSupply && cmpOwnership)
 							cmpSupply.RemoveEnrouteGatherer(this.entity, cmpOwnership.GetOwner());
 						else if (cmpSupply)
 							cmpSupply.RemoveEnrouteGatherer(this.entity);
+
+						let cmpPlayer = this.GetOwnerPlayer(this.entity);
+						if (cmpPlayer && cmpPlayer.RemoveResourceGatherer(this.entity, false))
+							this.isGatherer = false;
 
 						// Save the current order's data in case we need it later
 						var oldType = this.order.data.type;
@@ -2334,6 +2385,9 @@ UnitAI.prototype.UnitFsmSpec = {
 							cmpSupply.RemoveEnrouteGatherer(this.entity, cmpOwnership.GetOwner());
 						else
 							cmpSupply.RemoveEnrouteGatherer(this.entity);
+					let cmpPlayer = this.GetOwnerPlayer(this.entity);
+					if (cmpPlayer && cmpPlayer.RemoveResourceGatherer(this.entity, false))
+						this.isGatherer = false;
 					delete this.gatheringTarget;
 				},
 			},
@@ -3966,13 +4020,6 @@ UnitAI.prototype.ReplaceOrder = function(type, data)
 	{
 		this.orderQueue = [];
 		this.PushOrder(type, data);
-		
-		if (this.isGatherer)
-		{
-			var cmpPlayer = this.GetOwnerPlayer(this.entity);
-			if (cmpPlayer && cmpPlayer.RemoveResourceGatherer(this.entity, true))
-				this.isGatherer = false;
-		}
 	}
 	Engine.PostMessage(this.entity, MT_UnitAIOrderDataChanged, { "to": this.GetOrderData() });
 };
