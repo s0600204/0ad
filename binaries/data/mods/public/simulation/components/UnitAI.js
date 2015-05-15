@@ -2438,8 +2438,12 @@ UnitAI.prototype.UnitFsmSpec = {
 					// off to a different target.)
 					if (this.CheckTargetRange(this.gatheringTarget, IID_ResourceGatherer))
 					{
-						var typename = "gather_" + this.order.data.type.specific;
+						let typename = "gather_" + this.order.data.type.specific;
 						this.SelectAnimation(typename, false, 1.0, typename);
+						
+						let cmpPlayer = this.GetOwnerPlayer(this.entity);
+						if (cmpPlayer && cmpPlayer.AddResourceGatherer(this.entity, this.order.data.type))
+							this.isGatherer = true;
 					}
 					return false;
 				},
@@ -2447,7 +2451,11 @@ UnitAI.prototype.UnitFsmSpec = {
 				"leave": function() {
 					this.StopTimer();
 
-					var cmpSupply = Engine.QueryInterface(this.gatheringTarget, IID_ResourceSupply);
+					let cmpPlayer = this.GetOwnerPlayer(this.entity);
+					if (cmpPlayer && cmpPlayer.RemoveResourceGatherer(this.entity, false))
+						this.isGatherer = false;
+
+					let cmpSupply = Engine.QueryInterface(this.gatheringTarget, IID_ResourceSupply);
 					if (cmpSupply)
 						cmpSupply.RemoveGatherer(this.entity);
 					delete this.gatheringTarget;
@@ -3389,6 +3397,7 @@ UnitAI.prototype.Init = function()
 	this.formationController = INVALID_ENTITY; // entity with IID_Formation that we belong to
 	this.isGarrisoned = false;
 	this.isIdle = false;
+	this.isGatherer = false;
 	// For A19, keep no formations as a default to help pathfinding.
 	this.lastFormationTemplate = "formations/null";
 	this.finishedOrder = false; // used to find if all formation members finished the order
@@ -3487,6 +3496,16 @@ UnitAI.prototype.IsIdle = function()
 	return this.isIdle;
 };
 
+UnitAI.prototype.SetGathering = function(gathering)
+{
+	this.isGatherer = gathering;
+};
+
+UnitAI.prototype.IsGatherer = function()
+{
+	return this.isGatherer;
+};
+
 UnitAI.prototype.IsGarrisoned = function()
 {
 	return this.isGarrisoned;
@@ -3578,6 +3597,15 @@ UnitAI.prototype.OnOwnershipChanged = function(msg)
 		this.SetStance(this.template.DefaultStance);
 		if (this.IsTurret())
 			this.SetTurretStance();
+	}
+	
+	// Ensure the entity is no longer counted as gathering.
+	if (msg.from != -1 && this.isGatherer && !this.IsFormationController())
+	{
+		var cmpPlayerManager = Engine.QueryInterface(SYSTEM_ENTITY, IID_PlayerManager);
+		var cmpPlayer = Engine.QueryInterface(cmpPlayerManager.GetPlayerByID(msg.from), IID_Player);
+		if (cmpPlayer)
+			cmpPlayer.RemoveResourceGatherer(this.entity, true);
 	}
 };
 
@@ -3733,6 +3761,24 @@ UnitAI.prototype.GetCurrentState = function()
 UnitAI.prototype.FsmStateNameChanged = function(state)
 {
 	Engine.PostMessage(this.entity, MT_UnitAIStateChanged, { "to": state });
+};
+
+UnitAI.prototype.GetOwnerPlayer = function(entity)
+{
+	var cmpOwnership = Engine.QueryInterface(entity, IID_Ownership);
+	if (!cmpOwnership)
+		return undefined;
+
+	var owner = cmpOwnership.GetOwner();
+	if (owner == -1)
+		return undefined;
+
+	var cmpPlayerManager = Engine.QueryInterface(SYSTEM_ENTITY, IID_PlayerManager);
+	var cmpPlayer = Engine.QueryInterface(cmpPlayerManager.GetPlayerByID(owner), IID_Player);
+	if (!cmpPlayer)
+		return undefined;
+
+	return cmpPlayer;
 };
 
 /**
@@ -3920,6 +3966,13 @@ UnitAI.prototype.ReplaceOrder = function(type, data)
 	{
 		this.orderQueue = [];
 		this.PushOrder(type, data);
+		
+		if (this.isGatherer)
+		{
+			var cmpPlayer = this.GetOwnerPlayer(this.entity);
+			if (cmpPlayer && cmpPlayer.RemoveResourceGatherer(this.entity, true))
+				this.isGatherer = false;
+		}
 	}
 	Engine.PostMessage(this.entity, MT_UnitAIOrderDataChanged, { "to": this.GetOrderData() });
 };

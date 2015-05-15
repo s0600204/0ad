@@ -28,6 +28,7 @@ Player.prototype.Init = function()
 	this.trainingBlocked = false; // indicates whether any training queue is currently blocked
 	this.resourceCount = {};
 	this.tradingGoods = []; // goods for next trade-route and its proba in % (the sum of probas must be 100)
+	this.resourceGatherers = { "count": {} };
 	this.team = -1;	// team number of the player, players on the same team will always have ally diplomatic status - also this is useful for team emblems, scoring, etc.
 	this.teamsLocked = false;
 	this.state = "active"; // game state - one of "active", "defeated", "won"
@@ -57,6 +58,8 @@ Player.prototype.Init = function()
 		let res = resCodes[i];
 		this.resourceCount[res] = 300;
 		this.resourceNames[res] = Resources.GetResource(res).name;
+		this.resourceGatherers[res] = {};
+		this.resourceGatherers.count[res] = 0;
 		this.tradingGoods.push({
 			"goods":  res,
 			"proba": 5 * (quotient + (+i < remainder ? 1 : 0))
@@ -218,6 +221,64 @@ Player.prototype.SetResourceCounts = function(resources)
 Player.prototype.GetResourceCounts = function()
 {
 	return this.resourceCount;
+};
+
+Player.prototype.RemoveResourceGatherer = function(gatherer, force)
+{
+	let cmpResourceGatherer = Engine.QueryInterface(gatherer, IID_ResourceGatherer);
+	if (!cmpResourceGatherer)
+		return false;
+
+	let resource = cmpResourceGatherer.GetLastGathered();
+	if (!resource)
+		return false;
+
+	let cmpUnitAI = Engine.QueryInterface(gatherer, IID_UnitAI);
+	let orders = cmpUnitAI.GetOrders();
+
+	let gatheredResource = undefined;
+	for (let j = 0; j < orders.length; ++j)
+	{
+		let order = orders[j];
+		if (order.type == "Gather" && !order.data.force)
+			gatheredResource = order.data.type.generic;
+	}
+
+	// Prune entities if they're no longer gathering or gathering a different resource.
+	if (!gatheredResource || gatheredResource != resource.generic || force)
+	{
+		cmpResourceGatherer.SetLastGathered(undefined);
+		let resourceType = (resource.generic == "treasure") ? resource.specific : resource.generic;
+		delete this.resourceGatherers[resourceType][gatherer];
+		this.resourceGatherers.count[resourceType]--;
+		return true;
+	}
+
+	return false;
+};
+
+Player.prototype.GetResourceGatherers = function()
+{
+	return this.resourceGatherers;
+};
+
+Player.prototype.AddResourceGatherer = function(gatherer, type)
+{
+	// We want to add units that are gathering a new resource.
+	let cmpResourceGatherer = Engine.QueryInterface(gatherer, IID_ResourceGatherer);
+	if (cmpResourceGatherer)
+	{
+		let lastGathered = cmpResourceGatherer.GetLastGathered();
+		if (!lastGathered || lastGathered.generic != type.generic)
+		{
+			cmpResourceGatherer.SetLastGathered(type);
+			let resourceType = (type.generic == "treasure") ? type.specific : type.generic;
+			this.resourceGatherers[resourceType][gatherer] = true;
+			this.resourceGatherers.count[resourceType]++;
+			return true;
+		}
+	}
+	return false;
 };
 
 /**

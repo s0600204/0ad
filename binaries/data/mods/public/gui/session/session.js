@@ -1104,11 +1104,12 @@ function getAllyStatTooltip(resource)
 		       playersState[g_ViewedPlayer].hasSharedLos &&
 		       g_Players[player].isMutualAlly[g_ViewedPlayer]))
 		{
-			ret += "\n" + sprintf(translate("%(playername)s: %(statValue)s"),{
+			ret += "\n" + sprintf(translate("%(playername)s: %(statValue)s (%(gathererCount)s gatherers)"),{
 				"playername": colorizePlayernameHelper("■", player) + " " + g_Players[player].name,
 				"statValue": resource == "pop" ?
 					sprintf(translate("%(popCount)s/%(popLimit)s/%(popMax)s"), playersState[player]) :
-					Math.round(playersState[player].resourceCounts[resource])
+					Math.round(playersState[player].resourceCounts[resource]),
+				"gathererCount": playersState[player].resourceGatherers.count[resource]
 			});
 		}
 	}
@@ -1129,7 +1130,11 @@ function updatePlayerDisplay()
 		if (!Engine.GetGUIObjectByName("resource["+r+"]"))
 			break;
 		let res = resCodes[r];
-		Engine.GetGUIObjectByName("resource["+r+"]").tooltip = getLocalizedResourceName(resNames[res], "firstWord") + getAllyStatTooltip(res);
+		Engine.GetGUIObjectByName("resource["+r+"]").tooltip = sprintf(translate("%(resourceName)s (%(gathererCount)s gatherers)%(allyTooltip)s"), {
+			"resourceName": getLocalizedResourceName(resNames[res], "firstWord"),
+			"gathererCount": playerState.resourceGatherers.count[res],
+			"allyTooltip": getAllyStatTooltip(res)
+		});
 		Engine.GetGUIObjectByName("resource["+r+"]_count").caption = Math.floor(playerState.resourceCounts[res]);
 	}
 

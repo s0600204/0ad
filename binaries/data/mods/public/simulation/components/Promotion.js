@@ -66,12 +66,13 @@ Promotion.prototype.Promote = function(promotedTemplateName)
 	if (cmpPromotedUnitPromotion)
 		cmpPromotedUnitPromotion.IncreaseXp(this.currentXp);
 
-	var cmpCurrentUnitResourceGatherer = Engine.QueryInterface(this.entity, IID_ResourceGatherer);
-	var cmpPromotedUnitResourceGatherer = Engine.QueryInterface(promotedUnitEntity, IID_ResourceGatherer);
+	let cmpCurrentUnitResourceGatherer = Engine.QueryInterface(this.entity, IID_ResourceGatherer);
+	let cmpPromotedUnitResourceGatherer = Engine.QueryInterface(promotedUnitEntity, IID_ResourceGatherer);
 	if (cmpCurrentUnitResourceGatherer && cmpPromotedUnitResourceGatherer)
 	{
-		var carriedResorces = cmpCurrentUnitResourceGatherer.GetCarryingStatus();
-		cmpPromotedUnitResourceGatherer.GiveResources(carriedResorces);
+		let carriedResources = cmpCurrentUnitResourceGatherer.GetCarryingStatus();
+		cmpPromotedUnitResourceGatherer.GiveResources(carriedResources);
+		cmpPromotedUnitResourceGatherer.SetLastCarriedType(cmpCurrentUnitResourceGatherer.GetLastCarriedType());
 	}
 
 	var cmpCurrentUnitAI = Engine.QueryInterface(this.entity, IID_UnitAI);
@@ -88,6 +89,16 @@ Promotion.prototype.Promote = function(promotedTemplateName)
 	if (cmpCurrentUnitPosition.IsInWorld())	// do not cheer if not visibly garrisoned
 		cmpPromotedUnitAI.Cheer();
 	cmpPromotedUnitAI.AddOrders(orders);
+
+	// Add the promoted entity to the gatherer counter if necessary. The
+	// old entity will be removed from the counter upon its destruction.
+	if (cmpCurrentUnitAI.IsGatherer() && cmpCurrentUnitResourceGatherer && cmpPromotedUnitResourceGatherer)
+	{
+		let cmpPlayer = cmpPromotedUnitAI.GetOwner(promotedUnitEntity);
+		if (cmpPlayer)
+			cmpPromotedUnitAI.SetGathering( cmpPlayer.AddResourceGatherer(promotedUnitEntity,
+					cmpCurrentUnitResourceGatherer.GetLastGathered()) );
+	}
 
 	var workOrders = cmpCurrentUnitAI.GetWorkOrders();
 	cmpPromotedUnitAI.SetWorkOrders(workOrders);

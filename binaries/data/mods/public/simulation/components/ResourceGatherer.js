@@ -40,6 +40,7 @@ ResourceGatherer.prototype.Init = function()
 
 	// The last exact type gathered, so we can render appropriate props
 	this.lastCarriedType = undefined; // { generic, specific }
+	this.lastGathered = undefined;
 
 	this.RecalculateGatherRatesAndCapacities();
 };
@@ -64,7 +65,7 @@ ResourceGatherer.prototype.GetCarryingStatus = function()
 
 /**
  * Used to instantly give resources to unit
- * @param resources The same structure as returned form GetCarryingStatus
+ * @param resources The same structure as returned from GetCarryingStatus
  */
 ResourceGatherer.prototype.GiveResources = function(resources)
 {
@@ -101,6 +102,29 @@ ResourceGatherer.prototype.GetLastCarriedType = function()
 	else
 		return undefined;
 };
+
+ResourceGatherer.prototype.SetLastCarriedType = function(type)
+{
+	this.lastCarriedType = type;
+};
+
+/**
+ * Gets the type of the last resource that was gathered. Unlike
+ * lastCarriedType, this is updated as soon as a unit initiates
+ * gathering, not when it completes its first full action.
+ */
+ResourceGatherer.prototype.GetLastGathered = function()
+{
+	if (this.lastGathered)
+		return this.lastGathered;
+	else
+		return undefined;
+}
+
+ResourceGatherer.prototype.SetLastGathered = function(type)
+{
+	this.lastGathered = type;
+}
 
 // Since this code is very performancecritical and applying technologies quite slow, cache it.
 ResourceGatherer.prototype.RecalculateGatherRatesAndCapacities = function()
