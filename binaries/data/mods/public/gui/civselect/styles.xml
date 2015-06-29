@@ -3,10 +3,9 @@
 <styles>
 	
 	<style name="EmblemButton"
-		sprite="EmblemDefault"
-		sprite_disabled="EmblemDisable"
-		sprite_over="EmblemOver"
-		sprite_pressed="EmblemPress"
+		sprite=""
+		sprite_over="CivIconOver"
+		sprite_pressed="CivIconPress"
 		size="0 0 100% 100%"
 		sound_pressed="audio/interface/ui/ui_button_click.ogg"
 	/>
