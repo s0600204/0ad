@@ -1,35 +1,35 @@
 
 /**
- * Horizontally spaces objects repeated with the `<repeat>` tag
+ * Arranges same-size `<repeat>`d objects in a grid. Automatically scales to object size.
  * @param basename The base name of the object, such as "object[n]" or "object[a]_sub[b]"
  * @param splitvar The var identifying the repeat count, without the square brackets
- * @param limit The number of the objects
- * @param margin The gap, in px, between the repeated objects
+ * @param vMargin The gap, in px, between the rows
+ * @param limit Array of limits, of the form `[ {from}, {to} ]`. If an empty array, then it will do all objects matching the basname
+ * @param vOffset initial offset, perhaps?
+ * @return The height difference between the top of the first element and the bottom of the last.
  */
-function horizSpaceRepeatedObjects (basename, splitvar, limit, margin)
+function gridArrayRepeatedObjects (basename, splitvar="n", vMargin=0, limit=[], vOffset=0)
 {
 	basename = basename.split("["+splitvar+"]", 2);
-	for (let c = 0; c < limit; ++c)
-	{
-		let objObj = Engine.GetGUIObjectByName(basename.join("["+c+"]"));
-		let objSize = objObj.size;
-		let objWidth = objSize.right - objSize.left;
-		objSize.left = c * (objWidth + margin) + margin;
-		objSize.right = (c+1) * (objWidth + margin);
-		objObj.size = objSize;
-	}
-}
 
-function gridArrayRepeatedObjects (basename, splitvar, limit, vMargin, vOffset = 0)
-{
-	if (typeof limit === "number")
-		limit = [0, (limit-1), limit];
+	if (limit.length == 0)
+	{
+		limit = [0, 0, 1];
+		while (Engine.GetGUIObjectByName(basename.join("["+ (limit[1]+1) +"]")))
+		{
+			++limit[1];
+			++limit[2];
+		}
+	}
+	else if (limit.length < 2)
+	{
+		error("Invalid limit arguments");
+		return 0;
+	}
 	else
 		limit[2] = limit[1] - limit[0] + 1;
 	
-	basename = basename.split("["+splitvar+"]", 2);
 	var firstObj = Engine.GetGUIObjectByName(basename.join("["+limit[0]+"]"));
-	
 	var child = firstObj.getComputedSize();
 	child.width = child.right - child.left;
 	child.height = child.bottom - child.top;

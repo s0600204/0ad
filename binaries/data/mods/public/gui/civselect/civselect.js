@@ -8,8 +8,6 @@ var g_selected = {
 	"code": "athen"
 };
 var g_groupChoice = "none";
-var g_groupLimit = 8;
-var g_emblemLimit = 32;
 
 /**
  * Run when UI Page loaded.
@@ -17,7 +15,7 @@ var g_emblemLimit = 32;
 function init (settings)
 {
 //	warn(uneval(settings));
-	
+
 	// Cache civ data
 	g_CivData = loadCivData(true);
 	
@@ -73,10 +71,17 @@ function draw_grouped (group)
 		g_CivData[civ].embs = [];
 	for (let code in grouping)
 	{
-		if (emb >= g_emblemLimit)
-			continue;
-		
+		// Pre-emptive check to make sure we have at least one emblem left
+		if (!Engine.GetGUIObjectByName("emblem["+emb+"]"))
+			break;
+
 		let grpObj = Engine.GetGUIObjectByName("civGroup["+grp+"]");
+		if (grpObj === undefined)
+		{
+			error("There are more grouping choices available than can be supported by the current GUI layout");
+			break;
+		}
+
 		let grpSize = grpObj.size;
 		grpSize.top = vOffset;
 		grpObj.size = grpSize;
@@ -91,18 +96,18 @@ function draw_grouped (group)
 		setBtnFunc(grpBtn, selectGroup, [ code ]);
 		grpBtn.hidden = (code === "groupless") ? true : false;
 		let range = [ emb ];
-		
+
 		for (let civ of grouping[code].civlist)
 		{
-			if (emb >= g_emblemLimit)
+			let embImg = Engine.GetGUIObjectByName("emblem["+emb+"]_img");
+			if (embImg === undefined)
 			{
-				error("Reached maximum limit of emblem objects.");
-				continue;
+				error("There are not enough images in the current GUI layout to support that many civs");
+				break;
 			}
 			g_CivData[civ].embs.push(emb);
 			g_GroupingData[g_groupChoice][code].embs.push(emb);
-			
-			let embImg = Engine.GetGUIObjectByName("emblem["+emb+"]_img");
+
 			embImg.sprite = "stretched:";
 			if (civ !== g_selected.code && code !== g_selected.code)
 				embImg.sprite += "grayscale:";
@@ -114,27 +119,31 @@ function draw_grouped (group)
 			emb++;
 		}
 		range[1] = emb - 1;
-		
+
 		vOffset += grpHeading.size.bottom + 2;
-		vOffset += gridArrayRepeatedObjects("emblem[emb]", "emb", range, 4, vOffset);
+		vOffset += gridArrayRepeatedObjects("emblem[emb]", "emb", 4, range, vOffset);
 		vOffset += 8;
 		grp++;
 	}
-	for (emb; emb < g_emblemLimit; ++emb)
-		Engine.GetGUIObjectByName("emblem["+emb+"]").hidden = true;
-	for (grp; grp < g_groupLimit; ++grp)
-		Engine.GetGUIObjectByName("civGroup["+grp+"]").hidden = true;
+	hideRemaining("emblem[", emb, "]");
+	hideRemaining("civGroup[", grp, "]");
 }
 
 function draw_ungrouped ()
 {
-	gridArrayRepeatedObjects("emblem[emb]", "emb", 16, 8);
+	gridArrayRepeatedObjects("emblem[emb]", "emb", 8);
 	var emb = 0;
 	for (let civ in g_CivData)
 	{	
 		g_CivData[civ].embs = [ emb ];
 		
 		let embImg = Engine.GetGUIObjectByName("emblem["+emb+"]_img");
+		if (embImg === undefined)
+		{
+			error("There are not enough images in the current GUI layout to support that many civs");
+			break;
+		}
+
 		embImg.sprite = "stretched:";
 		if (civ !== g_selected.code)
 			embImg.sprite += "grayscale:";
@@ -145,11 +154,8 @@ function draw_ungrouped ()
 		Engine.GetGUIObjectByName("emblem["+emb+"]").hidden = false;
 		emb++;
 	}
-	for (emb; emb < g_emblemLimit; ++emb)
-		Engine.GetGUIObjectByName("emblem["+emb+"]").hidden = true;
-	for (let grp = 0; grp < g_groupLimit; ++grp)
-		Engine.GetGUIObjectByName("civGroup["+grp+"]").hidden = true;
-	
+	hideRemaining("emblem[", emb, "]");
+	hideRemaining("civGroup[", 0, "]");
 }
 
 function selectCiv (code)

@@ -3,6 +3,7 @@
 <objects>
 	<script file="gui/common/functions_civinfo.js"/>
 	<script file="gui/common/functions_global_object.js"/>
+	<script file="gui/common/functions_repeat_positioning.js"/>
 	<script file="gui/common/functions_utility.js"/>
 	<script file="gui/civselect/helpers.js"/>
 	<script file="gui/civselect/civselect.js"/>
@@ -46,7 +47,7 @@
 					</object>
 				</repeat>
 				
-				<repeat count="8" var="g">
+				<repeat count="12" var="g">
 					<object size="8 8 100%-8 24+72+16" name="civGroup[g]">
 						<object
 							name="civGroup[g]_heading"
