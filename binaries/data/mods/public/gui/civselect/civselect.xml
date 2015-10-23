@@ -27,18 +27,18 @@
 					font="sans-bold-16"
 					textcolor="white"
 					text_align="right"
-					size="0 2 100%-164 32">
+					size="0 2 100%-196 32">
 					<translatableAttribute id="caption">Group by:</translatableAttribute>
 				</object>
 	
-				<object name="groupSelection" type="dropdown" style="ModernDropDown" size="100%-160 0 100% 26">
+				<object name="groupSelection" type="dropdown" style="ModernDropDown" size="100%-192 0 100% 26">
 					<translatableAttribute id="tooltip">Choose how to group civs</translatableAttribute>
 					<action on="SelectionChange">chooseGrouping(this.list_data[this.selected]);</action>
 				</object>
 			</object>
 			
 			<!-- draw space -->
-			<object sprite="ModernDarkBoxGold" type="image" size="0 40 100% 100%">
+			<object type="image" size="0 40 100% 100%">
 				
 				<repeat count="32" var="em">
 					<object name="emblem[em]" size="4 8 4+64 8+64">
@@ -58,12 +58,6 @@
 							size="2 0 50% 24">
 							<translatableAttribute id="caption">A group:</translatableAttribute>
 						</object>
-						<object name="civGroup[g]_btn"
-							type="button"
-							sprite="iconInfoGold"
-							sprite_over="iconInfoWhite"
-							size="100%-16-8 0 100%-8 16"
-						/>
 						<object sprite="ModernGoldLine" type="image" size="0 24 100% 25" />
 					</object>
 				</repeat>

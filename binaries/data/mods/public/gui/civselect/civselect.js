@@ -8,6 +8,8 @@ var g_selected = {
 	"code": "athen"
 };
 var g_groupChoice = "none";
+var g_margin = 8;
+var g_headEmbSize = 80;
 
 /**
  * Run when UI Page loaded.
@@ -64,7 +66,7 @@ function draw_grouped (group)
 {
 	var grp = 0;
 	var emb = 0;
-	var vOffset = 8;
+	var vOffset = 0;
 	g_groupChoice = group;
 	var grouping = g_GroupingData[group];
 	for (let civ in g_CivData)
@@ -84,6 +86,7 @@ function draw_grouped (group)
 
 		let grpSize = grpObj.size;
 		grpSize.top = vOffset;
+		grpSize.left = (code === "groupless") ? g_margin : g_headEmbSize-g_margin;
 		grpObj.size = grpSize;
 		grpObj.hidden = false;
 		
@@ -91,10 +94,25 @@ function draw_grouped (group)
 		
 		let grpHeading = Engine.GetGUIObjectByName("civGroup["+grp+"]_heading");
 		grpHeading.caption = grouping[code].Name;
-		
-		let grpBtn = Engine.GetGUIObjectByName("civGroup["+grp+"]_btn");
-		setBtnFunc(grpBtn, selectGroup, [ code ]);
-		grpBtn.hidden = (code === "groupless") ? true : false;
+
+		if (code !== "groupless")
+		{
+			let grpBtn = Engine.GetGUIObjectByName("emblem["+emb+"]_btn");
+			setBtnFunc(grpBtn, selectGroup, [ code ]);
+			setEmbPos("emblem["+emb+"]", 0, vOffset+g_margin);
+			setEmbSize("emblem["+emb+"]", g_headEmbSize);
+			
+			let sprite = (code!==g_selected.code) ? "grayscale:" : "";
+			if (grouping[code].Emblem)
+				sprite += grouping[code].Emblem;
+			else
+				sprite += g_CivData[grouping[code].civlist[0]].Emblem;
+			Engine.GetGUIObjectByName("emblem["+emb+"]_img").sprite = "stretched:"+sprite;
+			Engine.GetGUIObjectByName("emblem["+emb+"]").hidden = false;
+			g_GroupingData[g_groupChoice][code].embs.push(emb);
+			++emb;
+		}
+
 		let range = [ emb ];
 
 		for (let civ of grouping[code].civlist)
@@ -120,9 +138,10 @@ function draw_grouped (group)
 		}
 		range[1] = emb - 1;
 
+		setEmbSize("emblem["+range[0]+"]", 58);
 		vOffset += grpHeading.size.bottom + 2;
-		vOffset += gridArrayRepeatedObjects("emblem[emb]", "emb", 4, range, vOffset);
-		vOffset += 8;
+		vOffset += gridArrayRepeatedObjects("emblem[emb]", "emb", 4, range, vOffset, ((code==="groupless")?g_margin:g_headEmbSize));
+		vOffset += g_margin * 2;
 		grp++;
 	}
 	hideRemaining("emblem[", emb, "]");
@@ -131,6 +150,7 @@ function draw_grouped (group)
 
 function draw_ungrouped ()
 {
+	setEmbSize("emblem[0]");
 	gridArrayRepeatedObjects("emblem[emb]", "emb", 8);
 	var emb = 0;
 	for (let civ in g_CivData)
@@ -219,7 +239,10 @@ function highlightEmblems (embs = [], gray = false)
 {
 	if (!gray)
 		if (g_selected.isGroup)
-			highlightEmblems(g_GroupingData[g_groupChoice][g_selected.code].embs, true);
+		{
+			if (g_GroupingData[g_groupChoice][g_selected.code])
+				highlightEmblems(g_GroupingData[g_groupChoice][g_selected.code].embs, true);
+		}
 		else
 			highlightEmblems(g_CivData[g_selected.code].embs, true);
 	

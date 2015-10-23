@@ -2,5 +2,6 @@
 	"Name" : "Asia",
 	"Code" : "asia",
 	"History" : "-",
-	"Singular" : "Asian"
+	"Singular" : "Asian",
+	"Emblem" : "session/portraits/emblems/grouping/region_asia.png"
 }

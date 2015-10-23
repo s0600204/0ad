@@ -5,10 +5,10 @@
  * @param splitvar The var identifying the repeat count, without the square brackets
  * @param vMargin The gap, in px, between the rows
  * @param limit Array of limits, of the form `[ {from}, {to} ]`. If an empty array, then it will do all objects matching the basname
- * @param vOffset initial offset, perhaps?
+ * @param vOffset Vertical offset from top of parent object to start drawing from
  * @return The height difference between the top of the first element and the bottom of the last.
  */
-function gridArrayRepeatedObjects (basename, splitvar="n", vMargin=0, limit=[], vOffset=0)
+function gridArrayRepeatedObjects (basename, splitvar="n", vMargin=0, limit=[], vOffset=0, hOffset=0)
 {
 	basename = basename.split("["+splitvar+"]", 2);
 
@@ -35,7 +35,7 @@ function gridArrayRepeatedObjects (basename, splitvar="n", vMargin=0, limit=[], 
 	child.height = child.bottom - child.top;
 	
 	var parent = firstObj.parent.getComputedSize();
-	parent.width = parent.right - parent.left;
+	parent.width = parent.right - parent.left - hOffset;
 	
 	var rowLength = Math.floor(parent.width / child.width);
 	
@@ -51,8 +51,8 @@ function gridArrayRepeatedObjects (basename, splitvar="n", vMargin=0, limit=[], 
 		for (let c = 0; c < rowLength; ++c)
 		{
 			let newSize = new GUISize();
-			newSize.left = c * child.width + hMargin;
-			newSize.right = (c+1) * child.width;
+			newSize.left = c * child.width + hMargin + hOffset;
+			newSize.right = (c+1) * child.width + hOffset;
 			newSize.top = r * child.height + vMargin + vOffset;
 			newSize.bottom = (r+1) * child.height + vOffset;
 			Engine.GetGUIObjectByName(basename.join("["+ i++ +"]")).size = newSize;
@@ -110,4 +110,22 @@ function loadGroupingSchema (folder, attr)
 			"civlist": groupless
 		};
 	return groupData;
+}
+
+function setEmbSize (objectName, length=128)
+{
+	var objSize = Engine.GetGUIObjectByName(objectName).size;
+	objSize.right = objSize.left + length;
+	objSize.bottom = objSize.top + length;
+	Engine.GetGUIObjectByName(objectName).size = objSize;
+}
+
+function setEmbPos (objectName, x=0, y=0)
+{
+	var objSize = Engine.GetGUIObjectByName(objectName).size;
+	var wid = objSize.right - objSize.left;
+	objSize.left = x;
+	objSize.top = y;
+	Engine.GetGUIObjectByName(objectName).size = objSize;
+	setEmbSize(objectName, wid);
 }

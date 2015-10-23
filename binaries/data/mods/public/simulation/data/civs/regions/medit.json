@@ -2,5 +2,6 @@
 	"Name" : "The Mediterranean",
 	"Code" : "medit",
 	"History" : "-",
-	"Singular" : "Mediterranean"
+	"Singular" : "Mediterranean",
+	"Emblem" : "session/portraits/emblems/grouping/region_medi.png"
 }
