@@ -142,9 +142,14 @@ const g_VictoryColor = "orange";
 const g_RandomMap = '[color="' + g_ColorRandom + '"]' + translateWithContext("map type", "Random") + "[/color]";
 
 /**
- * Placeholder item for the civ-dropdownlists.
+ * Style for the random civ strings
  */
-const g_RandomCiv = '[color="' + g_ColorRandom + '"]' + translateWithContext("civilization", "Random") + '[/color]';
+const g_RandomCivStyle = ['[color="' + g_ColorRandom + '"]', '[/color]'];
+
+/**
+ * 
+ */
+var g_RandomCivObj = {};
 
 /**
  * Whether this is a single- or multiplayer match.
@@ -255,7 +260,16 @@ function init(attribs)
 	g_DefaultPlayerData = g_Settings.PlayerDefaults;
 	g_DefaultPlayerData.shift();
 	for (let i in g_DefaultPlayerData)
-		g_DefaultPlayerData[i].Civ = "random";
+		g_DefaultPlayerData[i].CivObj = {
+			"codes": [ g_DefaultPlayerData[i].Civ ],
+			"grouped": false
+		};
+
+	g_RandomCivObj = {
+			"codes": Object.keys(g_CivData).filter(civ => g_CivData[civ].SelectableInGameSetup),
+			"grouped": true,
+			"group": { "type": "none", "code": "all", "caption": "All" }
+		};
 
 	setTimeout(displayGamestateNotifications, 1000);
 }
@@ -267,7 +281,6 @@ function initGUIObjects()
 {
 	Engine.GetGUIObjectByName("cancelGame").tooltip = Engine.HasXmppClient() ? translate("Return to the lobby.") : translate("Return to the main menu.");
 
-	initCivNameList();
 	initMapTypes();
 	initMapFilters();
 
@@ -525,7 +538,6 @@ function hideControls()
 	for (let i = 0; i < g_MaxPlayers; ++i)
 	{
 		Engine.GetGUIObjectByName("playerAssignment["+i+"]").hidden = true;
-		Engine.GetGUIObjectByName("playerCiv["+i+"]").hidden = true;
 		Engine.GetGUIObjectByName("playerTeam["+i+"]").hidden = true;
 	}
 
@@ -611,13 +623,6 @@ function initPlayerAssignments()
 		colorPicker.list_data = g_PlayerColors.map((color, index) => index);
 		colorPicker.selected = -1;
 		colorPicker.onSelectionChange = function() { selectPlayerColor(playerSlot, this.selected); };
-
-		Engine.GetGUIObjectByName("playerCiv["+i+"]").onSelectionChange = function() {
-			if ((this.selected != -1)&&(g_GameAttributes.mapType !== "scenario"))
-				g_GameAttributes.settings.PlayerData[playerSlot].Civ = this.list_data[this.selected];
-
-			updateGameAttributes();
-		};
 	}
 }
 
@@ -791,28 +796,10 @@ function getSetting(settings, defaults, property)
 	return undefined;
 }
 
-/**
- * Initialize the dropdowns containing all selectable civs (including random).
- */
-function initCivNameList()
-{
-	let civList = Object.keys(g_CivData).filter(civ => g_CivData[civ].SelectableInGameSetup).map(civ => ({ "name": g_CivData[civ].Name, "code": civ })).sort(sortNameIgnoreCase);
-	let civListNames = [g_RandomCiv].concat(civList.map(civ => civ.name));
-	let civListCodes = ["random"].concat(civList.map(civ => civ.code));
-
-	for (let i = 0; i < g_MaxPlayers; ++i)
-	{
-		let civ = Engine.GetGUIObjectByName("playerCiv["+i+"]");
-		civ.list = civListNames;
-		civ.list_data = civListCodes;
-		civ.selected = 0;
-	}
-}
-
 function setCiv(args)
 {
-	var obj = Engine.GetGUIObjectByName("playerCiv["+args.player+"]");
-	obj.selected = obj.list_data.indexOf(args.civ);
+	g_GameAttributes.settings.PlayerData[args.player].CivObj = args.civ;
+	updateGameAttributes();
 }
 
 /**
@@ -908,12 +895,17 @@ function loadPersistMatchSettings()
 	if (!g_IsNetworked)
 		mapSettings.CheatsEnabled = true;
 
-	// Replace unselectable civs with random civ
+	// Filter out unselectable civs
 	let playerData = mapSettings.PlayerData;
 	if (playerData && g_GameAttributes.mapType != "scenario")
 		for (let i in playerData)
-			if (!g_CivData[playerData[i].Civ] || !g_CivData[playerData[i].Civ].SelectableInGameSetup)
-				playerData[i].Civ = "random";
+		{
+			if (!playerData[i].CivObj)
+				continue;
+			playerData[i].CivObj.codes = playerData[i].CivObj.codes.filter((code) => {return g_CivData[code] && g_CivData[code].SelectableInGameSetup});
+			if (playerData[i].CivObj.codes.length === 0)
+				playerData[i].CivObj = g_RandomCivObj;
+		}
 
 	// Apply map settings
 	let newMapData = loadMapData(mapName);
@@ -952,7 +944,7 @@ function sanitizePlayerData(playerData)
 
 	playerData.forEach((pData, index) => {
 		pData.Color = pData.Color || g_PlayerColors[index];
-		pData.Civ = pData.Civ || "random";
+		pData.CivObj = pData.CivObj ? pData.CivObj : (pData.Civ && pData.Civ !== "random" ? { "codes": [ pData.Civ ], "grouped": false } : g_RandomCivObj)
 		pData.AI = pData.AI || "";
 	});
 
@@ -1231,21 +1223,14 @@ function launchGame()
 
 	g_GameAttributes.settings.mapType = g_GameAttributes.mapType;
 
-	// Get a unique array of selectable cultures
-	let cultures = Object.keys(g_CivData).filter(civ => g_CivData[civ].SelectableInGameSetup).map(civ => g_CivData[civ].Culture);
-	cultures = cultures.filter((culture, index) => cultures.indexOf(culture) === index);
-
-	// Determine random civs and botnames
+	// Determine civs and botnames
 	for (let i in g_GameAttributes.settings.PlayerData)
 	{
-		// Pick a random civ of a random culture
-		let chosenCiv = g_GameAttributes.settings.PlayerData[i].Civ || "random";
-		if (chosenCiv == "random")
-		{
-			let culture = cultures[Math.floor(Math.random() * cultures.length)];
-			let civs = Object.keys(g_CivData).filter(civ => g_CivData[civ].Culture == culture);
+		// Determine civ
+		let civs = g_GameAttributes.settings.PlayerData[i].CivObj.codes;
+		let chosenCiv = civs[0];
+		if (civs.length > 1)
 			chosenCiv = civs[Math.floor(Math.random() * civs.length)];
-		}
 		g_GameAttributes.settings.PlayerData[i].Civ = chosenCiv;
 
 		// Pick one of the available botnames for the chosen civ
@@ -1405,7 +1390,6 @@ function updateGUIObjects()
 		let pName = Engine.GetGUIObjectByName("playerName["+i+"]");
 		let pAssignment = Engine.GetGUIObjectByName("playerAssignment["+i+"]");
 		let pAssignmentText = Engine.GetGUIObjectByName("playerAssignmentText["+i+"]");
-		let pCiv = Engine.GetGUIObjectByName("playerCiv["+i+"]");
 		let pCivText = Engine.GetGUIObjectByName("playerCivText["+i+"]");
 		let pCivButton = Engine.GetGUIObjectByName("playerCivButton["+i+"]");
 		let pTeam = Engine.GetGUIObjectByName("playerTeam["+i+"]");
@@ -1422,18 +1406,26 @@ function updateGUIObjects()
 
 		let team = getSetting(pData, pDefs, "Team");
 		let civ = getSetting(pData, pDefs, "Civ");
+		let civObj = getSetting(pData, pDefs, "CivObj");
 
 		pAssignmentText.caption = pAssignment.list[0] ? pAssignment.list[Math.max(0, pAssignment.selected)] : translate("Loading...");
-		pCivText.caption = civ == "random" ? g_RandomCiv : (g_CivData[civ] ? g_CivData[civ].Name : "Unknown");
-		pTeamText.caption = (team !== undefined && team >= 0) ? team+1 : "-";
 
-		pCiv.selected = civ ? pCiv.list_data.indexOf(civ) : 0;
+		if (civObj)
+		{
+			if (civObj.grouped)
+				pCivText.caption = g_RandomCivStyle[0]+"Random "+civObj.group.caption+g_RandomCivStyle[1];
+			else if (civObj.codes.length > 1)
+				pCivText.caption = g_RandomCivStyle[0]+"Arbitrary Selection"+g_RandomCivStyle[1];
+			else
+				pCivText.caption = (g_CivData[civObj.codes[0]] ? g_CivData[civObj.codes[0]].Name : "Unknown");
+		}
+
+		pTeamText.caption = (team !== undefined && team >= 0) ? team+1 : "-";
 		pTeam.selected = team !== undefined && team >= 0 ? team+1 : 0;
 
 		hideControl("playerAssignment["+i+"]", "playerAssignmentText["+i+"]", g_IsController);
-		hideControl("playerCiv["+i+"]", "playerCivText["+i+"]", notScenario);
-		hideControl("playerCivButton["+i+"]", "playerCivText["+i+"]", notScenario);
 		hideControl("playerTeam["+i+"]", "playerTeamText["+i+"]", notScenario);
+		Engine.GetGUIObjectByName("playerCivButton["+i+"]").hidden = !notScenario;
 
 		// Allow host to chose player colors on non-scenario maps
 		let pColorPicker = Engine.GetGUIObjectByName("playerColorPicker["+i+"]");
@@ -1735,8 +1727,8 @@ function swapPlayers(guid, newSlot)
 		// Swap civilizations if they aren't fixed
 		if (g_GameAttributes.mapType != "scenario")
 		{
-			[g_GameAttributes.settings.PlayerData[playerID - 1].Civ, g_GameAttributes.settings.PlayerData[newSlot].Civ] =
-				[g_GameAttributes.settings.PlayerData[newSlot].Civ, g_GameAttributes.settings.PlayerData[playerID - 1].Civ];
+			[g_GameAttributes.settings.PlayerData[playerID - 1].CivObj, g_GameAttributes.settings.PlayerData[newSlot].CivObj] =
+				[g_GameAttributes.settings.PlayerData[newSlot].CivObj, g_GameAttributes.settings.PlayerData[playerID - 1].CivObj];
 		}
 	}
 
@@ -1746,6 +1738,7 @@ function swapPlayers(guid, newSlot)
 		g_PlayerAssignments[guid].player = newPlayerID;
 
 	g_GameAttributes.settings.PlayerData[newSlot].AI = "";
+	updateGameAttributes();
 }
 
 function submitChatInput()

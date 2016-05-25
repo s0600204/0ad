@@ -63,6 +63,25 @@
 				</repeat>
 				
 			</object>
+
+			<object
+				size="100%-96 100%-24 100% 100%"
+				name="allUngrouped"
+			>
+				<object
+					type="checkbox"
+					style="ModernTickBox"
+					name="allUngrouped_check"
+				>
+					<action on="Press">selectAllCivs();</action>
+				</object>
+				<object
+					type="text"
+					textcolor="white"
+					size="24 0 100% 16"
+				>Select All</object>
+			</object>
+
 		</object>
 
 		<object sprite="ModernDarkBoxGold" type="image" size="70%+8 32 100%-16 100%-70">

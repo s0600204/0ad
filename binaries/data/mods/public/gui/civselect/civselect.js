@@ -16,20 +16,21 @@ var g_headEmbSize = 80;
  */
 function init (settings)
 {
-//	warn(uneval(settings));
-
 	// Cache civ data
 	g_CivData = loadCivData(true);
-	
+
 	g_player = settings.player;
-	if (settings.current !== "random" && Object.keys(g_CivData).indexOf(settings.current) > -1)
-		g_selected.code = settings.current;
-	else
+
+	// If no civ passed, choose one at random
+	if (!settings.civ)
 	{
-		var num = Math.floor(Math.random() * Object.keys(g_CivData).length);
-		g_selected.code = Object.keys(g_CivData)[num];
+		let num = Math.floor(Math.random() * Object.keys(g_CivData).length);
+		settings.civ = {
+			"codes": [ Object.keys(g_CivData)[num] ],
+			"grouped": false
+		};
 	}
-	
+
 	// Cache grouping data and create list
 	var grpList = [ "Ungrouped" ];
 	var grpList_data = [ "nogroup" ];
@@ -38,24 +39,46 @@ function init (settings)
 		let data = Engine.ReadJSONFile(grp);
 		if (!data)
 			continue;
-		
+
 		translateObjectKeys(data, [ "ListEntry" ]);
 		g_GroupingData[data.Code] = loadGroupingSchema(data.Folder, data.CivAttribute);
 		grpList.push(data.ListEntry);
 		grpList_data.push(data.Code);
-		
 	}
 	
 	var grpSel = Engine.GetGUIObjectByName("groupSelection");
 	grpSel.list = grpList;
 	grpSel.list_data = grpList_data;
-	grpSel.selected = 0;
-	
-	selectCiv(g_selected.code);
+
+	// Read civ choice from passed data
+	if (!settings.civ.grouped)
+	{
+		g_selected.code = settings.civ.codes[0];
+		grpSel.selected = 0;
+		selectCiv(g_selected.code);
+	}
+	else
+	{
+		g_groupChoice = settings.civ.group.type;
+		g_selected.isGroup = true;
+		if (settings.civ.group.code !== "all")
+		{
+			g_selected.code = settings.civ.group.code;
+			grpSel.selected = grpSel.list_data.indexOf(g_groupChoice);
+			selectGroup(g_selected.code);
+		}
+		else
+		{
+			grpSel.selected = 0;
+			selectAllCivs();
+			Engine.GetGUIObjectByName("allUngrouped_check").checked = true;
+		}
+	}
 }
 
 function chooseGrouping (choice)
 {
+	Engine.GetGUIObjectByName("allUngrouped").hidden = !(choice === "nogroup");
 	if (choice === "nogroup")
 		draw_ungrouped();
 	else
@@ -181,7 +204,8 @@ function draw_ungrouped ()
 function selectCiv (code)
 {
 	highlightEmblems(g_CivData[code].embs);
-	
+	Engine.GetGUIObjectByName("allUngrouped_check").checked = false;
+
 	g_selected.isGroup = false;
 	g_selected.code = code;
 	
@@ -197,6 +221,7 @@ function selectCiv (code)
 	var size = history.parent.size;
 	size.top = 48;
 	history.parent.size = size;
+	history.parent.hidden = false;
 	
 	var choice = Engine.GetGUIObjectByName("selected_text");
 	choice.caption = "You have selected the "+g_CivData[code].Name;
@@ -205,13 +230,14 @@ function selectCiv (code)
 function selectGroup (code)
 {
 	highlightEmblems(g_GroupingData[g_groupChoice][code].embs);
+	Engine.GetGUIObjectByName("allUngrouped_check").checked = false;
 	
 	g_selected.isGroup = true;
 	g_selected.code = code;
 	
 	var heading = Engine.GetGUIObjectByName("selected_heading");
 	heading.caption = g_GroupingData[g_groupChoice][code].Name;
-	
+
 	var civList = Engine.GetGUIObjectByName("selected_civs");
 	civList.hidden = false;
 	civList.caption = "";
@@ -221,12 +247,13 @@ function selectGroup (code)
 		civList.caption += g_CivData[civ].Name+"\n";
 		civCount++;
 	}
-	
+
 	var history = Engine.GetGUIObjectByName("selected_history");
 	history.caption = g_GroupingData[g_groupChoice][code].History;
 	var size = history.parent.size;
 	size.top = 18 * civCount + 64;
 	history.parent.size = size;
+	history.parent.hidden = false;
 	
 	var choice = Engine.GetGUIObjectByName("selected_text");
 	if (g_GroupingData[g_groupChoice][code].Singular)
@@ -235,21 +262,52 @@ function selectGroup (code)
 		choice.caption = "A civ will be picked at random from this group";
 }
 
-function highlightEmblems (embs = [], gray = false)
+function selectAllCivs ()
 {
-	if (!gray)
-		if (g_selected.isGroup)
-		{
-			if (g_GroupingData[g_groupChoice][g_selected.code])
-				highlightEmblems(g_GroupingData[g_groupChoice][g_selected.code].embs, true);
-		}
-		else
-			highlightEmblems(g_CivData[g_selected.code].embs, true);
-	
-	for (let e of embs) {
-		var embImg = Engine.GetGUIObjectByName("emblem["+e+"]_img");
-		var sprite = embImg.sprite.split(":");
-		embImg.sprite = "stretched:" + ((gray)?"grayscale:":"") + sprite.pop();
+	Engine.GetGUIObjectByName("allUngrouped_check").checked = true;
+
+	let embs = [];
+	for (let i=0; ; ++i)
+	{
+		if (!Engine.GetGUIObjectByName("emblem["+i+"]"))
+			break;
+		embs.push(i);
+	}
+	highlightEmblems(embs);
+
+	g_selected.isGroup = true;
+	g_selected.code = "all";
+
+	let heading = Engine.GetGUIObjectByName("selected_heading");
+	heading.caption = "Random All";
+
+	let civList = Engine.GetGUIObjectByName("selected_civs");
+	civList.hidden = false;
+	civList.caption = "";
+	let civCount = 0;
+	for (let civ in g_CivData)
+	{
+		civList.caption += g_CivData[civ].Name+"\n";
+		civCount++;
+	}
+
+	let history = Engine.GetGUIObjectByName("selected_history");
+	history.parent.hidden = true;
+}
+
+function highlightEmblems (embs = [])
+{
+	for (let e=0; ; ++e)
+	{
+		if (!Engine.GetGUIObjectByName("emblem["+e+"]"))
+			return;
+
+		let embImg = Engine.GetGUIObjectByName("emblem["+e+"]_img");
+		let sprite = embImg.sprite.split(":");
+		embImg.sprite = "stretched:" + ((embs.indexOf(e)<0)?"grayscale:":"") + sprite.pop();
+
+		let choice = Engine.GetGUIObjectByName("selected_text");
+		choice.caption = "A civ will be picked at random";
 	}
 }
 
@@ -261,15 +319,25 @@ function setBtnFunc (btn, func, vars = null)
 function returnCiv ()
 {
 	let code = g_selected.code;
+	let civ = {
+			"codes": [ g_selected.code ],
+			"grouped": false,
+		}
 	if (g_selected.isGroup)
 	{
-		// pick random(-ish) civ from group's list
-		let num = g_GroupingData[g_groupChoice][code].civlist.length;
-		num = Math.floor(Math.random() * num);
-		code = g_GroupingData[g_groupChoice][code].civlist[num];
+		if (g_selected.code === "all")
+			civ.codes = Object.keys(g_CivData);
+		else
+			civ.codes = g_GroupingData[g_groupChoice][code].civlist;
+		civ.grouped = true;
+		civ.group = {
+				"caption": g_selected.code === "all" ? "All" : g_GroupingData[g_groupChoice][code].Singular,
+				"code": g_selected.code,
+				"type": g_groupChoice,
+			};
 	}
 	Engine.PopGuiPageCB({
 			"player": g_player,
-			"civ": code
+			"civ": civ,
 		});
 }
