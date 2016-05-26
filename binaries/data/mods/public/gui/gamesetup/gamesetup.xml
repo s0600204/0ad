@@ -101,7 +101,6 @@
 								<translatableAttribute id="tooltip">Configure AI settings.</translatableAttribute>
 							</object>
 							<object name="playerCivText[n]" type="text" style="ModernLabelText" size="50%+65 0 85%-16 30"/>
-							
 							<object name="playerCivButton[n]"
 								type="button"
 								sprite="ModernGear"
@@ -112,8 +111,7 @@
 							>
 								<translatableAttribute id="tooltip">Select a civilisation</translatableAttribute>
 								<action on="Press"><![CDATA[
-									var player = this.name.slice(16, -1);
-									var dropdown = Engine.GetGUIObjectByName("playerCiv["+player+"]");
+									let player = this.name.slice(16, -1);
 									Engine.PushGuiPage("page_civselect.xml", {
 										"player": player,
 										"civ": g_GameAttributes.settings.PlayerData[player].CivObj,
@@ -121,7 +119,6 @@
 									});
 								]]></action>
 							</object>
-							
 							<object name="playerTeam[n]" type="dropdown" style="ModernDropDown" size="85%+5 2 100%-5 30" tooltip_style="onscreenToolTip">
 								<translatableAttribute id="tooltip">Select player's team.</translatableAttribute>
 							</object>
@@ -130,9 +127,10 @@
 					</repeat>
 				</object>
 			</object>
-			<object size="24 64 100%-460 358" type="image" sprite="CoverFillDark" name="playerAssignmentsPanelCover" hidden="true"/>
-			<!-- Map selection -->
 
+			<object size="24 64 100%-460 358" type="image" sprite="CoverFillDark" name="playerAssignmentsPanelCover" hidden="true"/>
+
+			<!-- Map selection -->
 			<object size="100%-425 355 100%-285 470" name="mapTypeTooltip">
 				<object type="text" style="ModernRightLabelText" size="0 0 100% 30">
 					<translatableAttribute id="caption">Map Type:</translatableAttribute>

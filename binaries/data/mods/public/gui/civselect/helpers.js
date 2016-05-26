@@ -28,24 +28,23 @@ function gridArrayRepeatedObjects (basename, splitvar="n", vMargin=0, limit=[], 
 	}
 	else
 		limit[2] = limit[1] - limit[0] + 1;
-	
-	var firstObj = Engine.GetGUIObjectByName(basename.join("["+limit[0]+"]"));
-	var child = firstObj.getComputedSize();
+
+	let firstObj = Engine.GetGUIObjectByName(basename.join("["+limit[0]+"]"));
+	let child = firstObj.getComputedSize();
 	child.width = child.right - child.left;
 	child.height = child.bottom - child.top;
-	
-	var parent = firstObj.parent.getComputedSize();
+
+	let parent = firstObj.parent.getComputedSize();
 	parent.width = parent.right - parent.left - hOffset;
-	
-	var rowLength = Math.floor(parent.width / child.width);
-	
-	var hMargin = parent.width - child.width * rowLength;
+
+	let rowLength = Math.floor(parent.width / child.width);
+	let hMargin = parent.width - child.width * rowLength;
 	hMargin = Math.round(hMargin / (rowLength + 1));
-	
+
 	child.width += hMargin;
 	child.height += vMargin;
-	
-	var i = limit[0];
+
+	let i = limit[0];
 	for (let r = 0; r < Math.ceil(limit[2]/rowLength); ++r)
 	{
 		for (let c = 0; c < rowLength; ++c)
@@ -56,12 +55,12 @@ function gridArrayRepeatedObjects (basename, splitvar="n", vMargin=0, limit=[], 
 			newSize.top = r * child.height + vMargin + vOffset;
 			newSize.bottom = (r+1) * child.height + vOffset;
 			Engine.GetGUIObjectByName(basename.join("["+ i++ +"]")).size = newSize;
-			
+
 			if (i > limit[1])
 				break;
 		}
 	}
-	
+
 	var lastObj = Engine.GetGUIObjectByName(basename.join("["+(i-1)+"]"));
 	return (lastObj.size.bottom - firstObj.size.top);
 }
@@ -74,9 +73,9 @@ function gridArrayRepeatedObjects (basename, splitvar="n", vMargin=0, limit=[], 
  */
 function loadGroupingSchema (folder, attr)
 {
-	var groupData = {};
-	var groupless = [];
-	
+	let groupData = {};
+	let groupless = [];
+
 	for (let code of Object.keys(g_CivData))
 	{
 		let civ = g_CivData[code];
@@ -84,7 +83,7 @@ function loadGroupingSchema (folder, attr)
 		let groups = civ[attr] || [];
 		if (typeof groups === "string")
 			groups = [ groups ];
-		
+
 		for (let grp of groups)
 		{
 			if (groupData[grp] === undefined)
@@ -92,7 +91,8 @@ function loadGroupingSchema (folder, attr)
 				let data = Engine.ReadJSONFile("simulation/data/civs/"+folder+"/"+grp+".json");
 				if (!data)
 					continue;
-				
+				translateObjectKeys(data, ["Name", "Singular", "History"]);
+
 				groupData[grp] = data;
 				groupData[grp].civlist = [];
 			}
@@ -104,7 +104,7 @@ function loadGroupingSchema (folder, attr)
 	}
 	if (groupless.length > 0)
 		groupData.groupless = {
-			"Name" : "Ungrouped",
+			"Name" : translateWithContext("Set of civs with no defined group", "Ungrouped"),
 			"Code" : "groupless",
 			"History" : "-",
 			"civlist": groupless
@@ -114,7 +114,7 @@ function loadGroupingSchema (folder, attr)
 
 function setEmbSize (objectName, length=128)
 {
-	var objSize = Engine.GetGUIObjectByName(objectName).size;
+	let objSize = Engine.GetGUIObjectByName(objectName).size;
 	objSize.right = objSize.left + length;
 	objSize.bottom = objSize.top + length;
 	Engine.GetGUIObjectByName(objectName).size = objSize;
@@ -122,8 +122,8 @@ function setEmbSize (objectName, length=128)
 
 function setEmbPos (objectName, x=0, y=0)
 {
-	var objSize = Engine.GetGUIObjectByName(objectName).size;
-	var wid = objSize.right - objSize.left;
+	let objSize = Engine.GetGUIObjectByName(objectName).size;
+	let wid = objSize.right - objSize.left;
 	objSize.left = x;
 	objSize.top = y;
 	Engine.GetGUIObjectByName(objectName).size = objSize;

@@ -268,7 +268,7 @@ function init(attribs)
 	g_RandomCivObj = {
 			"codes": Object.keys(g_CivData).filter(civ => g_CivData[civ].SelectableInGameSetup),
 			"grouped": true,
-			"group": { "type": "none", "code": "all", "caption": "All" }
+			"group": { "type": "none", "code": "all", "caption": translateWithContext("All Civs", "All") }
 		};
 
 	setTimeout(displayGamestateNotifications, 1000);
@@ -1413,11 +1413,11 @@ function updateGUIObjects()
 		if (civObj)
 		{
 			if (civObj.grouped)
-				pCivText.caption = g_RandomCivStyle[0]+"Random "+civObj.group.caption+g_RandomCivStyle[1];
+				pCivText.caption = g_RandomCivStyle[0] + sprintf(translate("Random %(civGroup)s"), {"civGroup": civObj.group.caption }) + g_RandomCivStyle[1];
 			else if (civObj.codes.length > 1)
-				pCivText.caption = g_RandomCivStyle[0]+"Arbitrary Selection"+g_RandomCivStyle[1];
+				pCivText.caption = g_RandomCivStyle[0] + translateWithContext("Selection from a group of civilizations", "Arbitrary Selection") + g_RandomCivStyle[1];
 			else
-				pCivText.caption = (g_CivData[civObj.codes[0]] ? g_CivData[civObj.codes[0]].Name : "Unknown");
+				pCivText.caption = (g_CivData[civObj.codes[0]] ? g_CivData[civObj.codes[0]].Name : translateWithContext("Unnamed civilization", "Unknown"));
 		}
 
 		pTeamText.caption = (team !== undefined && team >= 0) ? team+1 : "-";

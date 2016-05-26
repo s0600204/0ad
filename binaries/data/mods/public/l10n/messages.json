@@ -19,6 +19,25 @@
                         "AINames"
                     ]
                 }
+            },
+            {
+                "extractor": "json",
+                "filemasks": [
+                    "simulation/data/civs/grouping/**.json"
+                ],
+                "options": {
+                    "keywords": ["ListEntry"]
+                }
+            },
+            {
+                "extractor": "json",
+                "filemasks": [
+                    "simulation/data/civs/cultures/**.json",
+                    "simulation/data/civs/regions/**.json"
+                ],
+                "options": {
+                    "keywords": ["Name", "History", "Singular"]
+                }
             }
         ]
     },
@@ -75,6 +94,7 @@
                 "extractor": "javascript",
                 "filemasks": [
                     "gui/aiconfig/**.js",
+                    "gui/civselect/**.js",
                     "gui/gamesetup/**.js",
                     "gui/loading/**.js"
                 ],
@@ -98,6 +118,7 @@
                 "extractor": "xml",
                 "filemasks": [
                     "gui/aiconfig/**.xml",
+                    "gui/civselect/**.xml",
                     "gui/gamesetup/**.xml",
                     "gui/loading/**.xml"
                 ],
