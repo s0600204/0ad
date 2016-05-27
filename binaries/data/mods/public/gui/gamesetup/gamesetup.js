@@ -1809,7 +1809,7 @@ function showMoreOptions(show)
 function resetCivilizations()
 {
 	for (let i in g_GameAttributes.settings.PlayerData)
-		g_GameAttributes.settings.PlayerData[i].Civ = "random";
+		g_GameAttributes.settings.PlayerData[i].CivObj = g_RandomCivObj;
 
 	updateGameAttributes();
 }
