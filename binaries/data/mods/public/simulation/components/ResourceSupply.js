@@ -86,7 +86,13 @@ ResourceSupply.prototype.GetNumEnroute = function(player)
 {
 	if (player === undefined)
 		return 0;
-	return this.enroute[player].length;
+	if (player > -1)
+		return this.enroute[player].length;
+
+	let count = 0;
+	for (let ents of this.enroute)
+		count += ents.length;
+	return count;
 };
 
 /* The rate of each additionnal gatherer rate follow a geometric sequence, with diminishingReturns as common ratio. */
