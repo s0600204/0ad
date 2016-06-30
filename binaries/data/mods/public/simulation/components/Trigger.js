@@ -21,6 +21,7 @@ Trigger.prototype.eventNames =
 	"ResearchFinished",
 	"ResearchQueued",
 	"StructureBuilt",
+	"TerritoryBorderCrossed",
 	"TrainingFinished",
 	"TrainingQueued",
 	"TreasureCollected"

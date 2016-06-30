@@ -10,11 +10,7 @@
     <Square width="4" depth="4"/>
   </Footprint>
   <Health>
-    <Max>1000</Max>
-    <RegenRate>1000</RegenRate>
     <Undeletable>true</Undeletable>
-    <DeathType>vanish</DeathType>
-    <SpawnEntityOnDeath>other/flag_sheep</SpawnEntityOnDeath>
   </Health>
   <Identity>
     <SpecificName>Dumb Sheep</SpecificName>
@@ -30,6 +26,7 @@
       </Texture>
     </Overlay>
   </Selectable>
+  <TerritoryMonitor/>
   <UnitMotion>
     <WalkSpeed>6.0</WalkSpeed>
   </UnitMotion>

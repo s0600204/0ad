@@ -30,6 +30,9 @@
   <StatusBars>
     <HeightOffset>5.0</HeightOffset>
   </StatusBars>
+  <TrainingRestrictions>
+    <Category>Sheep</Category>
+  </TrainingRestrictions>
   <UnitMotion>
     <WalkSpeed>3.0</WalkSpeed>
   </UnitMotion>
