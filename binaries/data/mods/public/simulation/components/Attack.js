@@ -307,11 +307,6 @@ Attack.prototype.GetBestAttackAgainst = function(target, allowCapture)
 
 	let targetClasses = cmpIdentity.GetClassesList();
 	let isTargetClass = className => targetClasses.indexOf(className) != -1;
-
-	// Always slaughter domestic animals instead of using a normal attack
-	if (isTargetClass("Domestic") && this.template.Slaughter)
-		return "Slaughter";
-
 	let types = this.GetAttackTypes().filter(type => !this.GetRestrictedClasses(type).some(isTargetClass));
 
 	// check if the target is capturable
@@ -326,6 +321,10 @@ Attack.prototype.GetBestAttackAgainst = function(target, allowCapture)
 		// not capturable, so remove this attack
 		types.splice(captureIndex, 1);
 	}
+
+	// Always slaughter domestic animals instead of using a normal attack
+	if (isTargetClass("Domestic") && this.template.Slaughter)
+		return "Slaughter";
 
 	let isPreferred = className => this.GetPreferredClasses(className).some(isTargetClass);
 

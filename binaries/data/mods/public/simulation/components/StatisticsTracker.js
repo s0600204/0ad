@@ -287,7 +287,7 @@ StatisticsTracker.prototype.LostEntity = function(lostEntity)
 {
 	var cmpLostEntityIdentity = Engine.QueryInterface(lostEntity, IID_Identity);
 	var cmpCost = Engine.QueryInterface(lostEntity, IID_Cost);
-	var costs = cmpCost.GetResourceCosts();
+	var costs = cmpCost ? cmpCost.GetResourceCosts() : {};
 	if (!cmpLostEntityIdentity)
 		return;
 

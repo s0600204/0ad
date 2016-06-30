@@ -157,4 +157,46 @@ TriggerHelper.EntityHasClass = function(entity, classname)
 	return classes && classes.indexOf(classname) != -1;
 };
 
+
+/**
+ * Replace one entity with a different one, keeping position, rotation and owner.
+ * @param entity Entity id of entity to replace
+ * @oaram templateName Template name of new entity
+ * @return id of new entity
+ */
+TriggerHelper.ReplaceEntity = function(entity, templateName)
+{
+	if (!entity || !templateName)
+		return false;
+
+	// If the unit died while not in the world, don't spawn a death entity for it
+	// since there's nowhere for it to be placed
+	let cmpPosition = Engine.QueryInterface(entity, IID_Position);
+	if (!cmpPosition)
+		return false;
+	if (!cmpPosition.IsInWorld())
+		return INVALID_ENTITY;
+
+	// Create SpawnEntityOnDeath entity
+	let spawnedEntity = Engine.AddEntity(templateName);
+
+	// Move to same position
+	let cmpSpawnedPosition = Engine.QueryInterface(spawnedEntity, IID_Position);
+	let pos = cmpPosition.GetPosition();
+	cmpSpawnedPosition.JumpTo(pos.x, pos.z);
+	let rot = cmpPosition.GetRotation();
+	cmpSpawnedPosition.SetYRotation(rot.y);
+	cmpSpawnedPosition.SetXZRotation(rot.x, rot.z);
+
+	let cmpOwnership = Engine.QueryInterface(entity, IID_Ownership);
+	let cmpSpawnedOwnership = Engine.QueryInterface(spawnedEntity, IID_Ownership);
+	if (cmpOwnership && cmpSpawnedOwnership)
+		cmpSpawnedOwnership.SetOwner(cmpOwnership.GetOwner());
+
+	Engine.DestroyEntity(entity);
+
+	return spawnedEntity;
+}
+
+
 Engine.RegisterGlobal("TriggerHelper", TriggerHelper);

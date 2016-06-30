@@ -1410,7 +1410,14 @@ function updateGUIObjects()
 
 	Engine.GetGUIObjectByName("optionWonderDuration").hidden =
 		g_GameAttributes.settings.GameType &&
-		g_GameAttributes.settings.GameType != "wonder";
+		g_GameAttributes.settings.GameType != "wonder" &&
+		g_GameAttributes.settings.GameType != "capture_the_sheep";
+	Engine.GetGUIObjectByName("optionWonderDuration").children[0].caption = sprintf(translate("%(victoryType)s Victory:"), {
+		"victoryType": g_GameAttributes.settings.GameType == "capture_the_sheep" ? "CtS" : "Wonder"
+	});
+	Engine.GetGUIObjectByName("wonderDuration").tooltip = sprintf(translate("Number of minutes that the player has to keep the %(victoryType)s in order to win."), {
+		"victoryType": g_GameAttributes.settings.GameType == "capture_the_sheep" ? "sheep" : "wonder"
+	});
 
 	Engine.GetGUIObjectByName("cheatWarningText").hidden = !g_IsNetworked || !mapSettings.CheatsEnabled;
 

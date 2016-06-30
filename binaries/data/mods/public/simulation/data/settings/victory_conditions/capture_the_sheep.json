@@ -1,0 +1,15 @@
+{
+	"TranslatedKeys": ["Title", "Description"],
+	"Data":
+	{
+		"Title": "Capture the Sheep",
+		"Description": "Sheep become capturable, and cannot be trained or killed. Capture all sheep and hold them in your territory for a given time to win",
+		"Scripts":
+		[
+			"scripts/TriggerHelper.js",
+			"scripts/ConquestCommon.js",
+			"scripts/Conquest.js",
+			"scripts/SheepVictory.js"
+		]
+	}
+}
