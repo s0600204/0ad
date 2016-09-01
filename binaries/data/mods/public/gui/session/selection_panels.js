@@ -830,42 +830,7 @@ g_SelectionPanels.Research = {
 			if (!requirementsPassed)
 			{
 				let tip = template.requirementsTooltip;
-				let reqs = template.reqs;
-				for (let req of reqs)
-				{
-					if (!req.entities)
-						continue;
-
-					let entityCounts = [];
-					for (let entity of req.entities)
-					{
-						let current = 0;
-						switch (entity.check)
-						{
-						case "count":
-							current = playerState.classCounts[entity.class] || 0;
-							break;
-
-						case "variants":
-							current = playerState.typeCountsByClass[entity.class] ?
-								Object.keys(playerState.typeCountsByClass[entity.class]).length : 0;
-							break;
-						}
-
-						let remaining = entity.number - current;
-						if (remaining < 1)
-							continue;
-
-						entityCounts.push(sprintf(translatePlural("%(number)s entity of class %(class)s", "%(number)s entities of class %(class)s", remaining), {
-							"number": remaining,
-							"class": entity.class
-						}));
-					}
-
-					tip += " " + sprintf(translate("Remaining: %(entityCounts)s"), {
-						"entityCounts": entityCounts.join(translate(", "))
-					});
-				}
+				tip += "\n" + deriveTechRequirementsTooltip(template.reqs, player);
 				tooltips.push(tip);
 			}
 			tooltips.push(getNeededResourcesTooltip(neededResources));

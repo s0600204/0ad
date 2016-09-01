@@ -144,4 +144,68 @@ function formatBatchTrainingString(buildingsCountToTrainFullBatch, fullBatchSize
 	}) + "[/font]";
 }
 
+/**
+ *
+ * @param reqs {array} Civ-specific requirements
+ */
+function deriveTechRequirementsTooltip(reqs, player)
+{
+	let optionalTexts = [];
 
+	for (let req of reqs)
+	{
+		let requirementTexts = [];
+
+		if (req.techs)
+		{
+			let requiredTechs = [];
+
+			for (let tech of req.techs)
+				if (!GetSimState().players[player].researchedTechs[tech])
+					requiredTechs.push("\"" + getEntityNames(GetTechnologyData(tech)) + "\"");
+
+			if (requiredTechs.length)
+				requirementTexts.push(sprintf(translatePlural("%(techNames)s technology", "%(techNames)s technologies", requiredTechs.length), {
+					"techNames": requiredTechs.join(translate(" & "))
+				}));
+		}
+
+		if (req.entities)
+		{
+			let requiredEnts = [];
+			for (let entity of req.entities)
+			{
+				let current = 0;
+				switch (entity.check)
+				{
+				case "count":
+					current = GetSimState().players[player].classCounts[entity.class] || 0;
+					break;
+
+				case "variants":
+					current = GetSimState().players[player].typeCountsByClass[entity.class] ?
+						Object.keys(GetSimState().players[player].typeCountsByClass[entity.class]).length : 0;
+					break;
+				}
+
+				let remaining = entity.number - current;
+				if (remaining < 1)
+					continue;
+
+				requiredEnts.push(sprintf(translatePlural("%(number)s entity of class \"%(class)s\" (%(remaining)s remaining)", "%(number)s entities of class \"%(class)s\" (%(remaining)s remaining)", entity.number), {
+					"number": entity.number,
+					"class": entity.class,
+					"remaining": remaining,
+				}));
+			}
+			if (requiredEnts.length)
+				requirementTexts.push(requiredEnts.join(translate(" and ")));
+		}
+
+		optionalTexts.push(requirementTexts.join(" and "));
+	}
+
+	return sprintf(translate("Requires %(requirementTexts)s"), {
+			"requirementTexts": optionalTexts.join(translate("; or "))
+		});
+}
