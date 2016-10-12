@@ -160,6 +160,11 @@
         </attribute>
       </optional>
       <optional>
+        <attribute name="size_max">
+          <ref name="clientarea"/>
+        </attribute>
+      </optional>
+      <optional>
         <attribute name="z">
           <data type="decimal"/>
         </attribute>

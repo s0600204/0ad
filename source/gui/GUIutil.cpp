@@ -395,7 +395,7 @@ PSRETURN GUI<T>::SetSetting(IGUIObject* pObject, const CStr& Setting, const T& V
 	//
 
 	// If setting was "size", we need to re-cache itself and all children
-	if (Setting == "size")
+	if (Setting == "size" || Setting == "size_max")
 	{
 		RecurseObject(0, pObject, &IGUIObject::UpdateCachedSize);
 	}

@@ -15,6 +15,7 @@
 		ghost="false"
 		hidden="false"
 		size="0 0 100% 100%"
+		size_max="0 0 100% 100%"
 		z="0"
 
 		font="sans-14"

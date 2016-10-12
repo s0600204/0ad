@@ -49,6 +49,7 @@ CTooltip::CTooltip()
 	GUI<int>::SetSetting(this, "delay", 500);
 	GUI<EVAlign>::SetSetting(this, "anchor", EVAlign_Bottom);
 	GUI<EAlign>::SetSetting(this, "text_align", EAlign_Left);
+	GUI<CClientArea>::SetSetting(this, "size_max", CClientArea("0 0 100% 100%"));
 
 	// Set up a blank piece of text, to be replaced with a more
 	// interesting message later

@@ -178,6 +178,7 @@ public:
 	 * Get client area rectangle when the parent is given
 	 */
 	CRect GetClientArea(const CRect& parent) const;
+	CRect GetClientArea(const CRect& parent, const CClientArea& maxLimit) const;
 
 	/**
 	 * The ClientArea can be set from a string looking like:

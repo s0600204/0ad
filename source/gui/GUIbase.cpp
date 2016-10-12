@@ -52,6 +52,24 @@ CRect CClientArea::GetClientArea(const CRect& parent) const
 	return client;
 }
 
+
+CRect CClientArea::GetClientArea(const CRect& parent, const CClientArea& maxLimit) const
+{
+	CRect limit = maxLimit.GetClientArea(parent);
+	CRect client = this->GetClientArea(parent);
+
+	// If no limit imposed, then we don't need to restrict
+	if (parent == limit)
+		return client;
+
+	client.left = std::max(client.left, limit.left);
+	client.top = std::max(client.top, limit.top);
+	client.right = std::min(client.right, limit.right);
+	client.bottom = std::min(client.bottom, limit.bottom);
+
+	return client;
+}
+
 bool CClientArea::SetClientArea(const CStr& Value)
 {
 	/* ClientAreas contain a left, top, right, and bottom

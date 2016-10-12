@@ -43,6 +43,7 @@ base_settings =
   attribute ghost { bool }?&
   attribute hidden { bool }?&
   attribute size { clientarea }?&
+  attribute size_max { clientarea }?&
   attribute z { xsd:decimal }?
 # Defaults are not put in here, because it ruins the concept of styles.
 ex_settings =
