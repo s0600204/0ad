@@ -1,4 +1,5 @@
 var g_DrawLimits = {}; // GUI limits. Populated by predraw()
+var g_ContentWidth = 0;
 
 var g_TooltipFunctions = [
 	getEntityNamesFormatted,
@@ -41,6 +42,7 @@ function draw()
 	Engine.GetGUIObjectByName("civHistory").caption = g_CivData[g_SelectedCiv].History;
 
 	let i = 0;
+	g_ContentWidth = 0;
 	for (let pha of phaseList)
 	{
 		let prodBarWidth = 0;
@@ -140,6 +142,7 @@ function draw()
 			hideRemaining("phase["+i+"]_struct["+s+"]_rows", r);
 			++s;
 			prodBarWidth += eleWidth + defMargin;
+			g_ContentWidth = Math.max(y, g_ContentWidth);
 		}
 
 		hideRemaining("phase["+i+"]", s);
@@ -150,7 +153,7 @@ function draw()
 		{
 			let prodBar = Engine.GetGUIObjectByName("phase["+i+"]_bar["+(j-1)+"]");
 			let prodBarSize = prodBar.size;
-			prodBarSize.right = leftMargin + prodBarWidth;
+			prodBarSize.right = leftMargin + prodBarWidth + defMargin * 2;
 			prodBar.size = prodBarSize;
 		}
 
@@ -215,9 +218,22 @@ function draw()
 
 	let size = Engine.GetGUIObjectByName("display_tree").size;
 	size.right = t > 0 ? -124 : -4;
+	g_ContentWidth += t > 0 ? 28 + defWidth : 4
 	Engine.GetGUIObjectByName("display_tree").size = size;
 
 	Engine.GetGUIObjectByName("display_trainers").hidden = t == 0;
+
+	g_ContentWidth += 96;
+	updatePageMaxWidth();
+}
+
+function updatePageMaxWidth()
+{
+	let page_maxsize = Engine.GetGUIObjectByName("structree_page").size_max;
+	let x = g_ContentWidth / 2;
+	page_maxsize.left = -x;
+	page_maxsize.right = x;
+	Engine.GetGUIObjectByName("structree_page").size_max = page_maxsize;
 }
 
 function drawProdIcon(pha, s, r, p, prod)
@@ -264,6 +280,11 @@ function predraw()
 {
 	let phaseList = g_ParsedData.phaseList;
 	let initIconSize = Engine.GetGUIObjectByName("phase[0]_struct[0]_row[0]_prod[0]").size;
+
+	let page_maxsize = Engine.GetGUIObjectByName("structree_page").size_max;
+	page_maxsize.rleft = 50;
+	page_maxsize.rright = 50;
+	Engine.GetGUIObjectByName("structree_page").size_max = page_maxsize;
 
 	let phaseCount = phaseList.length;
 	let i = 0;
@@ -338,6 +359,12 @@ function predraw()
 	}
 	hideRemaining("phase_rows", i);
 	hideRemaining("phase_ident", i);
+
+	let page_size = Engine.GetGUIObjectByName("structree_page").size;
+	let offset = getPositionOffset(i) + 196;
+	page_size.top = -offset / 2;
+	page_size.bottom = offset / 2;
+	Engine.GetGUIObjectByName("structree_page").size = page_size;
 
 	let t = 0;
 	let ele = Engine.GetGUIObjectByName("trainer["+t+"]");
