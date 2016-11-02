@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<Scenario version="6">
+	<Environment>
+		<SkySet>default</SkySet>
+		<SunColor r="0.74902" g="0.74902" b="0.74902"/>
+		<SunElevation angle="0.785398"/>
+		<SunRotation angle="-0.785396"/>
+		<TerrainAmbientColor r="0.501961" g="0.501961" b="0.501961"/>
+		<UnitsAmbientColor r="0.501961" g="0.501961" b="0.501961"/>
+		<Fog>
+			<FogFactor>0</FogFactor>
+			<FogThickness>0.5</FogThickness>
+			<FogColor r="0.8" g="0.8" b="0.898039"/>
+		</Fog>
+		<Water>
+			<WaterBody>
+				<Type>ocean</Type>
+				<Color r="0.298039" g="0.34902" b="0.698039"/>
+				<Tint r="0.278431" g="0.298039" b="0.588235"/>
+				<Height>5</Height>
+				<Waviness>4</Waviness>
+				<Murkiness>0.45</Murkiness>
+				<WindAngle>0</WindAngle>
+			</WaterBody>
+		</Water>
+		<Postproc>
+			<Brightness>0</Brightness>
+			<Contrast>1</Contrast>
+			<Saturation>0.99</Saturation>
+			<Bloom>0.1999</Bloom>
+			<PostEffect>default</PostEffect>
+		</Postproc>
+	</Environment>
+	<Camera>
+		<Position x="115" y="256.147" z="141.718"/>
+		<Rotation angle="0.642512"/>
+		<Declination angle="0.610865"/>
+	</Camera>
+	<ScriptSettings><![CDATA[
+{
+  "CircularMap": true,
+  "Description": "Demonstrate the principles of the capture the sheep mode",
+  "GameType": "capture_the_sheep",
+  "Keywords": [
+    "demo"
+  ],
+  "LockTeams": false,
+  "Name": "Sheep Demo",
+  "PlayerData": [
+    null,
+    {
+      "AI": "",
+      "Civ": "athen"
+    },
+    {
+      "AI": "",
+      "Civ": "cart"
+    },
+    {
+      "AI": "",
+      "Civ": "gaul"
+    }
+  ],
+  "Preview": "",
+  "RevealMap": false
+}
+]]></ScriptSettings>
+	<Entities>
+		<Entity uid="11">
+			<Template>skirmish/structures/default_civil_centre</Template>
+			<Player>1</Player>
+			<Position x="77.6015" z="235.15754"/>
+			<Orientation y="2.35621"/>
+			<Actor seed="662"/>
+		</Entity>
+		<Entity uid="12">
+			<Template>skirmish/structures/default_civil_centre</Template>
+			<Player>2</Player>
+			<Position x="374.59687" z="363.14203"/>
+			<Orientation y="2.35621"/>
+			<Actor seed="56223"/>
+		</Entity>
+		<Entity uid="13">
+			<Template>skirmish/structures/default_civil_centre</Template>
+			<Player>3</Player>
+			<Position x="318.93647" z="68.69823"/>
+			<Orientation y="2.35621"/>
+			<Actor seed="44820"/>
+		</Entity>
+		<Entity uid="14">
+			<Template>other/flag_sheep</Template>
+			<Player>1</Player>
+			<Position x="197.15522" z="237.98862"/>
+			<Orientation y="2.35621"/>
+			<Actor seed="4114"/>
+		</Entity>
+		<Entity uid="15">
+			<Template>other/flag_sheep</Template>
+			<Player>2</Player>
+			<Position x="286.25019" z="277.22928"/>
+			<Orientation y="2.35621"/>
+			<Actor seed="49270"/>
+		</Entity>
+		<Entity uid="16">
+			<Template>other/flag_sheep</Template>
+			<Player>3</Player>
+			<Position x="277.03153" z="183.51511"/>
+			<Orientation y="2.35621"/>
+			<Actor seed="2298"/>
+		</Entity>
+		<Entity uid="17">
+			<Template>other/flag_sheep</Template>
+			<Player>0</Player>
+			<Position x="247.90857" z="235.1561"/>
+			<Orientation y="2.35621"/>
+			<Actor seed="12158"/>
+		</Entity>
+		<Entity uid="18">
+			<Template>units/athen_hero_pericles</Template>
+			<Player>1</Player>
+			<Position x="127.58001" z="235.65387"/>
+			<Orientation y="2.35621"/>
+			<Actor seed="351"/>
+		</Entity>
+	</Entities>
+	<Paths/>
+</Scenario>
