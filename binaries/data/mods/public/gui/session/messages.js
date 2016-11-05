@@ -535,8 +535,18 @@ function updateTimeNotifications()
 			message = translate(message);
 
 		let parameters = n.parameters || {};
+		
 		if (n.translateParameters)
+		{
 			translateObjectKeys(parameters, n.translateParameters);
+
+			// special case for formatting of player names
+			for (let param in parameters)
+				if (param.startsWith("_player_"))
+					parameters[param] = colorizePlayernameByID(parameters[param]);
+				else if (param.startsWith("_playerlist_"))
+					parameters[param] = colorizePlayernamesByIDs(parameters[param]);
+		}
 
 		parameters.time = timeToString(n.endTime - g_SimState.timeElapsed);
 
@@ -813,6 +823,14 @@ function colorizePlayernameByID(playerID)
 {
 	let username = g_Players[playerID] && escapeText(g_Players[playerID].name);
 	return colorizePlayernameHelper(username, playerID);
+}
+
+function colorizePlayernamesByIDs(playerIDs)
+{
+	let names = [];
+	for (let id of playerIDs)
+		names.push(colorizePlayernameByID(id));
+	return names.join(translate(", "));
 }
 
 function colorizePlayernameByGUID(guid)

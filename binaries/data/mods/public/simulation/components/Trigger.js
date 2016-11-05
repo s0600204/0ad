@@ -15,6 +15,7 @@ Trigger.prototype.eventNames =
 	"Interval",
 	"OwnershipChanged",
 	"PlayerCommand",
+	"DiplomacyChanged",
 	"PlayerDefeated",
 	"PlayerWon",
 	"Range",
@@ -270,6 +271,11 @@ Trigger.prototype.OnGlobalPlayerDefeated = function(msg)
 Trigger.prototype.OnGlobalPlayerWon = function(msg)
 {
 	this.CallEvent("PlayerWon", msg);
+};
+
+Trigger.prototype.OnDiplomacyChanged = function(msg)
+{
+	this.CallEvent("DiplomacyChanged", msg);
 };
 
 /**
