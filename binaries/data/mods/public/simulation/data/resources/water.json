@@ -1,0 +1,11 @@
+{
+	"code": "water",
+	"name": "Water",
+	"description": "H2O. The wet stuff.",
+	"order": 1.1,
+	"subtypes": {
+		"well": "Well Water"
+	},
+	"truePrice": 50,
+	"aiAnalysisInfluenceGroup": "ignore"
+}
