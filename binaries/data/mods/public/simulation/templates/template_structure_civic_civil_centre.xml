@@ -106,7 +106,7 @@
     </Technologies>
   </ProductionQueue>
   <ResourceDropsite>
-    <Types>food wood stone metal</Types>
+    <Types>food wood stone metal water</Types>
     <Sharable>true</Sharable>
   </ResourceDropsite>
   <Sound>

@@ -20,10 +20,10 @@
     <SpawnEntityOnDeath>decay|rubble/rubble_stone_4x4</SpawnEntityOnDeath>
   </Health>
   <Identity>
-    <Classes datatype="tokens">DropsiteFood</Classes>
+    <Classes datatype="tokens">DropsiteFood DropsiteWater</Classes>
     <GenericName>Farmstead</GenericName>
     <Icon>structures/farmstead.png</Icon>
-    <Tooltip>Dropsite for the food resource. Research food gathering improvements.</Tooltip>
+    <Tooltip>Dropsite for the food and water resources. Research food gathering improvements.</Tooltip>
     <VisibleClasses datatype="tokens">Village Farmstead</VisibleClasses>
   </Identity>
   <Loot>
@@ -40,7 +40,7 @@
   </ProductionQueue>
   <RallyPoint disable=""/>
   <ResourceDropsite>
-    <Types>food</Types>
+    <Types>food water</Types>
     <Sharable>true</Sharable>
   </ResourceDropsite>
   <Sound>

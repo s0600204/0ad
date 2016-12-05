@@ -61,6 +61,7 @@
       <stone.rock>0.35</stone.rock>
       <stone.ruins>2</stone.ruins>
       <metal.ore>0.35</metal.ore>
+      <water>0.9</water>
     </Rates>
   </ResourceGatherer>
   <Sound>

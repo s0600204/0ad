@@ -14,6 +14,7 @@
       <wood>0</wood>
       <stone>0</stone>
       <metal>0</metal>
+      <water>0</water>
     </Resources>
   </Cost>
   <Decay>
@@ -79,6 +80,7 @@
       <wood>10</wood>
       <stone>10</stone>
       <metal>10</metal>
+      <water>10</water>
     </Capacities>
   </ResourceGatherer>
   <Selectable>
