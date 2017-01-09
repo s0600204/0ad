@@ -4,7 +4,6 @@
 	"description": "Using rubble materials reduces the costs and build times of walls.",
 	"cost": {"food": 0, "wood": 200, "stone": 0, "metal": 0},
 	"requirements": {"tech": "phase_town"},
-	"requirementsTooltip": "Unlocked in Town Phase.",
 	"icon": "stone_blocks_brown.png",
 	"researchTime": 40,
 	"tooltip": "City walls -20% build time, but -1 crush armor level.",

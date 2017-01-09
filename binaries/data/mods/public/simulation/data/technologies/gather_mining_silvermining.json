@@ -8,7 +8,6 @@
 	"cost": {"food": 0, "wood": 1000, "stone": 150, "metal": 150},
 	"supersedes": "gather_mining_shaftmining",
 	"requirements": {"tech": "phase_city"},
-	"requirementsTooltip": "Unlocked in City Phase.",
 	"icon": "mining_metal.png",
 	"researchTime": 40,
 	"tooltip": "Strike a vein of precious silver. +50% metal gathering rate.",

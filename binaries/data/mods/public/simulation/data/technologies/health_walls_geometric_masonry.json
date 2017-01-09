@@ -4,7 +4,6 @@
 	"description": "Using geometric masonry increases the sturdiness of defensive walls.",
 	"cost": {"food": 0, "wood": 0, "stone": 200, "metal": 0},
 	"requirements": {"tech": "phase_town"},
-	"requirementsTooltip": "Unlocked in Town Phase.",
 	"icon": "stone_blocks.png",
 	"researchTime": 40,
 	"tooltip": "City walls +2 crush armor levels, but +10% build time.",

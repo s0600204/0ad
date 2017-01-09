@@ -4,7 +4,6 @@
 	"cost": {"food": 0, "wood": 1000, "stone": 0, "metal": 450},
 	"supersedes": "armor_cav_01",
 	"requirements": {"tech": "phase_city"},
-	"requirementsTooltip": "Unlocked in City Phase.",
 	"icon": "armor_plates_cavalry.png",
 	"researchTime": 40,
 	"tooltip": "Equip your cavalry mounts with armor. All Cavalry +1 Hack and Pierce armor level.",

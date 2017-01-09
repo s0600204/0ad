@@ -12,7 +12,6 @@
 	"cost": {"food": 500, "wood": 500, "stone": 0, "metal": 500},
 	"supersedes": "attack_cavalry_melee_01",
 	"requirements": {"tech": "phase_city"},
-	"requirementsTooltip": "Unlocked in City Phase.",
 	"icon": "spear_cavalry.png",
 	"researchTime": 40,
 	"tooltip": "Equip your melee cavalry with better weapons. +20% melee cavalry attack.",

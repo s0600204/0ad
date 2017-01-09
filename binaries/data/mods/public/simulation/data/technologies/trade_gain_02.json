@@ -3,7 +3,6 @@
 	"description": "The progress in handicraft improves the trading profit.",
 	"cost": {"food": 0, "wood": 300, "stone": 0, "metal": 300},
 	"requirements": {"tech": "phase_city"},
-	"requirementsTooltip": "Unlocked in City Phase.",
 	"supersedes": "trade_gain_01",
 	"icon": "metal_pot.png",
 	"researchTime": 40,

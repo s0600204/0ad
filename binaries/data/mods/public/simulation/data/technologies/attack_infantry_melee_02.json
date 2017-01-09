@@ -4,7 +4,6 @@
 	"cost": {"food": 500, "wood": 500, "stone": 250, "metal": 450},
 	"supersedes": "attack_infantry_melee_01",
 	"requirements": {"tech": "phase_city"},
-	"requirementsTooltip": "Unlocked in City Phase.",
 	"icon": "sword_cross.png",
 	"researchTime": 40,
 	"tooltip": "+20% melee infantry attack.",

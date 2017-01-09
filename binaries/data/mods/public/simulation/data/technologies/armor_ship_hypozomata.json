@@ -3,7 +3,6 @@
 	"description": "The hypozomata braces the structure of a ship.",
 	"cost": {"food": 0, "wood": 150, "stone": 0, "metal": 150},
 	"requirements": {"tech": "phase_town"},
-	"requirementsTooltip": "Unlocked in Town Phase.",
 	"supersedes": "armor_ship_reinforcedhull",
 	"icon": "armor_ship_silver.png",
 	"researchTime": 40,

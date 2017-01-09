@@ -13,7 +13,6 @@
 			{ "notciv": "sele" }
 		]
 	},
-	"requirementsTooltip": "Unlocked in City Phase.",
 	"icon": "accuracy_bolt.png",
 	"researchTime": 40,
 	"tooltip": "Bolt shooter accuracy increased 25%.",

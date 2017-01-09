@@ -4,7 +4,6 @@
 	"cost": {"food": 0, "wood": 250, "stone": 0, "metal": 50},
 	"supersedes": "gather_mining_wedgemallet",
 	"requirements": {"tech": "phase_town"},
-	"requirementsTooltip": "Unlocked in Town Phase.",
 	"icon": "mining_metal.png",
 	"researchTime": 40,
 	"tooltip": "Develop shaft mining. +15% metal gathering rate.",

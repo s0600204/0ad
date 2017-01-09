@@ -11,7 +11,6 @@
 	"description": "Training increases melee attack.",
 	"cost": {"food": 500, "wood": 750, "stone": 0, "metal": 350},
 	"requirements": {"tech": "phase_town"},
-	"requirementsTooltip": "Unlocked in Town Phase.",
 	"icon": "horse_trainer.png",
 	"researchTime": 40,
 	"tooltip": "+20% melee cavalry attack.",

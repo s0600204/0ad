@@ -4,7 +4,6 @@
 	"description": "Italian mercenaries have their train time decreased.",
 	"cost": {"food": 0, "wood": 100, "stone": 0, "metal": 100},
 	"requirements": {"all": [{"tech": "phase_town"}, {"civ": "cart"}]},
-	"requirementsTooltip": "Unlocked in Town Phase.",
 	"icon": "clenched_fist.png",
 	"researchTime": 40,
 	"tooltip": "Ally with Italiote towns to reduce recruit time -20% for Italian mercenaries.",

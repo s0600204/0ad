@@ -11,7 +11,6 @@
 	"description": "Metal armor for a horse's face.",
 	"cost": {"food": 0, "wood": 0, "stone": 0, "metal": 200},
 	"requirements": {"any": [{"tech": "phase_town"},{"civ": "brit"},{"civ": "gaul"}]},
-	"requirementsTooltip": "Unlocked in Town Phase.",
 	"icon": "armor_plates_cavalry.png",
 	"researchTime": 40,
 	"tooltip": "Equip your cavalry mounts with armor. All Cavalry +1 Hack armor level.",

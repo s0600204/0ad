@@ -3,7 +3,6 @@
 	"description": "The Persians had a tradition of fine archery and a penchant for using massed archers in battle.",
 	"cost": {"food": 500, "wood": 500, "stone": 0, "metal": 250},
 	"requirements": {"all": [{"tech": "phase_village"}, {"civ": "pers"}]},
-	"requirementsTooltip": "Unlocked in Village Phase.",
 	"icon": "armor_plates_ranged.png",
 	"researchTime": 60,
 	"tooltip": "Range +10 meters for bow-wielding units. Archer units train time -20%, but also -20% health.",
