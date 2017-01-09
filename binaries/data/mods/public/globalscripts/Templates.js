@@ -370,7 +370,6 @@ function GetTechnologyDataHelper(template, civ, resources)
 		ret.cost[type] = template.cost ? +template.cost[type] : 0;
 
 	ret.tooltip = template.tooltip;
-	ret.requirementsTooltip = template.requirementsTooltip || "";
 
 	ret.reqs = DeriveTechnologyRequirements(template, civ);
 

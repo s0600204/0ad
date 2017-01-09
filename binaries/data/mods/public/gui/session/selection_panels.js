@@ -828,11 +828,8 @@ g_SelectionPanels.Research = {
 			].map(func => func(template));
 
 			if (!requirementsPassed)
-			{
-				let tip = template.requirementsTooltip;
-				tip += "\n" + deriveTechRequirementsTooltip(template.reqs, player);
-				tooltips.push(tip);
-			}
+				tooltips.push(deriveTechRequirementsTooltip(template.reqs, player));
+
 			tooltips.push(getNeededResourcesTooltip(neededResources));
 			button.tooltip = tooltips.filter(tip => tip).join("\n");
 
