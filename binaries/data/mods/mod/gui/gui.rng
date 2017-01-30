@@ -297,7 +297,12 @@
       </optional>
       <optional>
         <attribute name="scrollbar">
-          <ref name="bool"/>
+          <choice>
+            <value>none</value>
+            <value>vertical</value>
+            <value>horizontal</value>
+            <value>both</value>
+          </choice>
         </attribute>
       </optional>
       <optional>

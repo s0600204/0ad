@@ -71,7 +71,7 @@ CDropDown::CDropDown(CGUI& pGUI)
 	//RegisterSetting("textcolor_pressed");
 
 	// Scrollbar is forced to be true.
-	SetSetting<bool>("scrollbar", true, true);
+	SetSetting<bool>("scrollbar_vertical", true, true);
 }
 
 CDropDown::~CDropDown()
@@ -105,7 +105,7 @@ void CDropDown::HandleMessage(SGUIMessage& Message)
 			Message.value == "dropdown_buffer" ||
 			Message.value == "minimum_visible_items" ||
 			Message.value == "scrollbar_style" ||
-			Message.value == "scrollbar" ||
+			Message.value == "scrollbar_vertical" ||
 			Message.value == "button_width")
 		{
 			SetupListRect();
@@ -124,7 +124,7 @@ void CDropDown::HandleMessage(SGUIMessage& Message)
 		if (!GetListRect().PointInside(mouse))
 			break;
 
-		const float scroll = m_ScrollBar ? GetScrollBar(0).GetPos() : 0.f;
+		const float scroll = m_ScrollBarVertical ? GetScrollBar(0).GetPos() : 0.f;
 
 		CRect rect = GetListRect();
 		mouse.Y += scroll;
@@ -480,16 +480,16 @@ void CDropDown::Draw()
 	if (m_Open)
 	{
 		// Disable scrollbar during drawing without sending a setting-changed message
-		const bool old = m_ScrollBar;
+		const bool old = m_ScrollBarVertical;
 
 		// TODO: drawScrollbar as an argument of DrawList?
 		if (m_HideScrollBar)
-			m_ScrollBar = false;
+			m_ScrollBarVertical = false;
 
 		DrawList(m_ElementHighlight, m_SpriteList, m_SpriteSelectArea, m_TextColor);
 
 		if (m_HideScrollBar)
-			m_ScrollBar = old;
+			m_ScrollBarVertical = old;
 	}
 }
 

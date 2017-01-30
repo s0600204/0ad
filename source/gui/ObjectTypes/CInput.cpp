@@ -65,7 +65,7 @@ CInput::CInput(CGUI& pGUI)
 	m_MaxLength(),
 	m_MultiLine(),
 	m_Readonly(),
-	m_ScrollBar(),
+	m_ScrollBarVertical(),
 	m_ScrollBarStyle(),
 	m_Sprite(),
 	m_SpriteSelectArea(),
@@ -81,7 +81,7 @@ CInput::CInput(CGUI& pGUI)
 	RegisterSetting("max_length", m_MaxLength);
 	RegisterSetting("multiline", m_MultiLine);
 	RegisterSetting("readonly", m_Readonly);
-	RegisterSetting("scrollbar", m_ScrollBar);
+	RegisterSetting("scrollbar_vertical", m_ScrollBarVertical);
 	RegisterSetting("scrollbar_style", m_ScrollBarStyle);
 	RegisterSetting("sprite", m_Sprite);
 	RegisterSetting("sprite_selectarea", m_SpriteSelectArea);
@@ -890,7 +890,7 @@ void CInput::HandleMessage(SGUIMessage& Message)
 	{
 	case GUIM_SETTINGS_UPDATED:
 	{
-		if (m_ScrollBar &&
+		if (m_ScrollBarVertical &&
 			(Message.value == "size" ||
 			 Message.value == "z" ||
 			 Message.value == "absolute"))
@@ -944,7 +944,7 @@ void CInput::HandleMessage(SGUIMessage& Message)
 	case GUIM_MOUSE_PRESS_LEFT:
 	{
 		// Check if we're selecting the scrollbar
-		if (m_ScrollBar &&
+		if (m_ScrollBarVertical &&
 		    m_MultiLine &&
 		    GetScrollBar(0).GetStyle())
 		{
@@ -1164,7 +1164,7 @@ void CInput::UpdateCachedSize()
 
 	IGUIObject::UpdateCachedSize();
 
-	if (m_ScrollBar)
+	if (m_ScrollBarVertical)
 		GetScrollBar(0).Setup();
 
 	m_GeneratedPlaceholderTextValid = false;
@@ -1189,7 +1189,7 @@ void CInput::Draw()
 		m_CursorVisState = true;
 
 	// First call draw on ScrollBarOwner
-	if (m_ScrollBar && m_MultiLine)
+	if (m_ScrollBarVertical && m_MultiLine)
 		IGUIScrollBarOwner::Draw();
 
 	CStrIntern font_name(m_Font.ToUTF8());
@@ -1201,7 +1201,7 @@ void CInput::Draw()
 	m_pGUI.DrawSprite(m_Sprite, bz, m_CachedActualSize);
 
 	float scroll = 0.f;
-	if (m_ScrollBar && m_MultiLine)
+	if (m_ScrollBarVertical && m_MultiLine)
 		scroll = GetScrollBar(0).GetPos();
 
 	CFontMetrics font(font_name);
@@ -1211,7 +1211,7 @@ void CInput::Draw()
 
 	// First we'll figure out the clipping area, which is the cached actual size
 	//  substracted by an optional scrollbar
-	if (m_ScrollBar)
+	if (m_ScrollBarVertical)
 	{
 		scroll = GetScrollBar(0).GetPos();
 
@@ -1868,7 +1868,7 @@ void CInput::UpdateText(int from, int to_before, int to_after)
 	// add the final row (even if empty)
 	m_CharacterPositions.insert(current_line, row);
 
-	if (m_ScrollBar)
+	if (m_ScrollBarVertical)
 	{
 		float height = m_CharacterPositions.size() * font.GetLineSpacing() + m_BufferZone * 2.f;
 		m_CachedContentSize = CRect(0.0f, 0.0f, GetTextAreaWidth(), height);
@@ -1891,7 +1891,7 @@ int CInput::GetMouseHoveringTextPosition() const
 	if (m_MultiLine)
 	{
 		float scroll = 0.f;
-		if (m_ScrollBar)
+		if (m_ScrollBarVertical)
 			scroll = GetScrollBarPos(0);
 
 		// Now get the height of the font.
@@ -2007,7 +2007,7 @@ bool CInput::SelectingText() const
 
 float CInput::GetTextAreaWidth()
 {
-	if (m_ScrollBar && GetScrollBar(0).GetStyle())
+	if (m_ScrollBarVertical && GetScrollBar(0).GetStyle())
 		return m_CachedActualSize.GetWidth() - m_BufferZone * 2.f - GetScrollBar(0).GetStyle()->m_Breadth;
 
 	return m_CachedActualSize.GetWidth() - m_BufferZone * 2.f;
@@ -2018,7 +2018,7 @@ void CInput::UpdateAutoScroll()
 	// Autoscrolling up and down
 	if (m_MultiLine)
 	{
-		if (!m_ScrollBar)
+		if (!m_ScrollBarVertical)
 			return;
 
 		const float scroll = GetScrollBar(0).GetPos();

@@ -62,7 +62,7 @@ void COList::SetupText()
 	m_TotalAvailableColumnWidth = GetListRect().GetWidth();
 
 	// Reduce width by the breadth of the scrollbar if applicable.
-	if (m_ScrollBar && GetScrollBar(0).GetStyle())
+	if (m_ScrollBarVertical && GetScrollBar(0).GetStyle())
 		m_TotalAvailableColumnWidth -= GetScrollBar(0).GetStyle()->m_Breadth;
 
 	m_HeadingHeight = SORT_SPRITE_DIM; // At least the size of the sorting sprite
@@ -110,7 +110,7 @@ void COList::SetupText()
 
 	m_ItemsYPositions[m_List.m_Items.size()] = buffered_y;
 
-	if (m_ScrollBar)
+	if (m_ScrollBarVertical)
 	{
 		GetScrollBar(0).SetScrollRange(m_ItemsYPositions.back());
 		GetScrollBar(0).Setup(GetListRect());
@@ -290,7 +290,7 @@ void COList::DrawList(const int& selected, const CGUISpriteInstance& sprite, con
 {
 	const float bz = GetBufferedZ();
 
-	if (m_ScrollBar)
+	if (m_ScrollBarVertical)
 		IGUIScrollBarOwner::Draw();
 
 	CRect rect = GetListRect();
@@ -298,7 +298,7 @@ void COList::DrawList(const int& selected, const CGUISpriteInstance& sprite, con
 	m_pGUI.DrawSprite(sprite, bz, rect);
 
 	float scroll = 0.f;
-	if (m_ScrollBar)
+	if (m_ScrollBarVertical)
 		scroll = GetScrollBar(0).GetPos();
 
 	// Draw item selection
@@ -318,7 +318,7 @@ void COList::DrawList(const int& selected, const CGUISpriteInstance& sprite, con
 			if (rect_sel.top < rect.top)
 				rect_sel.top = rect.top;
 
-			if (m_ScrollBar)
+			if (m_ScrollBarVertical)
 			{
 				// Remove any overlapping area of the scrollbar.
 				if (rect_sel.right > GetScrollBar(0).GetOuterRect().left &&
@@ -397,7 +397,7 @@ void COList::DrawList(const int& selected, const CGUISpriteInstance& sprite, con
 		// Clipping area (we'll have to substract the scrollbar)
 		CRect cliparea = GetListRect();
 
-		if (m_ScrollBar)
+		if (m_ScrollBarVertical)
 		{
 			if (cliparea.right > GetScrollBar(0).GetOuterRect().left &&
 				cliparea.right <= GetScrollBar(0).GetOuterRect().right)

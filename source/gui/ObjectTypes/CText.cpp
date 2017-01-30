@@ -32,7 +32,7 @@ CText::CText(CGUI& pGUI)
 	  m_Caption(),
 	  m_Clip(),
 	  m_Font(),
-	  m_ScrollBar(),
+	  m_ScrollBarVertical(),
 	  m_ScrollBarStyle(),
 	  m_ScrollResetOnChange(),
 	  m_Sprite(),
@@ -47,7 +47,7 @@ CText::CText(CGUI& pGUI)
 	RegisterSetting("caption", m_Caption);
 	RegisterSetting("clip", m_Clip);
 	RegisterSetting("font", m_Font);
-	RegisterSetting("scrollbar", m_ScrollBar);
+	RegisterSetting("scrollbar_vertical", m_ScrollBarVertical);
 	RegisterSetting("scrollbar_reset_on_change", m_ScrollResetOnChange);
 	RegisterSetting("scrollbar_sticky_end", m_ScrollStickyEnd);
 	RegisterSetting("scrollbar_style", m_ScrollBarStyle);
@@ -61,7 +61,7 @@ CText::CText(CGUI& pGUI)
 	RegisterSetting("_icon_tooltip_style", m_IconTooltipStyle);
 
 	//SetSetting<bool>("ghost", true, true);
-	SetSetting<bool>("scrollbar", false, true);
+	SetSetting<bool>("scrollbar_vertical", false, true);
 	SetSetting<bool>("clip", true, true);
 
 	// Add scrollbar
@@ -85,13 +85,13 @@ void CText::SetupText()
 	float width = m_CachedActualSize.GetWidth();
 
 	// Reduce width by scrollbar breadth if applicable.
-	if (m_ScrollBar && GetScrollBar(0).GetStyle())
+	if (m_ScrollBarVertical && GetScrollBar(0).GetStyle())
 		width -= GetScrollBar(0).GetStyle()->m_Breadth;
 
 	m_GeneratedTexts[0] = CGUIText(m_pGUI, m_Caption, m_Font, width, m_BufferZone, this);
 	m_CachedContentSize = m_GeneratedTexts[0].GetSize();
 
-	if (!m_ScrollBar)
+	if (!m_ScrollBarVertical)
 		CalculateTextPosition(m_CachedActualSize, m_TextPos, m_GeneratedTexts[0]);
 	else
 	{
@@ -148,7 +148,7 @@ void CText::HandleMessage(SGUIMessage& Message)
 
 	case GUIM_MOUSE_WHEEL_DOWN:
 	case GUIM_MOUSE_WHEEL_UP:
-		if (!m_ScrollBar)
+		if (!m_ScrollBarVertical)
 			m_pParent->HandleMessage(Message);
 		break;
 
@@ -168,13 +168,13 @@ void CText::Draw()
 {
 	float bz = GetBufferedZ();
 
-	if (m_ScrollBar)
+	if (m_ScrollBarVertical)
 		IGUIScrollBarOwner::Draw();
 
 	m_pGUI.DrawSprite(m_Sprite, bz, m_CachedActualSize);
 
 	float scroll = 0.f;
-	if (m_ScrollBar)
+	if (m_ScrollBarVertical)
 		scroll = GetScrollBar(0).GetPos();
 
 	// Clipping area (we'll have to subtract the scrollbar)
@@ -183,7 +183,7 @@ void CText::Draw()
 	{
 		cliparea = m_CachedActualSize;
 
-		if (m_ScrollBar)
+		if (m_ScrollBarVertical)
 		{
 			// subtract scrollbar from cliparea
 			if (cliparea.right > GetScrollBar(0).GetOuterRect().left &&
@@ -198,7 +198,7 @@ void CText::Draw()
 
 	const CGUIColor& color = m_Enabled ? m_TextColor : m_TextColorDisabled;
 
-	if (m_ScrollBar)
+	if (m_ScrollBarVertical)
 		DrawText(0, color, m_CachedActualSize.TopLeft() - CVector2D(0.f, scroll), bz + 0.1f, cliparea);
 	else
 		DrawText(0, color, m_TextPos, bz + 0.1f, cliparea);

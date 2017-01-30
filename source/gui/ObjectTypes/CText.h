@@ -82,7 +82,7 @@ protected:
 	CGUIString m_Caption;
 	bool m_Clip;
 	CStrW m_Font;
-	bool m_ScrollBar;
+	bool m_ScrollBarVertical;
 	CStr m_ScrollBarStyle;
 	bool m_ScrollResetOnChange;
 	CGUISpriteInstance m_Sprite;

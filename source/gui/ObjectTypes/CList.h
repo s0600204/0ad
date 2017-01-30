@@ -129,7 +129,7 @@ protected:
 	// Settings
 	float m_BufferZone;
 	CStrW m_Font;
-	bool m_ScrollBar;
+	bool m_ScrollBarVertical;
 	CStr m_ScrollBarStyle;
 	CStrW m_SoundDisabled;
 	CStrW m_SoundSelected;

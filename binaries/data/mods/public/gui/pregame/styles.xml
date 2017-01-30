@@ -17,7 +17,7 @@
 	<style name="userReportText"
 		font="sans-14"
 		textcolor="white"
-		scrollbar="true"
+		scrollbar="vertical"
 		scrollbar_style="ModernScrollBar"
 	/>
 

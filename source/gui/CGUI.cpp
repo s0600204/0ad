@@ -652,6 +652,7 @@ void CGUI::Xeromyces_ReadObject(XMBElement Element, CXeromyces* pFile, IGUIObjec
 	ATTR(directory);
 	ATTR(id);
 	ATTR(context);
+	ATTR(scrollbar);
 
 	//
 	//	Read Style and set defaults
@@ -695,6 +696,18 @@ void CGUI::Xeromyces_ReadObject(XMBElement Element, CXeromyces* pFile, IGUIObjec
 
 		if (attr.Name == attr_z)
 			ManuallySetZ = true;
+
+		if (attr.Name == attr_scrollbar)
+		{
+			bool scroll = false;
+
+			if (object->SettingExists("scrollbar_vertical"))
+			{
+				scroll = attr.Value == "vertical" || attr.Value == "both";
+				object->SetSetting<bool>("scrollbar_vertical", scroll, true);
+			}
+			continue;
+		}
 
 		object->SetSettingFromString(pFile->GetAttributeString(attr.Name), attr.Value.FromUTF8(), false);
 	}
@@ -1158,6 +1171,9 @@ void CGUI::Xeromyces_ReadStyle(XMBElement Element, CXeromyces* pFile)
 		//  and not a new default
 		if (attr_name == "name")
 			name = attr.Value;
+		else if (attr_name == "scrollbar")
+			if (attr.Value == "vertical" || attr.Value == "both")
+				style.m_SettingsDefaults["scrollbar_vertical"] = L"true";
 		else
 			style.m_SettingsDefaults.emplace(attr_name, attr.Value.FromUTF8());
 	}

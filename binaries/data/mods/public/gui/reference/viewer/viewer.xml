@@ -26,7 +26,7 @@
 			<object type="image" style="RankGlyph" name="entityRankGlyph"/>
 		</object>
 
-		<object name="entityStats" type="text" style="ModernText" size="128+20 44 100%-8 50%" scrollbar="false"/>
+		<object name="entityStats" type="text" style="ModernText" size="128+20 44 100%-8 50%" scrollbar="none"/>
 
 		<object name="entityInfo" type="text" style="ModernText" size="16 128+48+8 100%-16 100%-48"/>
 

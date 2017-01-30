@@ -227,7 +227,7 @@ protected:
 	i32 m_MaxLength;
 	bool m_MultiLine;
 	bool m_Readonly;
-	bool m_ScrollBar;
+	bool m_ScrollBarVertical;
 	CStr m_ScrollBarStyle;
 	CGUISpriteInstance m_Sprite;
 	CGUISpriteInstance m_SpriteSelectArea;

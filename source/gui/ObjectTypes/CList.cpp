@@ -40,7 +40,7 @@ CList::CList(CGUI& pGUI)
 	  m_LastItemClickTime(0),
 	  m_BufferZone(),
 	  m_Font(),
-	  m_ScrollBar(),
+	  m_ScrollBarVertical(),
 	  m_ScrollBarStyle(),
 	  m_SoundDisabled(),
 	  m_SoundSelected(),
@@ -57,7 +57,7 @@ CList::CList(CGUI& pGUI)
 {
 	RegisterSetting("buffer_zone", m_BufferZone);
 	RegisterSetting("font", m_Font);
-	RegisterSetting("scrollbar", m_ScrollBar);
+	RegisterSetting("scrollbar_vertical", m_ScrollBarVertical);
 	RegisterSetting("scrollbar_sticky_end", m_ScrollStickyEnd);
 	RegisterSetting("scrollbar_style", m_ScrollBarStyle);
 	RegisterSetting("sound_disabled", m_SoundDisabled);
@@ -75,7 +75,7 @@ CList::CList(CGUI& pGUI)
 	RegisterSetting("list", m_List);
 	RegisterSetting("list_data", m_ListData);
 
-	SetSetting<bool>("scrollbar", false, true);
+	SetSetting<bool>("scrollbar_vertical", false, true);
 	SetSetting<i32>("selected", -1, true);
 	SetSetting<i32>("hovered", -1, true);
 	SetSetting<bool>("auto_scroll", false, true);
@@ -107,7 +107,7 @@ void CList::SetupText(bool append)
 	float width = GetListRect().GetWidth();
 
 	bool bottom = false;
-	if (m_ScrollBar && GetScrollBar(0).GetStyle())
+	if (m_ScrollBarVertical && GetScrollBar(0).GetStyle())
 	{
 		bottom = KeepScrollBarAtEnd(0);
 		width -= GetScrollBar(0).GetStyle()->m_Breadth;
@@ -141,7 +141,7 @@ void CList::SetupText(bool append)
 
 	m_ItemsYPositions[m_List.m_Items.size()] = buffered_y;
 
-	if (m_ScrollBar)
+	if (m_ScrollBarVertical)
 	{
 		GetScrollBar(0).SetScrollRange(m_ItemsYPositions.back());
 		GetScrollBar(0).Setup(GetListRect());
@@ -318,7 +318,7 @@ void CList::DrawList(const int& selected, const CGUISpriteInstance& sprite, cons
 		m_pGUI.DrawSprite(sprite, bz, rect);
 
 		float scroll = 0.f;
-		if (m_ScrollBar)
+		if (m_ScrollBarVertical)
 			scroll = GetScrollBar(0).GetPos();
 
 		if (selected >= 0 && selected+1 < (int)m_ItemsYPositions.size())
@@ -335,7 +335,7 @@ void CList::DrawList(const int& selected, const CGUISpriteInstance& sprite, cons
 				if (rect_sel.top < rect.top)
 					rect_sel.top = rect.top;
 
-				if (m_ScrollBar)
+				if (m_ScrollBarVertical)
 				{
 					// Remove any overlapping area of the scrollbar.
 					if (rect_sel.right > GetScrollBar(0).GetOuterRect().left &&
@@ -360,7 +360,7 @@ void CList::DrawList(const int& selected, const CGUISpriteInstance& sprite, cons
 			// Clipping area (we'll have to subtract the scrollbar)
 			CRect cliparea = GetListRect();
 
-			if (m_ScrollBar)
+			if (m_ScrollBarVertical)
 			{
 				if (cliparea.right > GetScrollBar(0).GetOuterRect().left &&
 					cliparea.right <= GetScrollBar(0).GetOuterRect().right)
@@ -375,7 +375,7 @@ void CList::DrawList(const int& selected, const CGUISpriteInstance& sprite, cons
 		}
 	}
 
-	if (m_ScrollBar)
+	if (m_ScrollBarVertical)
 		IGUIScrollBarOwner::Draw();
 }
 
@@ -443,7 +443,7 @@ void CList::SelectLastElement()
 void CList::UpdateAutoScroll()
 {
 	// No scrollbar, no scrolling (at least it's not made to work properly).
-	if (!m_ScrollBar || m_Selected < 0 || static_cast<std::size_t>(m_Selected) >= m_ItemsYPositions.size())
+	if (!m_ScrollBarVertical || m_Selected < 0 || static_cast<std::size_t>(m_Selected) >= m_ItemsYPositions.size())
 		return;
 
 	float scroll = GetScrollBar(0).GetPos();
@@ -464,14 +464,14 @@ void CList::UpdateAutoScroll()
 
 int CList::GetHoveredItem()
 {
-	const float scroll = m_ScrollBar ? GetScrollBar(0).GetPos() : 0.f;
+	const float scroll = m_ScrollBarVertical ? GetScrollBar(0).GetPos() : 0.f;
 
 	const CRect& rect = GetListRect();
 	CVector2D mouse = m_pGUI.GetMousePos();
 	mouse.Y += scroll;
 
 	// Mouse is over scrollbar
-	if (m_ScrollBar && GetScrollBar(0).IsNeeded() &&
+	if (m_ScrollBarVertical && GetScrollBar(0).IsNeeded() &&
 	    mouse.X >= GetScrollBar(0).GetOuterRect().left &&
 	    mouse.X <= GetScrollBar(0).GetOuterRect().right)
 		return -1;

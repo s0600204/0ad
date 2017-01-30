@@ -18,7 +18,7 @@
 			name="civHistoryText"
 			type="text"
 			font="sans-14"
-			scrollbar="true"
+			scrollbar="vertical"
 			scrollbar_style="ModernScrollBar"
 			textcolor="white"
 			text_align="left"
