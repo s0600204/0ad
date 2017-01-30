@@ -105,6 +105,7 @@ void CDropDown::HandleMessage(SGUIMessage& Message)
 			Message.value == "dropdown_buffer" ||
 			Message.value == "minimum_visible_items" ||
 			Message.value == "scrollbar_style" ||
+			Message.value == "scrollbar" ||
 			Message.value == "button_width")
 		{
 			SetupListRect();
@@ -131,8 +132,8 @@ void CDropDown::HandleMessage(SGUIMessage& Message)
 		for (int i = 0; i < static_cast<int>(m_List.m_Items.size()); ++i)
 		{
 			if (mouse.Y >= rect.top + m_ItemsYPositions[i] &&
-				mouse.Y < rect.top + m_ItemsYPositions[i+1] &&
-				// mouse is not over scroll-bar
+				mouse.Y < rect.top + m_ItemsYPositions[i + 1] &&
+				// Mouse is not over scrollbar.
 				(m_HideScrollBar ||
 					mouse.X < GetScrollBar(0).GetOuterRect().left ||
 					mouse.X > GetScrollBar(0).GetOuterRect().right))
@@ -166,8 +167,8 @@ void CDropDown::HandleMessage(SGUIMessage& Message)
 		break;
 	}
 
-	// We can't inherent this routine from CList, because we need to include
-	// a mouse click to open the dropdown, also the coordinates are changed.
+	// We can't inheret this routine from CList, because we need to include
+	// a mouse click to open the dropdown. Also, the coordinates are changed.
 	case GUIM_MOUSE_PRESS_LEFT:
 	{
 		if (!m_Enabled)

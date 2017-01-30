@@ -890,20 +890,14 @@ void CInput::HandleMessage(SGUIMessage& Message)
 	{
 	case GUIM_SETTINGS_UPDATED:
 	{
-		// Update scroll-bar
-		// TODO Gee: (2004-09-01) Is this really updated each time it should?
 		if (m_ScrollBar &&
 			(Message.value == "size" ||
 			 Message.value == "z" ||
 			 Message.value == "absolute"))
 		{
-			GetScrollBar(0).SetX(m_CachedActualSize.right);
-			GetScrollBar(0).SetY(m_CachedActualSize.top);
-			GetScrollBar(0).SetZ(GetBufferedZ());
-			GetScrollBar(0).SetLength(m_CachedActualSize.bottom - m_CachedActualSize.top);
+			GetScrollBar(0).Setup();
 		}
 
-		// Update scrollbar
 		if (Message.value == "scrollbar_style")
 			GetScrollBar(0).SetScrollBarStyle(m_ScrollBarStyle);
 
@@ -954,7 +948,7 @@ void CInput::HandleMessage(SGUIMessage& Message)
 		    m_MultiLine &&
 		    GetScrollBar(0).GetStyle())
 		{
-			if (m_pGUI.GetMousePos().X > m_CachedActualSize.right - GetScrollBar(0).GetStyle()->m_Width)
+			if (m_pGUI.GetMousePos().X > m_CachedActualSize.right - GetScrollBar(0).GetStyle()->m_Breadth)
 				break;
 		}
 
@@ -1111,11 +1105,8 @@ void CInput::HandleMessage(SGUIMessage& Message)
 	}
 	case GUIM_LOAD:
 	{
-		GetScrollBar(0).SetX(m_CachedActualSize.right);
-		GetScrollBar(0).SetY(m_CachedActualSize.top);
-		GetScrollBar(0).SetZ(GetBufferedZ());
-		GetScrollBar(0).SetLength(m_CachedActualSize.bottom - m_CachedActualSize.top);
 		GetScrollBar(0).SetScrollBarStyle(m_ScrollBarStyle);
+		GetScrollBar(0).Setup();
 
 		UpdateText();
 		UpdateAutoScroll();
@@ -1174,12 +1165,7 @@ void CInput::UpdateCachedSize()
 	IGUIObject::UpdateCachedSize();
 
 	if (m_ScrollBar)
-	{
-		GetScrollBar(0).SetX(m_CachedActualSize.right);
-		GetScrollBar(0).SetY(m_CachedActualSize.top);
-		GetScrollBar(0).SetZ(GetBufferedZ());
-		GetScrollBar(0).SetLength(m_CachedActualSize.bottom - m_CachedActualSize.top);
-	}
+		GetScrollBar(0).Setup();
 
 	m_GeneratedPlaceholderTextValid = false;
 }
@@ -1884,8 +1870,9 @@ void CInput::UpdateText(int from, int to_before, int to_after)
 
 	if (m_ScrollBar)
 	{
-		GetScrollBar(0).SetScrollRange(m_CharacterPositions.size() * font.GetLineSpacing() + m_BufferZone * 2.f);
-		GetScrollBar(0).SetScrollSpace(m_CachedActualSize.GetHeight());
+		float height = m_CharacterPositions.size() * font.GetLineSpacing() + m_BufferZone * 2.f;
+		m_CachedContentSize = CRect(0.0f, 0.0f, GetTextAreaWidth(), height);
+		GetScrollBar(0).Setup();
 	}
 }
 
@@ -2021,7 +2008,7 @@ bool CInput::SelectingText() const
 float CInput::GetTextAreaWidth()
 {
 	if (m_ScrollBar && GetScrollBar(0).GetStyle())
-		return m_CachedActualSize.GetWidth() - m_BufferZone * 2.f - GetScrollBar(0).GetStyle()->m_Width;
+		return m_CachedActualSize.GetWidth() - m_BufferZone * 2.f - GetScrollBar(0).GetStyle()->m_Breadth;
 
 	return m_CachedActualSize.GetWidth() - m_BufferZone * 2.f;
 }

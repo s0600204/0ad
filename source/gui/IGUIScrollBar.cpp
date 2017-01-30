@@ -26,10 +26,9 @@
 
 IGUIScrollBar::IGUIScrollBar(CGUI& pGUI)
 	: m_pGUI(pGUI),
-	 m_pStyle(nullptr),
 	 m_X(300.f), m_Y(300.f),
 	 m_ScrollRange(1.f), m_ScrollSpace(0.f), // MaxPos: not 0, due to division.
-	 m_Length(200.f), m_Width(20.f),
+	 m_Length(200.f), m_Breadth(20.f),
 	 m_BarSize(0.f), m_Pos(0.f),
 	 m_ButtonPlusPressed(false),
 	 m_ButtonMinusPressed(false),
@@ -55,7 +54,7 @@ void IGUIScrollBar::SetupBarSize()
 
 	// Check for edge buttons
 	if (GetStyle()->m_UseEdgeButtons)
-		length -= GetStyle()->m_Width * 2.f;
+		length -= GetStyle()->m_Breadth * 2.f;
 
 	// Check min and max are valid
 	if (min > length)
@@ -168,7 +167,10 @@ void IGUIScrollBar::HandleMessage(SGUIMessage& Message)
 
 	case GUIM_MOUSE_WHEEL_UP:
 	{
-		ScrollMinus();
+		// If we're at the limit, pass the message to host object's parent.
+		if (m_Pos <= 0)
+			GetHostGUIObject().GetParent()->HandleMessage(Message);
+
 		// Since the scroll was changed, let's simulate a mouse movement
 		//  to check if scrollbar now is hovered
 		SGUIMessage msg(GUIM_MOUSE_MOTION);
@@ -178,7 +180,10 @@ void IGUIScrollBar::HandleMessage(SGUIMessage& Message)
 
 	case GUIM_MOUSE_WHEEL_DOWN:
 	{
-		ScrollPlus();
+		// If we're at the limit, pass the message to host object's parent.
+		if (m_Pos >= GetMaxPos())
+			GetHostGUIObject().GetParent()->HandleMessage(Message);
+
 		// Since the scroll was changed, let's simulate a mouse movement
 		//  to check if scrollbar now is hovered
 		SGUIMessage msg(GUIM_MOUSE_MOTION);

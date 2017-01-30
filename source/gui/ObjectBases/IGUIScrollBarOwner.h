@@ -27,8 +27,8 @@ class IGUIScrollBar;
 class IGUIObject;
 
 /**
- * Base-class this if you want an object to contain
- * one, or several, scroll-bars.
+ * Base class if you want an object to contain
+ * one, or several, scrollbars.
  */
 class IGUIScrollBarOwner
 {
@@ -58,13 +58,13 @@ public:
 	virtual const SGUIScrollBarStyle* GetScrollBarStyle(const CStr8& style) const;
 
 	/**
-	 * Add a scroll-bar
+	 * Add a scrollbar
 	 */
 	virtual void AddScrollBar(IGUIScrollBar* scrollbar);
 
 	/**
-	 * Get Scroll Bar reference (it should be transparent it's actually
-	 * pointers).
+	 * Get a scrollbar reference (it should be transparent it's actually a
+	 * pointer).
 	 */
 	virtual IGUIScrollBar& GetScrollBar(const int& index)
 	{
@@ -72,7 +72,7 @@ public:
 	}
 
 	/**
-	 * Get the position of the scroll bar at @param index.
+	 * Get the position of the scrollbar at @param index.
 	 * Equivalent to GetScrollbar(index).GetPos().
 	 */
 	virtual float GetScrollBarPos(const int index) const;

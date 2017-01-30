@@ -60,9 +60,10 @@ void COList::SetupText()
 	m_GeneratedTexts.clear();
 
 	m_TotalAvailableColumnWidth = GetListRect().GetWidth();
-	// remove scrollbar if applicable
+
+	// Reduce width by the breadth of the scrollbar if applicable.
 	if (m_ScrollBar && GetScrollBar(0).GetStyle())
-		m_TotalAvailableColumnWidth -= GetScrollBar(0).GetStyle()->m_Width;
+		m_TotalAvailableColumnWidth -= GetScrollBar(0).GetStyle()->m_Breadth;
 
 	m_HeadingHeight = SORT_SPRITE_DIM; // At least the size of the sorting sprite
 
@@ -111,14 +112,8 @@ void COList::SetupText()
 
 	if (m_ScrollBar)
 	{
-		CRect rect = GetListRect();
 		GetScrollBar(0).SetScrollRange(m_ItemsYPositions.back());
-		GetScrollBar(0).SetScrollSpace(rect.GetHeight());
-
-		GetScrollBar(0).SetX(rect.right);
-		GetScrollBar(0).SetY(rect.top);
-		GetScrollBar(0).SetZ(GetBufferedZ());
-		GetScrollBar(0).SetLength(rect.bottom - rect.top);
+		GetScrollBar(0).Setup(GetListRect());
 	}
 }
 

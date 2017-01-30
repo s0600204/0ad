@@ -1,4 +1,4 @@
-/* Copyright (C) 2019 Wildfire Games.
+/* Copyright (C) 2020 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -45,7 +45,7 @@ struct COListColumn
  *
  * The list can be sorted dynamically by JS code when a
  * heading is clicked.
- * A scroll-bar will appear when needed.
+ * A scrollbar will appear when needed.
  */
 class COList : public CList
 {

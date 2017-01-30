@@ -65,7 +65,7 @@ CText::CText(CGUI& pGUI)
 	SetSetting<bool>("scrollbar", false, true);
 	SetSetting<bool>("clip", true, true);
 
-	// Add scroll-bar
+	// Add scrollbar
 	CGUIScrollBarVertical* bar = new CGUIScrollBarVertical(pGUI);
 	bar->SetRightAligned(true);
 	AddScrollBar(bar);
@@ -84,17 +84,17 @@ void CText::SetupText()
 		return;
 
 	float width = m_CachedActualSize.GetWidth();
-	// remove scrollbar if applicable
+
+	// Reduce width by scrollbar breadth if applicable.
 	if (m_ScrollBar && GetScrollBar(0).GetStyle())
-		width -= GetScrollBar(0).GetStyle()->m_Width;
+		width -= GetScrollBar(0).GetStyle()->m_Breadth;
 
 	m_GeneratedTexts[0] = CGUIText(m_pGUI, m_Caption, m_Font, width, m_BufferZone, this);
+	m_CachedContentSize = m_GeneratedTexts[0].GetSize();
 
 	if (!m_ScrollBar)
 		CalculateTextPosition(m_CachedActualSize, m_TextPos, m_GeneratedTexts[0]);
-
-	// Setup scrollbar
-	if (m_ScrollBar)
+	else
 	{
 		// If we are currently scrolled to the bottom of the text,
 		// then add more lines of text, update the scrollbar so we
@@ -104,13 +104,7 @@ void CText::SetupText()
 		if (m_ScrollBottom && GetScrollBar(0).GetPos() > GetScrollBar(0).GetMaxPos() - 1.5f)
 			bottom = true;
 
-		GetScrollBar(0).SetScrollRange(m_GeneratedTexts[0].GetSize().Height);
-		GetScrollBar(0).SetScrollSpace(m_CachedActualSize.GetHeight());
-
-		GetScrollBar(0).SetX(m_CachedActualSize.right);
-		GetScrollBar(0).SetY(m_CachedActualSize.top);
-		GetScrollBar(0).SetZ(GetBufferedZ());
-		GetScrollBar(0).SetLength(m_CachedActualSize.bottom - m_CachedActualSize.top);
+		GetScrollBar(0).Setup();
 
 		if (bottom)
 			GetScrollBar(0).SetPos(GetScrollBar(0).GetMaxPos());
@@ -142,55 +136,32 @@ void CText::HandleMessage(SGUIMessage& Message)
 {
 	IGUIObject::HandleMessage(Message);
 	IGUIScrollBarOwner::HandleMessage(Message);
-	//IGUITextOwner::HandleMessage(Message); <== placed it after the switch instead!
 
 	switch (Message.type)
 	{
 	case GUIM_SETTINGS_UPDATED:
-		if (Message.value == "scrollbar")
+		if (Message.value == "scrollbar" || Message.value == "scrollbar_style")
 			SetupText();
 
-		// Update scrollbar
 		if (Message.value == "scrollbar_style")
-		{
 			GetScrollBar(0).SetScrollBarStyle(m_ScrollBarStyle);
-			SetupText();
-		}
-
 		break;
 
 	case GUIM_MOUSE_WHEEL_DOWN:
-	{
-		GetScrollBar(0).ScrollPlus();
-		// Since the scroll was changed, let's simulate a mouse movement
-		//  to check if scrollbar now is hovered
-		SGUIMessage msg(GUIM_MOUSE_MOTION);
-		HandleMessage(msg);
-		break;
-	}
 	case GUIM_MOUSE_WHEEL_UP:
-	{
-		GetScrollBar(0).ScrollMinus();
-		// Since the scroll was changed, let's simulate a mouse movement
-		//  to check if scrollbar now is hovered
-		SGUIMessage msg(GUIM_MOUSE_MOTION);
-		HandleMessage(msg);
+		if (!m_ScrollBar)
+			m_pParent->HandleMessage(Message);
 		break;
-	}
+
 	case GUIM_LOAD:
-	{
-		GetScrollBar(0).SetX(m_CachedActualSize.right);
-		GetScrollBar(0).SetY(m_CachedActualSize.top);
-		GetScrollBar(0).SetZ(GetBufferedZ());
-		GetScrollBar(0).SetLength(m_CachedActualSize.bottom - m_CachedActualSize.top);
 		GetScrollBar(0).SetScrollBarStyle(m_ScrollBarStyle);
 		break;
-	}
 
 	default:
 		break;
 	}
 
+	// Deliberately placed after the switch...case.
 	IGUITextOwner::HandleMessage(Message);
 }
 

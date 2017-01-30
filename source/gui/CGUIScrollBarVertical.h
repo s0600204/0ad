@@ -16,9 +16,10 @@
  */
 
 /*
-	A GUI Scrollbar, this class doesn't present all functionality
-	to the scrollbar, it just controls the drawing and a wrapper
-	for interaction with it.
+	A vertical GUI Scrollbar, this class doesn't present all functionality
+	to the scrollbar, it just controls the drawing, handles some events,
+	and provides a wrapper for interaction with itself. Actual tracking
+	of how far we've scrolled inside the owner is handled elsewhere.
 */
 
 #ifndef INCLUDED_CGUISCROLLBARVERTICAL
@@ -39,15 +40,19 @@ public:
 
 public:
 	/**
-	 * Draw the scroll-bar
+	 * Draw the scrollbar
 	 */
 	virtual void Draw();
 
 	/**
-     * If an object that contains a scrollbar has got messages, send
-	 * them to the scroll-bar and it will see if the message regarded
-	 * itself.
+	 * Setup the scrollbar, setting the size, length and position.
 	 *
+	 * @see IGUIScrollBar#Setup()
+	 */
+	virtual void Setup();
+	virtual void Setup(const CRect& content);
+
+	/**
 	 * @see IGUIObject#HandleMessage()
 	 */
 	virtual void HandleMessage(SGUIMessage& Message);
@@ -81,14 +86,14 @@ public:
 
 	/**
 	 * Get the rectangle of the outline of the scrollbar, every component of the
-	 * scroll-bar should be inside this area.
+	 * scrollbar should be inside this area.
 	 * @return Rectangle, CRect
 	 */
 	virtual CRect GetOuterRect() const;
 
 protected:
 	/**
-	 * Should the scroll bar proceed to the left or to the right of the m_X value.
+	 * Should the scrollbar be drawn on the left or on the right of the m_X value.
 	 * Notice, this has nothing to do with where the owner places it.
 	 */
 	bool m_RightAligned;

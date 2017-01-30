@@ -635,7 +635,7 @@
     <element name="scrollbar">
       <interleave>
         <attribute name="name"/>
-        <attribute name="width">
+        <attribute name="breadth">
           <data type="decimal"/>
         </attribute>
         <optional>

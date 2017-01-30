@@ -102,6 +102,12 @@ public:
 	/// Get object name
 	void SetName(const CStr& Name) { m_Name = Name; }
 
+	/// Get object size
+	const CRect& GetCachedSize() { return m_CachedActualSize; }
+
+	/// Get object content size
+	const CRect& GetContentSize() { return m_CachedContentSize; }
+
 	// Get Presentable name.
 	//  Will change all internally set names to something like "<unnamed object>"
 	CStr GetPresentableName() const;
@@ -325,15 +331,6 @@ protected:
 	bool ApplyStyle(const CStr& StyleName);
 
 	/**
-	 * Returns not the Z value, but the actual buffered Z value, i.e. if it's
-	 * defined relative, then it will check its parent's Z value and add
-	 * the relativity.
-	 *
-	 * @return Actual Z value on the screen.
-	 */
-	virtual float GetBufferedZ() const;
-
-	/**
 	 * Set parent of this object
 	 */
 	void SetParent(IGUIObject* pParent) { m_pParent = pParent; }
@@ -353,11 +350,14 @@ public:
 	 */
 	void ReleaseFocus();
 
-protected:
 	/**
-	 * Check if object is focused.
+	 * Returns not the Z value, but the actual buffered Z value, i.e. if it's
+	 * defined relative, then it will check its parent's Z value and add
+	 * the relativity.
+	 *
+	 * @return Actual Z value on the screen.
 	 */
-	bool IsFocused() const;
+	virtual float GetBufferedZ() const;
 
 	/**
 	 * <b>NOTE!</b> This will not just return m_pParent, when that is
@@ -369,6 +369,12 @@ protected:
 	 * @return Pointer to parent
 	 */
 	IGUIObject* GetParent() const;
+
+protected:
+	/**
+	 * Check if object is focused.
+	 */
+	bool IsFocused() const;
 
 	/**
 	 * Handle additional children to the \<object\>-tag. In IGUIObject, this function does
@@ -395,6 +401,12 @@ protected:
 	 * cached to avoid slow calculations in real time.
 	 */
 	CRect m_CachedActualSize;
+
+	/**
+	 * Like m_CachedActualSize above, except this stores a cached
+	 * value of the combined size of all the children.
+	 */
+	CRect m_CachedContentSize;
 
 	/**
 	 * Execute the script for a particular action.

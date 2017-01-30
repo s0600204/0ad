@@ -670,7 +670,7 @@ private:
 	// Styles
 	std::map<CStr, const SGUIStyle> m_Styles;
 
-	// Scroll-bar styles
+	// Scrollbar styles
 	std::map<CStr, const SGUIScrollBarStyle> m_ScrollBarStyles;
 
 	// Icons

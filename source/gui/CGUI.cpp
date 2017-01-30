@@ -1195,13 +1195,13 @@ void CGUI::Xeromyces_ReadScrollBarStyle(XMBElement Element, CXeromyces* pFile)
 			else
 				scrollbar.m_UseEdgeButtons = b;
 		}
-		else if (attr_name == "width")
+		else if (attr_name == "breadth")
 		{
 			float f;
 			if (!ParseString<float>(this, attr_value.FromUTF8(), f))
 				LOGERROR("GUI: Error parsing '%s' (\"%s\")", attr_name, attr_value);
 			else
-				scrollbar.m_Width = f;
+				scrollbar.m_Breadth = f;
 		}
 		else if (attr_name == "minimum_bar_size")
 		{

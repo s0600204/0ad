@@ -81,7 +81,7 @@ CList::CList(CGUI& pGUI)
 	SetSetting<i32>("hovered", -1, true);
 	SetSetting<bool>("auto_scroll", false, true);
 
-	// Add scroll-bar
+	// Add scrollbar
 	CGUIScrollBarVertical* bar = new CGUIScrollBarVertical(pGUI);
 	bar->SetRightAligned(true);
 	AddScrollBar(bar);
@@ -113,8 +113,7 @@ void CList::SetupText(bool append)
 		if (m_ScrollBottom && GetScrollBar(0).GetPos() > GetScrollBar(0).GetMaxPos() - 1.5f)
 			bottom = true;
 
-		// remove scrollbar if applicable
-		width -= GetScrollBar(0).GetStyle()->m_Width;
+		width -= GetScrollBar(0).GetStyle()->m_Breadth;
 	}
 
 	// Generate texts
@@ -145,17 +144,10 @@ void CList::SetupText(bool append)
 
 	m_ItemsYPositions[m_List.m_Items.size()] = buffered_y;
 
-	// Setup scrollbar
 	if (m_ScrollBar)
 	{
 		GetScrollBar(0).SetScrollRange(m_ItemsYPositions.back());
-		GetScrollBar(0).SetScrollSpace(GetListRect().GetHeight());
-
-		CRect rect = GetListRect();
-		GetScrollBar(0).SetX(rect.right);
-		GetScrollBar(0).SetY(rect.top);
-		GetScrollBar(0).SetZ(GetBufferedZ());
-		GetScrollBar(0).SetLength(rect.bottom - rect.top);
+		GetScrollBar(0).Setup(GetListRect());
 
 		if (bottom)
 			GetScrollBar(0).SetPos(GetScrollBar(0).GetMaxPos());
@@ -178,7 +170,6 @@ void CList::HandleMessage(SGUIMessage& Message)
 {
 	IGUIObject::HandleMessage(Message);
 	IGUIScrollBarOwner::HandleMessage(Message);
-	//IGUITextOwner::HandleMessage(Message); <== placed it after the switch instead!
 
 	m_Modified = false;
 	switch (Message.type)
@@ -198,16 +189,11 @@ void CList::HandleMessage(SGUIMessage& Message)
 			ScriptEvent(EventNameSelectionChange);
 		}
 
-		if (Message.value == "scrollbar")
+		if (Message.value == "scrollbar" || Message.value == "scrollbar_style")
 			SetupText();
 
-		// Update scrollbar
 		if (Message.value == "scrollbar_style")
-		{
 			GetScrollBar(0).SetScrollBarStyle(m_ScrollBarStyle);
-			SetupText();
-		}
-
 		break;
 
 	case GUIM_MOUSE_PRESS_LEFT:
@@ -257,15 +243,14 @@ void CList::HandleMessage(SGUIMessage& Message)
 	}
 
 	case GUIM_LOAD:
-	{
 		GetScrollBar(0).SetScrollBarStyle(m_ScrollBarStyle);
 		break;
-	}
 
 	default:
 		break;
 	}
 
+	// Deliberately placed after the switch...case.
 	IGUITextOwner::HandleMessage(Message);
 }
 
@@ -375,7 +360,7 @@ void CList::DrawList(const int& selected, const CGUISpriteInstance& sprite, cons
 				m_ItemsYPositions[i] - scroll > rect.GetHeight())
 				continue;
 
-			// Clipping area (we'll have to substract the scrollbar)
+			// Clipping area (we'll have to subtract the scrollbar)
 			CRect cliparea = GetListRect();
 
 			if (m_ScrollBar)
@@ -489,7 +474,7 @@ int CList::GetHoveredItem()
 	mouse.Y += scroll;
 
 	// Mouse is over scrollbar
-	if (m_ScrollBar && GetScrollBar(0).IsVisible() &&
+	if (m_ScrollBar && GetScrollBar(0).IsNeeded() &&
 	    mouse.X >= GetScrollBar(0).GetOuterRect().left &&
 	    mouse.X <= GetScrollBar(0).GetOuterRect().right)
 		return -1;

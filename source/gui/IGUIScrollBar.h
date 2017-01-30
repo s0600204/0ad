@@ -25,17 +25,18 @@
 #define INCLUDED_IGUISCROLLBAR
 
 #include "gui/CGUISprite.h"
+#include "gui/ObjectBases/IGUIScrollBarOwner.h"
 #include "maths/Vector2D.h"
 #include "ps/CStr.h"
 
 class CGUI;
-class IGUIScrollBarOwner;
+class IGUIObject;
 struct SGUIMessage;
 
 /**
- * The GUI Scroll-bar style. Tells us how scroll-bars look and feel.
+ * The GUI Scrollbar style. Tells us how scrollbars look and feel.
  *
- * A scroll-bar style can choose whether to support horizontal, vertical
+ * A scrollbar style can choose whether to support horizontal, vertical
  * or both.
  *
  * @see IGUIScrollBar
@@ -53,9 +54,11 @@ struct SGUIScrollBarStyle
 	//@{
 
 	/**
-	 * Width of bar, also both sides of the edge buttons.
+	 * Breadth of bar, from side to side. It is the width of a vertical bar
+	 * and the height of a horizontal bar. It is also used as the dimensions
+	 * of both sides of the edge buttons.
 	 */
-	float m_Width;
+	float m_Breadth;
 
 	/**
 	 * Scrollable with the wheel.
@@ -82,7 +85,7 @@ struct SGUIScrollBarStyle
 	float m_MinimumBarSize;
 
 	/**
-	 * Sometimes you would like your scroll bar to have a fixed maximum size
+	 * Sometimes you would like your scrollbar to have a fixed maximum size
 	 * so that the texture does not get too stretched, you can set a maximum
 	 * in pixels.
 	 */
@@ -138,17 +141,17 @@ struct SGUIScrollBarStyle
 
 
 /**
- * The GUI Scroll-bar, used everywhere there is a scroll-bar in the game.
+ * The GUI Scrollbar, used everywhere there is a scrollbar in the game.
  *
- * To include a scroll-bar to an object, inherent the object from
- * IGUIScrollBarOwner and call AddScrollBar() to add the scroll-bars.
+ * To include a scrollbar to an object, inherent the object from
+ * IGUIScrollBarOwner and call AddScrollBar() to add the scrollbars.
  *
  * It's also important that the scrollbar is located within the parent
  * object's mouse over area. Otherwise the input won't be sent to the
- * scroll-bar.
+ * scrollbar.
  *
- * The class does not provide all functionality to the scroll-bar, many
- * things the parent of the scroll-bar, must provide. Like a combo-box.
+ * The class does not provide all functionality to the scrollbar, many
+ * things the parent of the scrollbar, must provide. Like a combo-box.
  */
 class IGUIScrollBar
 {
@@ -160,18 +163,35 @@ public:
 
 public:
 	/**
-	 * Draw the scroll-bar
+	 * Draw the scrollbar
 	 */
 	virtual void Draw() = 0;
 
 	/**
      * If an object that contains a scrollbar has got messages, send
-	 * them to the scroll-bar and it will see if the message regarded
+	 * them to the scrollbar and it will see if the message regarded
 	 * itself.
 	 *
 	 * @see IGUIObject#HandleMessage()
 	 */
 	virtual void HandleMessage(SGUIMessage& Message) = 0;
+
+	/**
+	 * Setup the scrollbar. Sets the size, length and position.
+	 * An object owning scrollbars still has to call this (preferably
+	 * in the object's own Setup function), it isn't called
+	 * automatically. There are two variations covering several common
+	 * uses.
+	 *
+	 * The first assumes that the content is inside the host and thus
+	 * uses the host's dimensions.
+	 *
+	 * The second permits a CRect defining the dimensions of the
+	 * scrollable content to be passed. Any object that uses this
+	 * variant is required to explicitly set a scroll range.
+	 */
+	virtual void Setup() = 0;
+	virtual void Setup(const CRect& content) = 0;
 
 	/**
 	 * Set m_Pos with g_mouse_x/y input, i.e. when draggin.
@@ -212,7 +232,7 @@ public:
 	/**
 	 * Scrollbars without height shouldn't be visible
 	 */
-	bool IsVisible() const { return GetMaxPos() != 0.f; }
+	bool IsNeeded() const { return GetMaxPos() != 0.f; }
 
 	/**
 	 * Increase scroll one step
@@ -235,16 +255,16 @@ public:
 	virtual void ScrollMinusPlenty() { m_Pos -= 90.f; UpdatePosBoundaries(); }
 
 	/**
-	 * Set host object, must be done almost at creation of scroll bar.
+	 * Set host object, must be done almost at creation of the scrollbar.
 	 * @param pOwner Pointer to host object.
 	 */
 	void SetHostObject(IGUIScrollBarOwner* pOwner) { m_pHostObject = pOwner; }
 
 	/**
-	 * Set Width
-	 * @param width Width
+	 * Set the Breadth of the scrollbar
+	 * @param breadth Breadth
 	 */
-	void SetWidth(float width) { m_Width = width; }
+	void SetBreadth(float breadth) { m_Breadth = breadth; }
 
 	/**
 	 * Set X Position
@@ -265,7 +285,7 @@ public:
 	void SetZ(float z) { m_Z = z; }
 
 	/**
-	 * Set Length of scroll bar
+	 * Set the length of the scrollbar
 	 * @param length Length
 	 */
 	void SetLength(float length) { m_Length = length; }
@@ -289,29 +309,36 @@ public:
 	void SetBarPressed(bool b) { m_BarPressed = b; }
 
 	/**
-	 * Set Scroll bar style string
-	 * @param style String with scroll bar style reference name
+	 * Set the scrollbar style
+	 * @param style String consisting of the name of the scrollbar style
 	 */
 	void SetScrollBarStyle(const CStr& style) { m_ScrollBarStyle = style; }
 
 	/**
 	 * Get style used by the scrollbar
-	 * @return Scroll bar style struct.
+	 * @return Scrollbar style struct.
 	 */
 	const SGUIScrollBarStyle* GetStyle() const;
 
 	/**
-	 * Get the rectangle of the actual BAR. not the whole scroll-bar.
+	 * Get the rectangle of the actual BAR. not the whole scrollbar.
 	 * @return Rectangle, CRect
 	 */
 	virtual CRect GetBarRect() const = 0;
 
 	/**
 	 * Get the rectangle of the outline of the scrollbar, every component of the
-	 * scroll-bar should be inside this area.
+	 * scrollbar should be inside this area.
 	 * @return Rectangle, CRect
 	 */
 	virtual CRect GetOuterRect() const = 0;
+
+	/**
+	 * The difference between this and m_pHostObject is the latter is the ScrollBarOwner class,
+	 * while this retuns the IGUIObject class, and as such has access to the object attributes
+	 * set via JS, along with other attributes.
+	 */
+	IGUIObject& GetHostGUIObject() { return m_pHostObject->m_pObject; }
 
 protected:
 	/**
@@ -332,9 +359,9 @@ protected:
 	//@{
 
 	/**
-	 * Width of the scroll bar
+	 * Breadth of the scrollbar
 	 */
-	float m_Width;
+	float m_Breadth;
 
 	/**
 	 * Absolute X Position
@@ -372,14 +399,9 @@ protected:
 	float m_BarSize;
 
 	/**
-	 * Scroll bar style reference name
+	 * Scrollbar style reference name
 	 */
 	CStr m_ScrollBarStyle;
-
-	/**
-	 * Pointer to scroll bar style used.
-	 */
-	SGUIScrollBarStyle* m_pStyle;
 
 	/**
 	 * Host object, prerequisite!
@@ -423,7 +445,7 @@ protected:
 	bool m_ButtonMinusPressed, m_ButtonPlusPressed;
 
 	/**
-	 * Position of scroll bar, 0 means scrolled all the way to one side.
+	 * Position of the scrollbar, 0 means scrolled all the way to one side.
 	 * It is measured in pixels, it is up to the host to make it actually
 	 * apply in pixels.
 	 */

@@ -32,7 +32,7 @@
  * text-object for each element, which will be managed
  * by the IGUITextOwner structure.
  *
- * A scroll-bar will appear when needed. This will be
+ * A scrollbar will appear when needed. This will be
  * achieved with the IGUIScrollBarOwner structure.
  */
 class CList : public IGUIObject, public IGUIScrollBarOwner, public IGUITextOwner
