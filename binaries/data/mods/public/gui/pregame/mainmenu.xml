@@ -11,6 +11,31 @@
 		<include file="gui/pregame/backgrounds.xml"/>
 		<include file="gui/pregame/menupanel.xml"/>
 		<include file="gui/pregame/userreport/userreport.xml"/>
+
+
+	<object sprite="BlackBorderOnGray" type="image" size="50%-300 50%-200 50%+300 50%+200" z="200" name="scrollTest">
+
+			<object type="text" size="8 8 33%-4 66%-4" textcolor="white" text_valign="center" text_align="center" name="testTextbox" sprite="ModernDarkBoxGold">
+[font="sans-bold-14"]Textbox:[/font]
+Consider yourself, at home!
+Consider yourself, part of the furniture!
+We've taken to you, so strong.
+It's clear. We're. Going to get along!
+			</object>
+			<object type="text" size="33%+4 8 66%-4 66%-4" textcolor="white" text_valign="center" text_align="center" scrollbar="true" scrollbar_style="ModernScrollBar" name="testTextboxScrollable" sprite="ModernDarkBoxGold"/>
+			<object type="olist" size="8 66%+4 66%-4 100%-8" style="ModernSortedList" textcolor="white" name="testOList" selected_column="name">
+				<column id="name" width="33%" color="200 200 200" heading="Name"/>
+				<column id="a" width="33%" color="200 200 200" heading="Alpha"/>
+				<column id="b" width="33%" color="200 200 200" heading="Beta"/>
+			</object>
+			<object type="dropdown" size="66%+4 8 100%-8 8+24" style="ModernDropDown" name="testDrop"/>
+			<object type="list" size="66%+4 8+32 100%-8 66%-32-4" style="ModernList" name="testList"/>
+			<object type="input" size="66%+4 66%-32+4 100%-8 66%-4" style="ModernInput" name="testInput">Single Line Input Box</object>
+			<object type="input" size="66%+4 66%+4 100%-8 100%-8" style="ModernInput" name="testInputMultiline" multiline="true" scrollbar="true" scrollbar_style="ModernScrollBar">Multiple Line Input Box</object>
+
+		</object>
+
+
 	</object>
 
 </objects>
