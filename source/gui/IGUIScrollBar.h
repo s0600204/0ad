@@ -128,13 +128,18 @@ struct SGUIScrollBarStyle
 	CGUISpriteInstance m_SpriteButtonLeft;
 	CGUISpriteInstance m_SpriteButtonLeftPressed;
 	CGUISpriteInstance m_SpriteButtonLeftDisabled;
+	CGUISpriteInstance m_SpriteButtonLeftOver;
 
 	CGUISpriteInstance m_SpriteButtonRight;
 	CGUISpriteInstance m_SpriteButtonRightPressed;
 	CGUISpriteInstance m_SpriteButtonRightDisabled;
+	CGUISpriteInstance m_SpriteButtonRightOver;
 
-	CGUISpriteInstance m_SpriteBackHorizontal;
 	CGUISpriteInstance m_SpriteBarHorizontal;
+	CGUISpriteInstance m_SpriteBarHorizontalOver;
+	CGUISpriteInstance m_SpriteBarHorizontalPressed;
+ 
+	CGUISpriteInstance m_SpriteBackHorizontal;
 
 	//@}
 };

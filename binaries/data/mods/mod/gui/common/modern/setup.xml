@@ -14,6 +14,8 @@
 			show_edge_buttons = "false"
 			sprite_back_vertical = "ModernVerticalScrollBack"
 			sprite_bar_vertical = "ModernVerticalScrollBar"
+			sprite_back_horizontal = "ModernHorizontalScrollBack"
+			sprite_bar_horizontal = "ModernHorizontalScrollBar"
 	/>
 
 	<!--

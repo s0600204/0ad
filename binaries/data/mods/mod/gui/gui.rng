@@ -704,6 +704,18 @@
         <optional>
           <attribute name="sprite_back_vertical"/>
         </optional>
+        <optional>
+          <attribute name="sprite_bar_horizontal"/>
+        </optional>
+        <optional>
+          <attribute name="sprite_bar_horizontal_over"/>
+        </optional>
+        <optional>
+          <attribute name="sprite_bar_horizontal_pressed"/>
+        </optional>
+        <optional>
+          <attribute name="sprite_back_horizontal"/>
+        </optional>
       </interleave>
     </element>
   </define>

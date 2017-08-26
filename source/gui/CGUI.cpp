@@ -706,6 +706,12 @@ void CGUI::Xeromyces_ReadObject(XMBElement Element, CXeromyces* pFile, IGUIObjec
 				scroll = attr.Value == "vertical" || attr.Value == "both";
 				object->SetSetting<bool>("scrollbar_vertical", scroll, true);
 			}
+
+			if (object->SettingExists("scrollbar_horizontal"))
+			{
+				scroll = attr.Value == "horizontal" || attr.Value == "both";
+				object->SetSetting<bool>("scrollbar_horizontal", scroll, true);
+			}
 			continue;
 		}
 
@@ -1172,8 +1178,12 @@ void CGUI::Xeromyces_ReadStyle(XMBElement Element, CXeromyces* pFile)
 		if (attr_name == "name")
 			name = attr.Value;
 		else if (attr_name == "scrollbar")
+		{
 			if (attr.Value == "vertical" || attr.Value == "both")
 				style.m_SettingsDefaults["scrollbar_vertical"] = L"true";
+			if (attr.Value == "horizontal" || attr.Value == "both")
+				style.m_SettingsDefaults["scrollbar_horizontal"] = L"true";
+		}
 		else
 			style.m_SettingsDefaults.emplace(attr_name, attr.Value.FromUTF8());
 	}

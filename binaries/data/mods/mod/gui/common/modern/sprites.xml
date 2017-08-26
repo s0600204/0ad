@@ -3,7 +3,7 @@
 <sprites>
 	<!--
 	==========================================
-	- Scrollbar -
+	- Scrollbars -
 	==========================================
 	-->
 	<sprite name = "ModernVerticalScrollBack">
@@ -26,6 +26,32 @@
 		/>
 	</sprite>
 	<sprite name = "ModernVerticalScrollBar">
+		<image texture = "global/modern/scrollbar.png"
+			real_texture_placement = "0 0 15 15"
+			size = "0 0 100% 100%"
+		/>
+	</sprite>
+
+	<sprite name = "ModernHorizontalScrollBack">
+		<image backcolor="43 42 40"
+			size="0 0 100% 100%"
+			border="true"
+			bordercolor="0 0 0"
+		/>
+		<image texture = "global/modern/scrollback-horizontal.png"
+			real_texture_placement = "0 0 15 15"
+			size = "3 0 18 100%"
+		/>
+		<image texture = "global/modern/scrollback-horizontal.png"
+			real_texture_placement = "15 0 113 15"
+			size = "18 0 100%-18 100%"
+		/>
+		<image texture = "global/modern/scrollback-horizontal.png"
+			real_texture_placement = "113 0 128 15"
+			size = "100%-18 0 100%-3 100%"
+		/>
+	</sprite>
+	<sprite name = "ModernHorizontalScrollBar">
 		<image texture = "global/modern/scrollbar.png"
 			real_texture_placement = "0 0 15 15"
 			size = "0 0 100% 100%"
