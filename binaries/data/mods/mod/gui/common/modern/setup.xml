@@ -12,8 +12,8 @@
 			minimum_bar_size = "15"
 			maximum_bar_size = "15"
 			show_edge_buttons = "false"
-			sprite_back_vertical = "ModernScrollBack"
-			sprite_bar_vertical = "ModernScrollBar"
+			sprite_back_vertical = "ModernVerticalScrollBack"
+			sprite_bar_vertical = "ModernVerticalScrollBar"
 	/>
 
 	<!--

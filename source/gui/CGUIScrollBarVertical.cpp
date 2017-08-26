@@ -38,6 +38,11 @@ void CGUIScrollBarVertical::Setup()
 
 	SetScrollRange(content.GetHeight());
 	Setup(host);
+
+	// If the content width is wider than the host, assume there
+	// is also a horizontal scrollbar and make room for it.
+	if (content.GetWidth() > host.GetWidth())
+		SetLength(host.bottom - host.top - GetStyle()->m_Breadth);
 }
 
 void CGUIScrollBarVertical::Setup(const CRect& content)
