@@ -23,6 +23,9 @@
 #ifndef INCLUDED_ICU
 #define INCLUDED_ICU
 
+#include <unicode/compactdecimalformat.h>
+#include <unicode/dcfmtsym.h>
+#include <unicode/numfmt.h>
 #include <unicode/smpdtfmt.h>
 
 #endif	// #ifndef INCLUDED_ICU

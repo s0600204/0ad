@@ -122,6 +122,11 @@ public:
 	 */
 	const CParamNode& GetTemplate(const std::string& templateName);
 
+	/**
+	 * Formats a number, taking into consideration the user's locale.
+	 */
+	std::wstring FormatNumber(const std::string& number, const std::string& formatName);
+
 private:
 	struct SGUIPage
 	{

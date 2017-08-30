@@ -25,6 +25,7 @@
 #include "gui/Scripting/ScriptFunctions.h"
 #include "gui/Scripting/JSInterface_GUIProxy.h"
 #include "i18n/L10n.h"
+#include "i18n/Number.h"
 #include "lib/allocators/DynamicArena.h"
 #include "lib/allocators/STLAllocators.h"
 #include "lib/bits.h"
@@ -520,6 +521,11 @@ const SGUIScrollBarStyle* CGUI::GetScrollBarStyle(const CStr& style) const
  	return &it->second;
 }
 
+const CStrW CGUI::FormatNumber(const CStr& number, const CStr& name) const
+{
+	return GetPreDefinedNumberFormat(name)->Format(number);
+}
+
 /**
  * @callgraph
  */
@@ -605,6 +611,8 @@ void CGUI::Xeromyces_ReadRootSetup(XMBElement Element, CXeromyces* pFile)
 			Xeromyces_ReadTooltip(child, pFile);
 		else if (name == "color")
 			Xeromyces_ReadColor(child, pFile);
+		else if (name == "number")
+			Xeromyces_ReadNumberFormat(child, pFile);
 		else
 			debug_warn(L"Invalid data - DTD shouldn't allow this");
 	}
@@ -1322,4 +1330,57 @@ void CGUI::Xeromyces_ReadColor(XMBElement Element, CXeromyces* pFile)
 	}
 	else
 		LOGERROR("GUI: Unable to create custom color '%s'. Invalid color syntax.", name.c_str());
+}
+
+void CGUI::Xeromyces_ReadNumberFormat(XMBElement Element, CXeromyces* pFile)
+{
+	XMBAttributeList attributes = Element.GetAttributes();
+	CStr name;
+
+	NumberFmt* numberFormat = new NumberFmt;
+
+	for (XMBAttribute attr : attributes)
+	{
+		CStr attr_value(attr.Value);
+		if (attr_value == "null")
+			continue;
+
+		CStr attr_name(pFile->GetAttributeString(attr.Name));
+		if (attr_name == "name")
+			name = attr_value;
+		else if (attr_name == "maxDecimalPlaces" || attr_name == "minDecimalPlaces")
+		{
+			int places;
+			if (!ParseString<int>(this, attr_value.FromUTF8(), places))
+				LOGERROR("Error parsing '%s' (\"%s\") inside <number>.", attr_name, attr_value);
+			else if (attr_name == "maxDecimalPlaces")
+				numberFormat->m_MaxDecimalPlaces = places;
+			else
+				numberFormat->m_MinDecimalPlaces = places;
+		}
+		else if (attr_name == "autoAbbreviate")
+		{
+			bool abbrev;
+			if (!ParseString<bool>(this, attr_value.FromUTF8(), abbrev))
+				LOGERROR("Error parsing '%s' (\"%s\") inside <number>.", attr_name, attr_value);
+			else
+				numberFormat->m_AutoAbbreviate = abbrev;
+		}
+		else if (attr_name == "isPercentage")
+		{
+			bool percent;
+			if (!ParseString<bool>(this, attr_value.FromUTF8(), percent))
+				LOGERROR("Error parsing '%s' (\"%s\") inside <number>.", attr_name, attr_value);
+			else
+				numberFormat->m_IsPercentage = percent;
+		}
+	}
+
+	if (!numberFormat->Setup())
+	{
+		LOGERROR("Error creating number format '%s'.", name);
+		return;
+	}
+
+	m_NumberFormats[name] = numberFormat;
 }

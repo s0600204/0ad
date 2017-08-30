@@ -74,6 +74,10 @@ CParamNode GetTemplate(const std::string& templateName)
 	return g_GUI->GetTemplate(templateName);
 }
 
+std::wstring FormatNumber(const std::string& number, const std::string& formatName)
+{
+	return g_GUI->FormatNumber(number, formatName);
+}
 
 void RegisterScriptFunctions(const ScriptRequest& rq)
 {
@@ -84,6 +88,7 @@ void RegisterScriptFunctions(const ScriptRequest& rq)
 	ScriptFunction::Register<&ResetCursor>(rq, "ResetCursor");
 	ScriptFunction::Register<&TemplateExists>(rq, "TemplateExists");
 	ScriptFunction::Register<&GetTemplate>(rq, "GetTemplate");
+	ScriptFunction::Register<&FormatNumber>(rq, "FormatNumber");
 
 	ScriptFunction::Register<&CGUI::FindObjectByName, &ScriptFunction::ObjectFromCBData<CGUI>>(rq, "GetGUIObjectByName");
 	ScriptFunction::Register<&CGUI::SetGlobalHotkey, &ScriptFunction::ObjectFromCBData<CGUI>>(rq, "SetGlobalHotkey");

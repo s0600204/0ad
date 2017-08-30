@@ -395,6 +395,11 @@ const CParamNode& CGUIManager::GetTemplate(const std::string& templateName)
 	return templateRoot;
 }
 
+std::wstring CGUIManager::FormatNumber(const std::string& number, const std::string& formatName)
+{
+	return top()->FormatNumber(number, formatName);
+}
+
 // This returns a shared_ptr to make sure the CGUI doesn't get deallocated
 // while we're in the middle of calling a function on it (e.g. if a GUI script
 // calls SwitchPage)

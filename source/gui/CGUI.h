@@ -50,6 +50,8 @@ struct SGUIScrollBarStyle;
 namespace js { class BaseProxyHandler; }
 class GUIProxyProps;
 
+class NumberFmt;
+
 using map_pObjects = std::map<CStr, IGUIObject*>;
 
 /**
@@ -246,6 +248,10 @@ public:
 	 * Resolve the predefined color if it exists, otherwise throws an exception.
 	 */
 	const CGUIColor& GetPreDefinedColor(const CStr& name) const { return m_PreDefinedColors.at(name); }
+
+	const NumberFmt* GetPreDefinedNumberFormat(const CStr& name) const { return m_NumberFormats.at(name); };
+
+	const CStrW FormatNumber(const CStr& number, const CStr& name) const;
 
 	GUIProxyProps* GetProxyData(const js::BaseProxyHandler* ptr) { return m_ProxyData.at(ptr).get(); }
 
@@ -538,6 +544,18 @@ private:
 	 */
 	void Xeromyces_ReadColor(XMBElement Element, CXeromyces* pFile);
 
+	/**
+	 * Reads in the element \<number\> (the XMBElement) and stores the
+	 * result in m_NumberFormats
+	 *
+	 * @param Element	The Xeromyces object that represents
+	 *					the number-tag.
+	 * @param pFile		The Xeromyces object for the file being read
+	 *
+	 * @see LoadXmlFile()
+	 */
+	void Xeromyces_ReadNumberFormat(XMBElement Element, CXeromyces* pFile);
+
 	//@}
 
 private:
@@ -675,6 +693,9 @@ private:
 
 	// Icons
 	std::map<CStr, const SGUIIcon> m_Icons;
+
+	// Number Formats
+	std::map<CStr, const NumberFmt*> m_NumberFormats;
 
 public:
 	/**

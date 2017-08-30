@@ -627,6 +627,7 @@
           <ref name="scrollbar"/>
           <ref name="tooltip"/>
           <ref name="color"/>
+          <ref name="numberFormat"/>
         </choice>
       </zeroOrMore>
     </element>
@@ -768,6 +769,33 @@
     <element name="color">
       <ref name="rgba"/>
       <attribute name="name"/>
+    </element>
+  </define>
+  <define name="numberFormat">
+    <element name="number">
+      <interleave>
+        <attribute name="name"/>
+        <optional>
+          <attribute name="maxDecimalPlaces">
+            <data type="nonNegativeInteger"/>
+          </attribute>
+        </optional>
+        <optional>
+          <attribute name="minDecimalPlaces">
+            <data type="nonNegativeInteger"/>
+          </attribute>
+        </optional>
+        <optional>
+          <attribute name="autoAbbreviate">
+            <ref name="bool"/>
+          </attribute>
+        </optional>
+        <optional>
+          <attribute name="isPercentage">
+            <ref name="bool"/>
+          </attribute>
+        </optional>
+      </interleave>
     </element>
   </define>
   <define name="sprites">

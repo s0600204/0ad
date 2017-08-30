@@ -66,4 +66,28 @@
 	<color name="darkbrown">30 20 10</color>
 
 	<color name="transparent">0 0 0 0</color>
+
+	<!--
+	==========================================
+	- NUMBER FORMATS -
+	==========================================
+	-->
+	<number name="integer"
+		maxDecimalPlaces="0"
+	/>
+	<number name="decimal"
+		maxDecimalPlaces="2"
+	/>
+	<number name="percentageInteger"
+		maxDecimalPlaces="0"
+		isPercentage="true"
+	/>
+	<number name="percentageDecimal"
+		maxDecimalPlaces="2"
+		isPercentage="true"
+	/>
+	<number name="resourceCount"
+		maxDecimalPlaces="1"
+		autoAbbreviate="true"
+	/>
 </setup>
