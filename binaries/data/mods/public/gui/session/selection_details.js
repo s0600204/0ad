@@ -138,8 +138,8 @@ function displaySingle(entState)
 		healthSize.rright = 100 * Math.max(0, Math.min(1, entState.hitpoints / entState.maxHitpoints));
 		unitHealthBar.size = healthSize;
 		Engine.GetGUIObjectByName("healthStats").caption = sprintf(translate("%(hitpoints)s / %(maxHitpoints)s"), {
-			"hitpoints": Math.ceil(entState.hitpoints),
-			"maxHitpoints": Math.ceil(entState.maxHitpoints)
+			"hitpoints": formatNumber(Math.ceil(entState.hitpoints), "integer"),
+			"maxHitpoints": formatNumber(Math.ceil(entState.maxHitpoints), "integer")
 		});
 
 		healthSection.size = sectionPosTop.size;
@@ -179,8 +179,8 @@ function displaySingle(entState)
 				size = setCaptureBarPart(i, size);
 
 		let captureText = sprintf(translate("%(capturePoints)s / %(maxCapturePoints)s"), {
-			"capturePoints": Math.ceil(entState.capturePoints[entState.player]),
-			"maxCapturePoints": Math.ceil(entState.maxCapturePoints)
+			"capturePoints": formatNumber(Math.ceil(entState.capturePoints[entState.player]), "integer"),
+			"maxCapturePoints": formatNumber(Math.ceil(entState.maxCapturePoints), "integer")
 		});
 
 		let showSmallCapture = showResource && showHealth;
@@ -200,13 +200,13 @@ function displaySingle(entState)
 		if (entState.promotion.curr < entState.promotion.req)
 			Engine.GetGUIObjectByName("experience").tooltip = sprintf(translate("%(experience)s %(current)s / %(required)s"), {
 				"experience": "[font=\"sans-bold-13\"]" + translate("Experience:") + "[/font]",
-				"current": Math.floor(entState.promotion.curr),
-				"required": entState.promotion.req
+				"current": formatNumber(Math.floor(entState.promotion.curr), "integer"),
+				"required": formatNumber(entState.promotion.req, "integer")
 			});
 		else
 			Engine.GetGUIObjectByName("experience").tooltip = sprintf(translate("%(experience)s %(current)s"), {
 				"experience": "[font=\"sans-bold-13\"]" + translate("Experience:") + "[/font]",
-				"current": Math.floor(entState.promotion.curr)
+				"current": formatNumber(Math.floor(entState.promotion.curr), "integer")
 			});
 	}
 
@@ -216,8 +216,8 @@ function displaySingle(entState)
 	{
 		let resources = entState.resourceSupply.isInfinite ? translate("∞") :  // Infinity symbol
 			sprintf(translate("%(amount)s / %(max)s"), {
-				"amount": Math.ceil(+entState.resourceSupply.amount),
-				"max": entState.resourceSupply.max
+				"amount": formatNumber(Math.ceil(+entState.resourceSupply.amount), "integer"),
+				"max": formatNumber(entState.resourceSupply.max, "integer")
 			});
 
 		let unitResourceBar = Engine.GetGUIObjectByName("resourceBar");

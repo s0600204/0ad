@@ -14,7 +14,7 @@ class CounterResource
 
 	rebuild(playerState, getAllyStatTooltip)
 	{
-		this.count.caption = Math.floor(playerState.resourceCounts[this.resCode]);
+		this.count.caption = formatNumber(Math.floor(playerState.resourceCounts[this.resCode]), "resourceCount");
 
 		// Do not show zeroes.
 		let gatherers = playerState.resourceGatherers[this.resCode];
@@ -36,7 +36,7 @@ class CounterResource
 	{
 		return {
 			"playername": playername,
-			"statValue": Math.round(playerState.resourceCounts[this.resCode]),
+			"statValue": formatNumber(Math.round(playerState.resourceCounts[this.resCode]), "resourceCount"),
 			"orderValue":  Math.round(playerState.resourceCounts[this.resCode])
 		};
 	}

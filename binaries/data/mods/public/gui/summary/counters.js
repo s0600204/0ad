@@ -13,14 +13,17 @@ function calculateRatio(divident, divisor)
 function formatSummaryValue(values)
 {
 	if (typeof values != "object")
-		return values === Infinity ? g_InfinitySymbol : values;
+		return values === Infinity ? g_InfinitySymbol : formatNumber(values, "integer");
 
 	let ret = "";
 	for (let type in values)
+	{
+		let formatName = g_SummaryTypes[type].format || "integer";
 		if (!g_SummaryTypes[type].hideInSummary)
 			ret += (g_SummaryTypes[type].color ?
-				coloredText(values[type], g_SummaryTypes[type].color) :
-				values[type]) + g_SummaryTypes[type].postfix;
+				coloredText(formatNumber(values[type], formatName), g_SummaryTypes[type].color) :
+				formatNumber(values[type], formatName)) + g_SummaryTypes[type].postfix;
+	}
 	return ret;
 }
 

@@ -21,3 +21,11 @@ function markForPluralTranslation(singularMessage, pluralMessage, number)
 		"pluralCount": number
 	};
 }
+
+/**
+ * This does not cache anything. It is used for brevity instead.
+ */
+function formatNumber(number, formatName)
+{
+	return Engine.FormatNumber(number, formatName);
+}

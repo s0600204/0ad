@@ -125,8 +125,8 @@ var g_OptionType = {
 					translateWithContext("option number", "Max: %(max)s") :
 					"",
 				{
-					"min": option.min,
-					"max": option.max
+					"min": formatNumber(option.min || 0, "integer"),
+					"max": formatNumber(option.max || 0, "integer")
 				})
 	},
 	"dropdown":
@@ -160,9 +160,9 @@ var g_OptionType = {
 		},
 		"tooltip": (value, option) =>
 			sprintf(translateWithContext("slider number", "Value: %(val)s (min: %(min)s, max: %(max)s)"), {
-				"val": value.toFixed(2),
-				"min": option.min.toFixed(2),
-				"max": option.max.toFixed(2)
+				"val": formatNumber(value.toFixed(2), "decimalDuo"),
+				"min": formatNumber(option.min.toFixed(2), "decimalDuo"),
+				"max": formatNumber(option.max.toFixed(2), "decimalDuo")
 			})
 	}
 };

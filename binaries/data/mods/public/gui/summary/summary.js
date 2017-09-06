@@ -23,7 +23,8 @@ var g_SummaryTypes = {
 	"percent": {
 		"color": "",
 		"caption": "%",
-		"postfix": "%"
+		"format": "percentageInteger",
+		"postfix": ""
 	},
 	"trained": {
 		"color": g_TypeColors.green,
@@ -38,6 +39,7 @@ var g_SummaryTypes = {
 	"gathered": {
 		"color": g_TypeColors.green,
 		"caption": translate("Gathered"),
+		"format": "resourceCount",
 		"postfix": " / "
 	},
 	"count": {
@@ -47,11 +49,13 @@ var g_SummaryTypes = {
 	"sent": {
 		"color": g_TypeColors.green,
 		"caption": translate("Sent"),
+		"format": "resourceCount",
 		"postfix": " / "
 	},
 	"bought": {
 		"color": g_TypeColors.green,
 		"caption": translate("Bought"),
+		"format": "resourceCount",
 		"postfix": " / "
 	},
 	"income": {
@@ -87,11 +91,13 @@ var g_SummaryTypes = {
 	"used": {
 		"color": g_TypeColors.red,
 		"caption": translate("Used"),
+		"format": "resourceCount",
 		"postfix": ""
 	},
 	"received": {
 		"color": g_TypeColors.red,
 		"caption": translate("Received"),
+		"format": "resourceCount",
 		"postfix": ""
 	},
 	"population": {
@@ -102,6 +108,7 @@ var g_SummaryTypes = {
 	"sold": {
 		"color": g_TypeColors.red,
 		"caption": translate("Sold"),
+		"format": "resourceCount",
 		"postfix": ""
 	},
 	"outcome": {

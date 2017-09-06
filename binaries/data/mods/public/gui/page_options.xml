@@ -6,6 +6,7 @@
 
 	<include>common/sprites.xml</include>
 
+	<include>options/setup.xml</include>
 	<include>options/options.xml</include>
 
 	<!-- Work around a render bug:
