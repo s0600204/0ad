@@ -42,7 +42,6 @@ CList::CList(CGUI& pGUI)
 	  m_Font(),
 	  m_ScrollBar(),
 	  m_ScrollBarStyle(),
-	  m_ScrollBottom(false),
 	  m_SoundDisabled(),
 	  m_SoundSelected(),
 	  m_Sprite(),
@@ -59,8 +58,8 @@ CList::CList(CGUI& pGUI)
 	RegisterSetting("buffer_zone", m_BufferZone);
 	RegisterSetting("font", m_Font);
 	RegisterSetting("scrollbar", m_ScrollBar);
+	RegisterSetting("scrollbar_sticky_end", m_ScrollStickyEnd);
 	RegisterSetting("scrollbar_style", m_ScrollBarStyle);
-	RegisterSetting("scroll_bottom", m_ScrollBottom);
 	RegisterSetting("sound_disabled", m_SoundDisabled);
 	RegisterSetting("sound_selected", m_SoundSelected);
 	RegisterSetting("sprite", m_Sprite);
@@ -110,9 +109,7 @@ void CList::SetupText(bool append)
 	bool bottom = false;
 	if (m_ScrollBar && GetScrollBar(0).GetStyle())
 	{
-		if (m_ScrollBottom && GetScrollBar(0).GetPos() > GetScrollBar(0).GetMaxPos() - 1.5f)
-			bottom = true;
-
+		bottom = KeepScrollBarAtEnd(0);
 		width -= GetScrollBar(0).GetStyle()->m_Breadth;
 	}
 

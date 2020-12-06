@@ -131,7 +131,6 @@ protected:
 	CStrW m_Font;
 	bool m_ScrollBar;
 	CStr m_ScrollBarStyle;
-	bool m_ScrollBottom;
 	CStrW m_SoundDisabled;
 	CStrW m_SoundSelected;
 	CGUISpriteInstance m_Sprite;

@@ -34,8 +34,7 @@ CText::CText(CGUI& pGUI)
 	  m_Font(),
 	  m_ScrollBar(),
 	  m_ScrollBarStyle(),
-	  m_ScrollBottom(),
-	  m_ScrollTop(),
+	  m_ScrollResetOnChange(),
 	  m_Sprite(),
 	  m_TextAlign(),
 	  m_TextVAlign(),
@@ -49,9 +48,9 @@ CText::CText(CGUI& pGUI)
 	RegisterSetting("clip", m_Clip);
 	RegisterSetting("font", m_Font);
 	RegisterSetting("scrollbar", m_ScrollBar);
+	RegisterSetting("scrollbar_reset_on_change", m_ScrollResetOnChange);
+	RegisterSetting("scrollbar_sticky_end", m_ScrollStickyEnd);
 	RegisterSetting("scrollbar_style", m_ScrollBarStyle);
-	RegisterSetting("scroll_bottom", m_ScrollBottom);
-	RegisterSetting("scroll_top", m_ScrollTop);
 	RegisterSetting("sprite", m_Sprite);
 	RegisterSetting("text_align", m_TextAlign);
 	RegisterSetting("text_valign", m_TextVAlign);
@@ -96,21 +95,21 @@ void CText::SetupText()
 		CalculateTextPosition(m_CachedActualSize, m_TextPos, m_GeneratedTexts[0]);
 	else
 	{
-		// If we are currently scrolled to the bottom of the text,
-		// then add more lines of text, update the scrollbar so we
-		// stick to the bottom.
-		// (Use 1.5px delta so this triggers the first time caption is set)
 		bool bottom = false;
-		if (m_ScrollBottom && GetScrollBar(0).GetPos() > GetScrollBar(0).GetMaxPos() - 1.5f)
-			bottom = true;
+		if (m_ScrollResetOnChange)
+			GetScrollBar(0).SetPos(0.0f);
+		else
+			// If we are currently scrolled to the bottom of the text, the UI designer has
+			// specified that we should "stick" to the bottom, and more lines of text are
+			// being added, then we need to update the scrollbar so we stay at the bottom.
+			// And we need to determine this before we renew the scrollbars after adding
+			// the text.
+			bottom = KeepScrollBarAtEnd(0);
 
 		GetScrollBar(0).Setup();
 
 		if (bottom)
 			GetScrollBar(0).SetPos(GetScrollBar(0).GetMaxPos());
-
-		if (m_ScrollTop)
-			GetScrollBar(0).SetPos(0.0f);
 	}
 }
 

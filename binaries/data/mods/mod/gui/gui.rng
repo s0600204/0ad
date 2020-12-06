@@ -301,17 +301,17 @@
         </attribute>
       </optional>
       <optional>
+        <attribute name="scrollbar_reset_on_change">
+          <ref name="bool"/>
+        </attribute>
+      </optional>
+      <optional>
+        <attribute name="scrollbar_sticky_end">
+          <ref name="bool"/>
+        </attribute>
+      </optional>
+      <optional>
         <attribute name="scrollbar_style"/>
-      </optional>
-      <optional>
-        <attribute name="scroll_bottom">
-          <ref name="bool"/>
-        </attribute>
-      </optional>
-      <optional>
-        <attribute name="scroll_top">
-          <ref name="bool"/>
-        </attribute>
       </optional>
       <optional>
         <attribute name="selected_column"/>

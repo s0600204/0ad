@@ -77,12 +77,16 @@ public:
 	 */
 	virtual float GetScrollBarPos(const int index) const;
 
+	bool KeepScrollBarAtEnd(const int index) const;
+
 protected:
 	/**
 	 * Predominately you will only have one, but you can have
 	 * as many as you like.
 	 */
 	std::vector<IGUIScrollBar*> m_ScrollBars;
+
+	bool m_ScrollStickyEnd;
 
 private:
 	/**

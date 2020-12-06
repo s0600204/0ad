@@ -6,7 +6,7 @@
 		font="sans-13"
 		scrollbar="true"
 		scrollbar_style="ModernScrollBar"
-		scroll_bottom="true"
+		scrollbar_sticky_end="true"
 		textcolor="white"
 		text_align="left"
 		text_valign="center"

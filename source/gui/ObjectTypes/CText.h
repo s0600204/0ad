@@ -84,8 +84,7 @@ protected:
 	CStrW m_Font;
 	bool m_ScrollBar;
 	CStr m_ScrollBarStyle;
-	bool m_ScrollBottom;
-	bool m_ScrollTop;
+	bool m_ScrollResetOnChange;
 	CGUISpriteInstance m_Sprite;
 	EAlign m_TextAlign;
 	EVAlign m_TextVAlign;

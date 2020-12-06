@@ -24,7 +24,8 @@
 #include "gui/ObjectBases/IGUIObject.h"
 
 IGUIScrollBarOwner::IGUIScrollBarOwner(IGUIObject& pObject)
-	: m_pObject(pObject)
+	: m_pObject(pObject),
+	  m_ScrollStickyEnd(false)
 {
 }
 
@@ -66,4 +67,10 @@ void IGUIScrollBarOwner::Draw()
 float IGUIScrollBarOwner::GetScrollBarPos(const int index) const
 {
 	return m_ScrollBars[index]->GetPos();
+}
+
+bool IGUIScrollBarOwner::KeepScrollBarAtEnd(const int index) const
+{
+	// We use 1.5px delta so this is true when there's no content yet.
+	return m_ScrollStickyEnd && m_ScrollBars[index]->GetPos() > m_ScrollBars[index]->GetMaxPos() - 1.5f;
 }
