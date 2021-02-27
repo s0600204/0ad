@@ -230,16 +230,20 @@ extern_lib_defs = {
 		compile_settings = function()
 			if os.istarget("windows") or os.istarget("macosx") then
 				add_default_include_paths("enet")
+			else
+				pkgconfig.add_includes("libenet")
 			end
 		end,
 		link_settings = function()
 			if os.istarget("windows") or os.istarget("macosx") then
 				add_default_lib_paths("enet")
+				add_default_links({
+					win_names  = { "enet" },
+					osx_names = { "enet" },
+				})
+			else
+				pkgconfig.add_links("libenet")
 			end
-			add_default_links({
-				win_names  = { "enet" },
-				unix_names = { "enet" },
-			})
 		end,
 	},
 	fcollada = {
@@ -393,20 +397,23 @@ extern_lib_defs = {
 	},
 	libcurl = {
 		compile_settings = function()
-			if os.istarget("windows") or os.istarget("macosx") then
+			if os.istarget("windows") then
 				add_default_include_paths("libcurl")
+			else
+				-- Support LIBCURL_CONFIG for overriding the default (pkg-config --cflags libcurl)
+				-- i.e. on OSX where it gets set in update-workspaces.sh
+				pkgconfig.add_includes("libcurl", os.getenv("LIBCURL_CONFIG"))
 			end
 		end,
 		link_settings = function()
-			if os.istarget("windows") or os.istarget("macosx") then
+			if os.istarget("windows") then
 				add_default_lib_paths("libcurl")
+				add_default_links({
+					win_names  = { "libcurl" },
+				})
+			else
+				pkgconfig.add_links("libcurl", os.getenv("LIBCURL_CONFIG"))
 			end
-			add_default_links({
-				win_names  = { "libcurl" },
-				unix_names = { "curl" },
-				osx_names = { "curl", "z" },
-				osx_frameworks = { "Security" }
-			})
 		end,
 	},
 	libpng = {
@@ -434,16 +441,20 @@ extern_lib_defs = {
 		compile_settings = function()
 			if os.istarget("windows") or os.istarget("macosx") then
 				add_default_include_paths("libsodium")
+			else
+				pkgconfig.add_includes("libsodium")
 			end
 		end,
 		link_settings = function()
 			if os.istarget("windows") or os.istarget("macosx") then
 				add_default_lib_paths("libsodium")
+				add_default_links({
+					win_names  = { "libsodium" },
+					osx_names = { "sodium" },
+				})
+			else
+				pkgconfig.add_links("libsodium")
 			end
-			add_default_links({
-				win_names  = { "libsodium" },
-				unix_names = { "sodium" },
-			})
 		end,
 	},
 	libxml2 = {
@@ -513,44 +524,45 @@ extern_lib_defs = {
 		compile_settings = function()
 			if os.istarget("windows") then
 				add_default_include_paths("openal")
+			else
+				pkgconfig.add_includes("openal")
 			end
 		end,
 		link_settings = function()
 			if os.istarget("windows") then
 				add_default_lib_paths("openal")
+				add_default_links({
+					win_names  = { "openal32" },
+					dbg_suffix = "",
+					no_delayload = 1, -- delayload seems to cause errors on startup
+				})
+			else
+				pkgconfig.add_links("openal")
 			end
-			add_default_links({
-				win_names  = { "openal32" },
-				unix_names = { "openal" },
-				osx_frameworks = { "OpenAL" },
-				dbg_suffix = "",
-				no_delayload = 1, -- delayload seems to cause errors on startup
-			})
 		end,
 	},
 	opengl = {
 		compile_settings = function()
 			if os.istarget("windows") then
 				add_default_include_paths("opengl")
+			elseif _OPTIONS["gles"] then
+				pkgconfig.add_includes("glesv2")
+			else
+				pkgconfig.add_includes("gl")
 			end
 		end,
 		link_settings = function()
 			if os.istarget("windows") then
 				add_default_lib_paths("opengl")
-			end
-			if _OPTIONS["gles"] then
-				add_default_links({
-					unix_names = { "GLESv2" },
-					dbg_suffix = "",
-				})
-			else
 				add_default_links({
 					win_names  = { "opengl32", "gdi32" },
-					unix_names = { "GL" },
-					osx_frameworks = { "OpenGL" },
 					dbg_suffix = "",
 					no_delayload = 1, -- delayload seems to cause errors on startup
 				})
+			elseif _OPTIONS["gles"] then
+				pkgconfig.add_links("glesv2")
+			else
+				pkgconfig.add_links("gl")
 			end
 		end,
 	},
@@ -559,7 +571,7 @@ extern_lib_defs = {
 			if os.istarget("windows") then
 				includedirs { libraries_dir .. "sdl2/include/SDL" }
 			elseif not _OPTIONS["android"] then
-				-- Support SDL2_CONFIG for overriding the default (pkg-config sdl2)
+				-- Support SDL2_CONFIG for overriding the default (pkg-config --cflags sdl2)
 				-- i.e. on OSX where it gets set in update-workspaces.sh
 				pkgconfig.add_includes("sdl2", os.getenv("SDL2_CONFIG"))
 			end
@@ -632,6 +644,8 @@ extern_lib_defs = {
 			elseif os.istarget("macosx") then
 				add_default_include_paths("libogg")
 				add_default_include_paths("vorbis")
+			else
+				pkgconfig.add_includes("vorbisfile")
 			end
 		end,
 		link_settings = function()
@@ -640,18 +654,18 @@ extern_lib_defs = {
 			elseif os.istarget("macosx") then
 				add_default_lib_paths("libogg")
 				add_default_lib_paths("vorbis")
-			end
-			-- TODO: We need to force linking with these as currently
-			-- they need to be loaded explicitly on execution
-			if os.getversion().description == "OpenBSD" then
+			elseif os.getversion().description == "OpenBSD" then
+				-- TODO: We need to force linking with these as currently
+				-- they need to be loaded explicitly on execution
 				add_default_links({
-					unix_names = { "ogg",
-						"vorbis" },
+					unix_names = { "ogg", "vorbis" },
 				})
+			else
+				pkgconfig.add_links("vorbisfile")
 			end
+
 			add_default_links({
 				win_names  = { "libvorbisfile" },
-				unix_names = { "vorbisfile" },
 				osx_names = { "vorbis", "vorbisenc", "vorbisfile", "ogg" },
 			})
 		end,
@@ -693,17 +707,21 @@ extern_lib_defs = {
 		compile_settings = function()
 			if os.istarget("windows") or os.istarget("macosx") then
 				add_default_include_paths("zlib")
+			else
+				pkgconfig.add_includes("zlib")
 			end
 		end,
 		link_settings = function()
 			if os.istarget("windows") or os.istarget("macosx") then
 				add_default_lib_paths("zlib")
+				add_default_links({
+					win_names  = { "zlib1" },
+					osx_names = { "z" },
+					no_delayload = 1,
+				})
+			else
+				pkgconfig.add_links("zlib")
 			end
-			add_default_links({
-				win_names  = { "zlib1" },
-				unix_names = { "z" },
-				no_delayload = 1,
-			})
 		end,
 	},
 }
