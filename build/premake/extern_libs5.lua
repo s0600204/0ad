@@ -475,21 +475,19 @@ extern_lib_defs = {
 	},
 	miniupnpc = {
 		compile_settings = function()
-			if os.istarget("windows") or os.istarget("macosx") then
+			if os.istarget("windows") then
 				add_default_include_paths("miniupnpc")
+			else
+				-- Users on Linux or BSD with a version of miniupnpc prior to v2.2.1 *and* with
+				-- miniupnpc headers installed to a location outside the standard search paths
+				-- (e.g. `/usr/include:/usr/local/include`) may find themselves unable to build.
+				--
+				-- However, this shouldn't be a problem for the vast majority of users.
+				--
+				-- (Once v2.2.1+ reaches majority spread, this comment may be removed.)
+				-- https://repology.org/badge/vertical-allrepos/miniupnpc.svg?minversion=2.2.1
+				pkgconfig.add_includes("miniupnpc")
 			end
-
-			-- Although miniupnpc does support pkg-config, we do not use it for finding the
-			-- include headers due to a change in v2.2.1, where the path changed from
-			-- `${prefix}/include/miniupnpc` to `${prefix}/include`.
-			--
-			-- We include miniupnpc headers like so: `<miniupnpc/{...}.h>`, thus we *want* the
-			-- change. Unfortunately, at the time of writing this, too few Linux & BSD systems
-			-- have this version. Without it, we can't build successfully on those systems.
-			-- Ref.: https://repology.org/badge/vertical-allrepos/miniupnpc.svg?minversion=2.2.1
-			--
-			-- Even if we changed our #includes, that would then prevent building on all the
-			-- systems that *do* have v2.2.1 (or better).
 		end,
 		link_settings = function()
 			if os.istarget("windows") then
