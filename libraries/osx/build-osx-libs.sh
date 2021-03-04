@@ -170,7 +170,7 @@ then
     && make ${JOBS} && make install) || die "zlib build failed"
 
   popd
-  ln -sf $(pwd)/lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -229,7 +229,7 @@ then
     && make ${JOBS} && make install) || die "libcurl build failed"
 
   popd
-  ln -sf $(pwd)/lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -306,7 +306,7 @@ then
     && make ${JOBS} && make install) || die "libxml2 build failed"
 
   popd
-  ln -sf $(pwd)/lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -350,7 +350,7 @@ then
     && make $JOBS && make install) || die "SDL2 build failed"
 
   popd
-  ln -sf $(pwd)/lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -492,7 +492,7 @@ then
     && make ${JOBS} && make install) || die "libpng build failed"
 
   popd
-  ln -sf $(pwd)/lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -528,7 +528,7 @@ then
     && make ${JOBS} && make install) || die "libogg build failed"
 
   popd
-  ln -sf $(pwd)/lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -565,7 +565,7 @@ then
     && make ${JOBS} && make install) || die "libvorbis build failed"
 
   popd
-  ln -sf $(pwd)/lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -608,7 +608,7 @@ then
     && make ${JOBS} && make install) || die "GMP build failed"
 
   popd
-  ln -sf $(pwd)/lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -656,7 +656,7 @@ then
     && make ${JOBS} && make install) || die "Nettle build failed"
 
   popd
-  ln -sf $(pwd)/lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -714,7 +714,7 @@ then
     && make ${JOBS} LDFLAGS= install) || die "GnuTLS build failed"
 
   popd
-  ln -sf $(pwd)/lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -761,7 +761,7 @@ then
     && make ${JOBS} && make install) || die "gloox build failed"
 
   popd
-  ln -sf $(pwd)/lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -806,7 +806,7 @@ then
 
   popd
   popd
-  ln -sf $(pwd)/lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -842,7 +842,7 @@ then
     && make clean && make ${JOBS} && make install) || die "ENet build failed"
 
   popd
-  ln -sf $(pwd)/lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -879,7 +879,7 @@ then
   popd
   # TODO: how can we not build the dylibs?
   rm -f lib/*.dylib
-  ln -sf $(pwd)/lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -919,7 +919,7 @@ then
   ) || die "libsodium build failed"
 
   popd
-  ln -sf $(pwd)/lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -961,7 +961,7 @@ then
 
   popd
   popd
-  ln -sf $(pwd)/lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH
   echo "$FMT_VERSION" > .already-built
 else
   already_built
