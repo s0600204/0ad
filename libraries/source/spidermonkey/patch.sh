@@ -53,3 +53,7 @@ then
     # https://svnweb.freebsd.org/ports/head/lang/spidermonkey78/files/patch-third__party_rust_cc_src_lib.rs?view=log
     patch -p1 < ../FixFreeBSDRustThirdPartyOSDetection.diff
 fi
+
+# We disable the JS-shell via an argument to configure.
+# Unfortunately, this doesn't propagate everywhere it needs to.
+patch -p1 < ../RemoveShellInstall.diff
