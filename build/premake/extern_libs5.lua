@@ -43,6 +43,8 @@ pkgconfig = require "pkgconfig"
 if os.istarget("macosx") then
 	pkgconfig.additional_pc_path = libraries_dir .. "pkgconfig/"
 	pkgconfig.static_link_libs = true
+elseif not os.istarget("windows") then
+	pkgconfig.additional_pc_path = libraries_source_dir .. "pkgconfig/"
 end
 
 local function add_delayload(name, suffix, def)

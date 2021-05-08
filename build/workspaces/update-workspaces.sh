@@ -80,11 +80,16 @@ if [ "`uname -s`" != "Darwin" ]; then
   echo "Updating bundled third-party dependencies..."
   echo
 
+  # Create a directory to place pkg-config's .pc files in
+  # This path must match the one set as pkgconfig.additional_pc_path in extern_libs5.lua
+  PC_PATH="$(pwd)/../../libraries/source/pkgconfig/"
+  mkdir -p "${PC_PATH}"
+
   # Build/update bundled external libraries
   (cd ../../libraries/source/fcollada && MAKE=${MAKE} JOBS=${JOBS} ./build.sh) || die "FCollada build failed"
   echo
   if [ "$with_system_mozjs" = "false" ]; then
-    (cd ../../libraries/source/spidermonkey && MAKE=${MAKE} JOBS=${JOBS} ./build.sh) || die "SpiderMonkey build failed"
+    (cd ../../libraries/source/spidermonkey && MAKE=${MAKE} JOBS=${JOBS} PC_DIR=${PC_PATH} ./build.sh) || die "SpiderMonkey build failed"
   fi
   echo
   if [ "$with_system_nvtt" = "false" ] && [ "$without_nvtt" = "false" ]; then
