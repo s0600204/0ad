@@ -981,7 +981,7 @@ then
 fi
 
 # Use the regular build script for SM.
-JOBS="$JOBS" ZLIB_DIR="$ZLIB_DIR" ./build.sh || die "Error building spidermonkey"
+JOBS="$JOBS" ZLIB_DIR="$ZLIB_DIR" PC_DIR="$PC_PATH" ./build.sh || die "Error building spidermonkey"
 
 popd > /dev/null
 
