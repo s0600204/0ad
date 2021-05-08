@@ -611,17 +611,27 @@ extern_lib_defs = {
 					pkgconfig.add_includes("mozjs-78")
 				end
 			else
+				library_name = "mozjs78-ps"
 				if os.istarget("windows") then
 					include_dir = "include-win32"
 					buildoptions { "/FI\"js/RequiredDefines.h\"" }
-				else
-					include_dir = "include-unix"
 				end
+
 				filter "Debug"
-					sysincludedirs { libraries_source_dir.."spidermonkey/"..include_dir.."-debug" }
+					if os.istarget("windows") then
+						sysincludedirs { libraries_source_dir.."spidermonkey/"..include_dir.."-debug" }
+					else
+						pkgconfig.add_includes(library_name.."-debug")
+					end
 					defines { "DEBUG" }
+
 				filter "Release"
-					sysincludedirs { libraries_source_dir.."spidermonkey/"..include_dir.."-release" }
+					if os.istarget("windows") then
+						sysincludedirs { libraries_source_dir.."spidermonkey/"..include_dir.."-release" }
+					else
+						pkgconfig.add_includes(library_name.."-release")
+					end
+
 				filter { }
 			end
 		end,
@@ -633,18 +643,28 @@ extern_lib_defs = {
 					pkgconfig.add_links("mozjs-78")
 				end
 			else
-				filter { "Debug", "action:vs*" }
-					links { "mozjs78-ps-debug" }
-					links { "mozjs78-ps-rust-debug" }
-				filter { "Debug", "action:not vs*" }
-					links { "mozjs78-ps-debug" }
-					links { "mozjs78-ps-rust" }
-				filter { "Release" }
-					links { "mozjs78-ps-release" }
-					links { "mozjs78-ps-rust" }
+				library_name = "mozjs78-ps"
+				if os.istarget("windows") then
+					add_source_lib_paths("spidermonkey")
+				end
+
+				filter "Debug"
+					if os.istarget("windows") then
+						links { library_name.."-debug" }
+					else
+						pkgconfig.add_links(library_name.."-debug")
+					end
+
+				filter "Release"
+					if os.istarget("windows") then
+						links { library_name.."-release" }
+					else
+						pkgconfig.add_links(library_name.."-release")
+					end
+
 				filter { }
-				add_source_lib_paths("spidermonkey")
 			end
+
 		end,
 	},
 	tinygettext = {
