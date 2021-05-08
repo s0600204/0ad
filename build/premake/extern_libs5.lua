@@ -281,10 +281,10 @@ extern_lib_defs = {
 
 			-- With Linux & BSD, we assume that fmt is installed in a standard location.
 			--
-			-- It would be nice to not assume, and to instead use pkgconfig: however that
+			-- It would be nice to not assume, and to instead use pkg-config: however that
 			-- requires fmt 5.3.0 or greater.
 			--
-			-- Unfortunately (at the time of writing) only 79 out of 103 (~76.7%) of distros
+			-- Unfortunately (at the time of writing) only 81 out of 104 (~77.9%) of distros
 			-- that provide a fmt package meet this, according to
 			-- https://repology.org/badge/vertical-allrepos/fmt.svg?minversion=5.3
 			--
@@ -477,17 +477,24 @@ extern_lib_defs = {
 		compile_settings = function()
 			if os.istarget("windows") then
 				add_default_include_paths("miniupnpc")
-			else
-				-- Users on Linux or BSD with a version of miniupnpc prior to v2.2.1 *and* with
-				-- miniupnpc headers installed to a location outside the standard search paths
-				-- (e.g. `/usr/include:/usr/local/include`) may find themselves unable to build.
-				--
-				-- However, this shouldn't be a problem for the vast majority of users.
-				--
-				-- (Once v2.2.1+ reaches majority spread, this comment may be removed.)
-				-- https://repology.org/badge/vertical-allrepos/miniupnpc.svg?minversion=2.2.1
+			elseif os.istarget("macosx") then
 				pkgconfig.add_includes("miniupnpc")
 			end
+
+			-- On Linux and BSD systems we assume miniupnpc is installed in a standard location.
+			--
+			-- Support for pkg-config was added in v2.1 of miniupnpc (May 2018). However, the
+			-- implementation was flawed - it provided the wrong path to the project's headers.
+			-- This was corrected in v2.2.1 (December 2020).
+			--
+			-- At the time of writing, of the 115 Linux and BSD package repositories tracked by
+			-- Repology that supply a version of miniupnpc:
+			-- * 77 (~67.96%) have >= v2.1, needed to locate libraries
+			-- * 31 (~26.96%) have >= v2.2.1, needed to (correctly) locate headers
+			--
+			-- Once more recent versions become more widespread, we can safely start to use
+			-- pkg-config to find miniupnpc on Linux and BSD systems.
+			-- https://repology.org/badge/vertical-allrepos/miniupnpc.svg?minversion=2.2.1
 		end,
 		link_settings = function()
 			if os.istarget("windows") then
@@ -495,8 +502,14 @@ extern_lib_defs = {
 				add_default_links({
 					win_names  = { "miniupnpc" },
 				})
-			else
+			elseif os.istarget("macosx") then
 				pkgconfig.add_links("miniupnpc")
+			else
+				-- Once miniupnpc v2.1 or better becomes near-universal (see above comment),
+				-- we can use pkg-config for Linux and BSD.
+				add_default_links({
+					unix_names = { "miniupnpc" },
+				})
 			end
 		end,
 	},
