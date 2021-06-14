@@ -1,0 +1,40 @@
+name: vcpkg tests
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - vcpkg
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    env:
+      #sourceDir: '${{ github.workspace }}/source/'
+      #buildDir: '${{ github.workspace }}/build/'
+      vcpkgDir:  '${{ github.workspace }}/vcpkg'
+
+    steps:
+    #- name: Install CMake
+    #  uses: lukka/get-cmake@v3.20.1
+
+    - name: Setup vcpkg
+      uses: lukka/run-vcpkg@v7.3
+      with:
+        setupOnly: true
+        vcpkgDirectory: ${{ env.vcpkgDir }}
+
+    - run: echo $VCPKG_ROOT
+      shell: bash
+
+    - name: Install vorbis
+      run: |
+        $VCPKG_ROOT/vcpkg install vorbis:x86-windows
+      shell: bash
+
+    - name: Package as artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: vorbis
+        path: ${{ env.vcpkgDir }}
