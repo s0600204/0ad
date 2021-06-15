@@ -24,6 +24,7 @@ jobs:
       with:
         setupOnly: true
         vcpkgDirectory: ${{ env.vcpkgDir }}
+        vcpkgGitCommitId: 38d2893b30d4d4b3c09485216ecf4f6e8ef35d88
 
     - run: echo $VCPKG_ROOT
       shell: bash
