@@ -7,7 +7,21 @@ on:
     - vcpkg
 
 env:
-  VCPKG_ROOT: '${{ github.workspace }}/vc'
+  VCPKG_ROOT: '${{ github.workspace }}\vc'
+
+# Notes for PowerShell novices (like me):
+# 
+# * To access Environment variables
+#   > $env:<NAME>
+#   (where <NAME> is the variable name)
+#
+# * PowerShell doesn't recognise the following as paths:
+#   > $env:<PATH>/subpath
+#   > $env:<PATH>\subpath
+#   Instead, prefix the "call operator", like so:
+#   > & $env:<PATH>/subpath
+#   > & $env:<PATH>\subpath
+
 
 jobs:
   build:
@@ -30,29 +44,29 @@ jobs:
 
     - name: Sanity check
       run: |
-        echo $VCPKG_ROOT
-        echo $env:VCPKG_ROOT
+        echo "1> "+$VCPKG_ROOT
+        echo "2> "+$env:VCPKG_ROOT
 
     - name: Help
       run: |
-        $env:VCPKG_ROOT/vcpkg help
+        & $env:VCPKG_ROOT\vcpkg help
 
     - name: Help install
       run: |
-        $env:VCPKG_ROOT/vcpkg help install
+        & $env:VCPKG_ROOT\vcpkg help install
 
     - name: Help integrate
       run: |
-        $env:VCPKG_ROOT/vcpkg help integrate
+        & $env:VCPKG_ROOT\vcpkg help integrate
 
     - name: Help export
       run: |
-        $env:VCPKG_ROOT/cpkg help export
+        & $env:VCPKG_ROOT\vcpkg help export
 
     # Not available from vcpkg: FCollada, Gloox, SpiderMonkey
     - name: Install some packages
       run: >
-        $VCPKG_ROOT/vcpkg install
+        & $env:VCPKG_ROOT\vcpkg install
         libvorbis
         pkgconf
         opengl
@@ -79,17 +93,17 @@ jobs:
       with:
         name: installed
         path: |
-          ${{ env.VCPKG_ROOT }}/installed
+          ${{ env.VCPKG_ROOT }}\installed
 
     - name: Package scripts
       uses: actions/upload-artifact@v2
       with:
         name: scripts
         path: |
-          ${{ env.VCPKG_ROOT }}/scripts
+          ${{ env.VCPKG_ROOT }}\scripts
 
     
           #${{ env.VCPKG_ROOT }}
-          #!${{ env.VCPKG_ROOT }}/buildtrees
-          #!${{ env.VCPKG_ROOT }}/downloads
-          #!${{ env.VCPKG_ROOT }}/packages
+          #!${{ env.VCPKG_ROOT }}\buildtrees
+          #!${{ env.VCPKG_ROOT }}\downloads
+          #!${{ env.VCPKG_ROOT }}\packages
