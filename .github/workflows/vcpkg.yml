@@ -7,7 +7,7 @@ on:
     - vcpkg
 
 env:
-  VCPKG_ROOT: '${{ github.workspace }}/vc/'
+  VCPKG_ROOT: '${{ github.workspace }}\vc\'
 
 jobs:
   build:
@@ -30,7 +30,7 @@ jobs:
 
     - name: Install vorbis
       run: |
-        $VCPKG_ROOT/vcpkg install vorbis:x86-windows
+        $VCPKG_ROOT/vcpkg install vorbis
       shell: bash
 
     - name: Package as artifact
