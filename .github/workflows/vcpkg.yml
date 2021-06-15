@@ -28,13 +28,33 @@ jobs:
         echo $VCPKG_ROOT
         ls $VCPKG_ROOT
 
+    # Not available from vcpkg: FCollada, Gloox, SpiderMonkey
     - name: Install some packages
-      run: |
-        $VCPKG_ROOT/vcpkg install openal-soft
       shell: bash
+      run: >
+        $VCPKG_ROOT/vcpkg install
+        libvorbis
+        pkgconf
+
+        #~ boost
+        #~ enet
+        #~ curl
+        #~ icu
+        #~ libiconv
+        #~ libpng
+        #~ libsodium
+        #~ libvorbis
+        #~ libxml2
+        #~ nvtt
+        #~ openal-soft
+        #~ zlib
 
     - name: Package as artifact
       uses: actions/upload-artifact@v2
       with:
-        name: vorbis
-        path: ${{ env.VCPKG_ROOT }}
+        name: built_stuff
+        path: |
+          ${{ env.VCPKG_ROOT }}
+          !${{ env.VCPKG_ROOT }}\buildtrees
+          !${{ env.VCPKG_ROOT }}\downloads
+          !${{ env.VCPKG_ROOT }}\packages
