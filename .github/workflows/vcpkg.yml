@@ -28,9 +28,9 @@ jobs:
         echo $VCPKG_ROOT
         ls $VCPKG_ROOT
 
-    - name: Install vorbis
+    - name: Install some packages
       run: |
-        $VCPKG_ROOT/vcpkg install vorbis
+        $VCPKG_ROOT/vcpkg install openal-soft
       shell: bash
 
     - name: Package as artifact
