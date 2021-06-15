@@ -6,30 +6,27 @@ on:
     branches:
     - vcpkg
 
+env:
+  VCPKG_ROOT: '${{ github.workspace }}/vc/'
+
 jobs:
   build:
     runs-on: windows-latest
 
-    #env:
-      #sourceDir: '${{ github.workspace }}/source/'
-      #buildDir: '${{ github.workspace }}/build/'
-
     steps:
-    #- name: Install CMake
-    #  uses: lukka/get-cmake@v3.20.1
 
-    - name: Setup vcpkg
-      uses: lukka/run-vcpkg@v7.3
-      with:
-        setupOnly: true
-        vcpkgDirectory: '${{ github.workspace }}\vcpkg'
-        vcpkgGitCommitId: 38d2893b30d4d4b3c09485216ecf4f6e8ef35d88
+    - name: Install and Build vcpkg locally
+      run: |
+        md $env:VCPKG_ROOT
+        cd $env:VCPKG_ROOT
+        git clone --depth=1 https://github.com/Microsoft/vcpkg.git --branch=2021.05.12 .
+        .\bootstrap-vcpkg.bat -disableMetrics
 
-    - shell: bash
+    - name: Sanity check
+      shell: bash
       run: |
         echo $VCPKG_ROOT
         ls $VCPKG_ROOT
-        mkdir -p "$VCPKG_ROOT\ports\vorbis"
 
     - name: Install vorbis
       run: |
