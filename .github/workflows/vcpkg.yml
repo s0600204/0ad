@@ -8,6 +8,7 @@ on:
 
 env:
   VCPKG_ROOT: '${{ github.workspace }}\vc'
+  INSTALL_DIR: '${{ github.workspace }}\win32'
 
 # Notes for PowerShell novices (like me):
 # 
@@ -47,29 +48,17 @@ jobs:
         echo "1> "+$VCPKG_ROOT
         echo "2> "+$env:VCPKG_ROOT
 
-    - name: Help
+    - name: Help triplet
       run: |
-        & $env:VCPKG_ROOT\vcpkg help
-
-    - name: Help install
-      run: |
-        & $env:VCPKG_ROOT\vcpkg help install
-
-    - name: Help integrate
-      run: |
-        & $env:VCPKG_ROOT\vcpkg help integrate
-
-    - name: Help export
-      run: |
-        & $env:VCPKG_ROOT\vcpkg help export
+        & $env:VCPKG_ROOT\vcpkg help triplet
 
     # Not available from vcpkg: FCollada, Gloox, SpiderMonkey
     - name: Install some packages
       run: >
         & $env:VCPKG_ROOT\vcpkg install
-        libvorbis
+        --x-install-root=$env:INSTALL_DIR
         pkgconf
-        opengl
+        mesa
 
         #~ boost
         #~ enet
@@ -88,22 +77,16 @@ jobs:
         #~ wxwidgets
         #~ zlib
 
-    - name: Package built stuff
+    - name: Package built stuff (old)
       uses: actions/upload-artifact@v2
       with:
-        name: installed
+        name: installed_old
         path: |
           ${{ env.VCPKG_ROOT }}\installed
 
-    - name: Package scripts
+    - name: Package built stuff (new)
       uses: actions/upload-artifact@v2
       with:
-        name: scripts
+        name: installed_new
         path: |
-          ${{ env.VCPKG_ROOT }}\scripts
-
-    
-          #${{ env.VCPKG_ROOT }}
-          #!${{ env.VCPKG_ROOT }}\buildtrees
-          #!${{ env.VCPKG_ROOT }}\downloads
-          #!${{ env.VCPKG_ROOT }}\packages
+          ${{ env.INSTALL_DIR }}
