@@ -10,10 +10,9 @@ jobs:
   build:
     runs-on: windows-latest
 
-    env:
+    #env:
       #sourceDir: '${{ github.workspace }}/source/'
       #buildDir: '${{ github.workspace }}/build/'
-      vcpkgDir:  '${{ github.workspace }}/vcpkg'
 
     steps:
     #- name: Install CMake
@@ -23,11 +22,14 @@ jobs:
       uses: lukka/run-vcpkg@v7.3
       with:
         setupOnly: true
-        vcpkgDirectory: ${{ env.vcpkgDir }}
+        vcpkgDirectory: '${{ github.workspace }}\vcpkg'
         vcpkgGitCommitId: 38d2893b30d4d4b3c09485216ecf4f6e8ef35d88
 
-    - run: echo $VCPKG_ROOT
-      shell: bash
+    - shell: bash
+      run: |
+        echo $VCPKG_ROOT
+        ls $VCPKG_ROOT
+        mkdir -p "$VCPKG_ROOT\ports\vorbis"
 
     - name: Install vorbis
       run: |
@@ -38,4 +40,4 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
         name: vorbis
-        path: ${{ env.vcpkgDir }}
+        path: ${{ env.VCPKG_ROOT }}
