@@ -7,7 +7,7 @@ on:
     - vcpkg
 
 env:
-  VCPKG_ROOT: '${{ github.workspace }}\vc\'
+  VCPKG_ROOT: '${{ github.workspace }}\vc'
 
 jobs:
   build:
@@ -28,16 +28,33 @@ jobs:
         echo $VCPKG_ROOT
         ls $VCPKG_ROOT
 
+    - name: Help
+      run: |
+        $env:VCPKG_ROOT\vcpkg help
+
+    - name: Help install
+      run: |
+        $env:VCPKG_ROOT\vcpkg help install
+
+    - name: Help integrate
+      run: |
+        $env:VCPKG_ROOT\vcpkg help integrate
+
+    - name: Help export
+      run: |
+        $env:VCPKG_ROOT\\cpkg help export
+
     # Not available from vcpkg: FCollada, Gloox, SpiderMonkey
     - name: Install some packages
-      shell: bash
       run: >
-        $VCPKG_ROOT/vcpkg install
+        $VCPKG_ROOT\vcpkg install
         libvorbis
         pkgconf
+        opengl
 
         #~ boost
         #~ enet
+        #~ fmt
         #~ curl
         #~ icu
         #~ libiconv
@@ -45,16 +62,29 @@ jobs:
         #~ libsodium
         #~ libvorbis
         #~ libxml2
+        #~ minupnpc
         #~ nvtt
         #~ openal-soft
+        #~ opengl # or (mesa)
+        #~ wxwidgets
         #~ zlib
 
-    - name: Package as artifact
+    - name: Package built stuff
       uses: actions/upload-artifact@v2
       with:
-        name: built_stuff
+        name: installed
         path: |
-          ${{ env.VCPKG_ROOT }}
-          !${{ env.VCPKG_ROOT }}\buildtrees
-          !${{ env.VCPKG_ROOT }}\downloads
-          !${{ env.VCPKG_ROOT }}\packages
+          ${{ env.VCPKG_ROOT }}\installed
+
+    - name: Package scripts
+      uses: actions/upload-artifact@v2
+      with:
+        name: scripts
+        path: |
+          ${{ env.VCPKG_ROOT }}\scripts
+
+    
+          #${{ env.VCPKG_ROOT }}
+          #!${{ env.VCPKG_ROOT }}\buildtrees
+          #!${{ env.VCPKG_ROOT }}\downloads
+          #!${{ env.VCPKG_ROOT }}\packages
