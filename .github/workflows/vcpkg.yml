@@ -37,21 +37,6 @@ jobs:
         git clone --depth=1 https://github.com/Microsoft/vcpkg.git --branch=2021.05.12 .
         .\bootstrap-vcpkg.bat -disableMetrics
 
-    - name: Sanity check
-      shell: bash
-      run: |
-        echo $VCPKG_ROOT
-        ls $VCPKG_ROOT
-
-    - name: Sanity check
-      run: |
-        echo "1> "+$VCPKG_ROOT
-        echo "2> "+$env:VCPKG_ROOT
-
-    - name: Help triplet
-      run: |
-        & $env:VCPKG_ROOT\vcpkg help triplet
-
     # Not available from vcpkg: FCollada, Gloox, SpiderMonkey
     - name: Install some packages
       run: >
@@ -75,19 +60,14 @@ jobs:
         #~ nvtt
         #~ openal-soft
         #~ opengl-registry
+        #~ pkgconf
         #~ wxwidgets
         #~ zlib
 
-    - name: Package built stuff (old)
+    - name: Package
       uses: actions/upload-artifact@v2
       with:
-        name: installed_old
+        name: vcpkg
         path: |
-          ${{ env.VCPKG_ROOT }}\installed
-
-    - name: Package built stuff (new)
-      uses: actions/upload-artifact@v2
-      with:
-        name: installed_new
-        path: |
-          ${{ env.INSTALL_DIR }}
+          ${{ env.INSTALL_DIR }}\x86-windows
+          !${{ env.INSTALL_DIR }}\x86-windows\share
