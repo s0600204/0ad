@@ -58,7 +58,7 @@ jobs:
         & $env:VCPKG_ROOT\vcpkg install
         --x-install-root=$env:INSTALL_DIR
         pkgconf
-        mesa
+        opengl-registry
 
         #~ boost
         #~ enet
@@ -70,10 +70,11 @@ jobs:
         #~ libsodium
         #~ libvorbis
         #~ libxml2
+        #~ mesa
         #~ minupnpc
         #~ nvtt
         #~ openal-soft
-        #~ opengl # or (mesa)
+        #~ opengl-registry
         #~ wxwidgets
         #~ zlib
 
