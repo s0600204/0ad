@@ -37,11 +37,16 @@ jobs:
         git clone --depth=1 https://github.com/Microsoft/vcpkg.git --branch=2021.05.12 .
         .\bootstrap-vcpkg.bat -disableMetrics
 
+    - name: Run `vcpkg help`
+      run: |
+        & $env:VCPKG_ROOT\vcpkg help
+
     # Not available from vcpkg: FCollada, Gloox, SpiderMonkey
     - name: Install some packages
       run: >
         & $env:VCPKG_ROOT\vcpkg install
         --x-install-root=$env:INSTALL_DIR
+        --debug
         pkgconf
         opengl-registry
 
@@ -64,10 +69,10 @@ jobs:
         #~ wxwidgets
         #~ zlib
 
-    - name: Package
-      uses: actions/upload-artifact@v2
-      with:
-        name: vcpkg
-        path: |
-          ${{ env.INSTALL_DIR }}\x86-windows
-          !${{ env.INSTALL_DIR }}\x86-windows\share
+    #~ - name: Package
+      #~ uses: actions/upload-artifact@v2
+      #~ with:
+        #~ name: vcpkg
+        #~ path: |
+          #~ ${{ env.INSTALL_DIR }}\x86-windows
+          #~ !${{ env.INSTALL_DIR }}\x86-windows\share
