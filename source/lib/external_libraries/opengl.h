@@ -21,7 +21,7 @@
  */
 
 /*
- * bring in OpenGL header+library, with compatibility fixes
+ * Bring in OpenGL header, with compatibility fixes
  */
 
 #ifndef INCLUDED_OPENGL

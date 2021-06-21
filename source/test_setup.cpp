@@ -136,7 +136,11 @@ bool ts_str_contains(const std::wstring& str1, const std::wstring& str2)
 // available, so we use sys_ExecutablePathname.
 OsPath DataDir()
 {
+#if OS_WIN
+	return sys_ExecutablePathname().Parent()/".."/".."/"data";
+#else
 	return sys_ExecutablePathname().Parent()/".."/"data";
+#endif
 }
 
 // Script-based testing setup:

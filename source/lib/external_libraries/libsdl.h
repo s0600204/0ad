@@ -1,4 +1,4 @@
-/* Copyright (C) 2020 Wildfire Games.
+/* Copyright (C) 2021 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -41,11 +41,6 @@
 // will strip them if unused, and this is more convenient than
 // another header that toggles between wsdl and SDL_endian.h.
 # include "SDL_endian.h"
-
-# if MSC_VERSION
-#  pragma comment(lib, "SDL2")
-#  pragma comment(lib, "SDL2main")
-# endif
 
 // complete definition of our forward-declared SDL_Event (see sdl_fwd.h)
 struct SDL_Event_

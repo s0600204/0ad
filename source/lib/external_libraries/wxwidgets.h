@@ -1,4 +1,4 @@
-/* Copyright (C) 2010 Wildfire Games.
+/* Copyright (C) 2021 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -21,7 +21,7 @@
  */
 
 /*
- * bring in wxWidgets headers, with compatibility fixes
+ * Bring in wxWidgets headers, with compatibility fixes
  */
 
 #ifndef INCLUDED_WXWIDGETS
@@ -52,6 +52,6 @@ typedef struct HINSTANCE__* HINSTANCE;	// definition as if STRICT were #defined
 #include "wx/evtloop.h"     // for SetCriticalWindow()
 #endif // __WXMSW__
 
-// note: wxWidgets already does #pragma comment(lib) to add link targets.
+// Note: wxWidgets uses #pragma comment(lib) to add link targets.
 
 #endif	// #ifndef INCLUDED_WXWIDGETS

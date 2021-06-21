@@ -1,13 +1,13 @@
-name: Win32 Deps Build
+name: Win32 Full Build
 on:
   workflow_dispatch:
   push:
     branches:
-    - build-win32-libs
+    - build-win32-pyro
 
 jobs:
   build:
-    name: Build dependencies
+    name: Build
     runs-on: ${{ matrix.os }}
 
     strategy:
@@ -47,7 +47,72 @@ jobs:
       run: |
         (Get-Item $PSScriptRoot).PSDrive
 
+    # Clear space on the VM in preparation for the pyrogenesis build
+    # (Currently clears ~2.49 GB)
+    - name: Delete SpiderMonkey build tree
+      run: |
+        Remove-Item -Path ${{ github.workspace }}\libraries\source\spidermonkey\mozjs-78.6.0 -Recurse
+
+    - name: Print locations
+      if: ${{ always() }}
+      run: |
+        (Get-ChildItem -Path "${{ github.workspace }}\libraries\win32\vcpkg\vc\x86-windows\include").FullName
+        echo "----"
+        (Get-ChildItem -Path "${{ github.workspace }}\libraries\win32\vcpkg\vc\x86-windows\lib").FullName
+        echo "----"
+        (Get-ChildItem -Path "${{ github.workspace }}\libraries\win32\vcpkg\vc\x86-windows\debug\lib").FullName
+
+    - name: Check disk space
+      run: |
+        (Get-Item $PSScriptRoot).PSDrive
+
+    - name: Find msbuild
+      id: msbuild
+      run: |
+        $msbuild = vswhere -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
+        echo "::set-output name=msbuild::$msbuild"
+
+    - name: Update workspaces
+      run: |
+        chdir build\workspaces
+        & .\update-workspaces.bat --atlas --build-shared-glooxwrapper
+
+    - name: Print vcxproj contents
+      run: |
+        Get-Content "build\workspaces\vs2017\AtlasUI.vcxproj"
+
+    - name: Print pkgconf output
+      if: ${{ always() }}
+      run: |
+        $env:PKG_CONFIG_PATH = "${{ github.workspace }}\libraries\source\pkgconfig\debug"
+        & "$env:PKG_CONFIG_PATH\..\pkgconf.exe" --cflags "libcurl"
+        & "$env:PKG_CONFIG_PATH\..\pkgconf.exe" --libs "libcurl"
+
+    - name: Check disk space
+      run: |
+        (Get-Item $PSScriptRoot).PSDrive
+
+    - name: Build pyrogenesis (Debug)
+      run: |
+        $msbuild = "${{ steps.msbuild.outputs.msbuild }}"
+        chdir build\workspaces\vs2017
+        & $msbuild pyrogenesis.sln /p:XPDeprecationWarning=false /p:PlatformToolset=v141_xp /t:pyrogenesis /t:AtlasUI /t:test /p:Configuration=Debug
+
+    - name: Check disk space
+      run: |
+        (Get-Item $PSScriptRoot).PSDrive
+
+    - name: Build pyrogenesis (Release)
+      run: |
+        $msbuild = "${{ steps.msbuild.outputs.msbuild }}"
+        chdir build\workspaces\vs2017
+        & $msbuild pyrogenesis.sln /p:XPDeprecationWarning=false /p:PlatformToolset=v141_xp /t:pyrogenesis /t:AtlasUI /t:test /p:Configuration=Release
+
+    - name: Check disk space
+      run: |
+        (Get-Item $PSScriptRoot).PSDrive
+
     - name: Print folder contents
       if: ${{ always() }}
       run: |
-        (Get-ChildItem -Path "${{ github.workspace }}\libraries\source\pkgconfig" -Recurse).FullName
+        (Get-ChildItem -Path "${{ github.workspace }}\binaries\system" -Recurse).FullName

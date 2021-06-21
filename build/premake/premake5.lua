@@ -110,13 +110,26 @@ end
 
 -- Set up the Workspace
 workspace "pyrogenesis"
-targetdir(rootdir.."/binaries/system")
-libdirs(rootdir.."/binaries/system")
 if not _OPTIONS["outpath"] then
 	error("You must specify the 'outpath' parameter")
 end
 location(_OPTIONS["outpath"])
 configurations { "Release", "Debug" }
+
+if os.istarget("windows") then
+	filter "Debug"
+		targetdir(rootdir.."/binaries/system/debug")
+		libdirs(rootdir.."/binaries/system/debug")
+
+	filter "Release"
+		targetdir(rootdir.."/binaries/system/release")
+		libdirs(rootdir.."/binaries/system/release")
+
+	filter { }
+else
+	targetdir(rootdir.."/binaries/system")
+	libdirs(rootdir.."/binaries/system")
+end
 
 source_root = rootdir.."/source/" -- default for most projects - overridden by local in others
 
@@ -1189,6 +1202,10 @@ function setup_atlas_projects()
 	if not os.istarget("windows") and not os.istarget("macosx") then
 		-- X11 should only be linked on *nix
 		table.insert(atlas_extern_libs, "x11")
+	end
+	if os.istarget("windows") then
+		-- Need the Windows-only `wglMakeCurrent()`
+		table.insert(atlas_extern_libs, "opengl")
 	end
 
 	setup_atlas_project("AtlasUI", "SharedLib", atlas_src,

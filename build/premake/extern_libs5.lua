@@ -37,6 +37,20 @@ local function add_third_party_include_paths(extern_lib)
 	sysincludedirs { third_party_source_dir .. extern_lib .. "/include" }
 end
 
+-- We use vcpkg on Windows to install most dependencies. The following two functions facilitate
+-- finding the headers and libraries in the case that the dependency doesn't support pkg-config
+-- (or does but vcpkg doesn't emit a .pc file for it).
+local function add_vcpkg_lib_paths()
+	filter "Debug"
+		libdirs { libraries_dir .. "/vcpkg/vc/x86-windows/debug/lib" }
+	filter "Release"
+		libdirs { libraries_dir .. "/vcpkg/vc/x86-windows/lib" }
+	filter { }
+end
+local function add_vcpkg_include_paths()
+	sysincludedirs { libraries_dir .. "/vcpkg/vc/x86-windows/include" }
+end
+
 pkgconfig = require "pkgconfig"
 
 -- Configure pkgconfig
@@ -46,6 +60,11 @@ if os.istarget("macosx") then
 	pkgconfig.additional_pc_path_release = libraries_dir .. "pkgconfig/release/"
 	pkgconfig.additional_pc_path_debug   = libraries_dir .. "pkgconfig/debug/"
 	pkgconfig.static_link_libs = true
+elseif os.istarget("windows") then
+	-- Windows' cmd.exe requires paths to be using `\` instead of `/`.
+	--pkgconfig.additional_pc_path_release = string.gsub(pkgconfig.additional_pc_path_release, "/", "\\")
+	--pkgconfig.additional_pc_path_debug   = string.gsub(pkgconfig.additional_pc_path_debug, "/", "\\")
+	pkgconfig.binary = string.gsub(libraries_source_dir .. "pkgconfig/pkgconf.exe", "/", "\\")
 end
 
 local function add_delayload(name, suffix, def)
@@ -192,9 +211,7 @@ extern_lib_defs = {
 	boost = {
 		compile_settings = function()
 			if os.istarget("windows") then
-				-- Force the autolink to use the vc141 libs.
-				defines { 'BOOST_LIB_TOOLSET="vc141"' }
-				add_default_include_paths("boost")
+				add_vcpkg_include_paths()
 			elseif os.istarget("macosx") then
 				-- Suppress all the Boost warnings on OS X by including it as a system directory
 				buildoptions { "-isystem../" .. libraries_dir .. "boost/include" }
@@ -205,10 +222,19 @@ extern_lib_defs = {
 			end
 		end,
 		link_settings = function()
-			if os.istarget("windows") or os.istarget("macosx") then
-				if os.istarget("windows") then
-					defines { 'BOOST_LIB_TOOLSET="vc141"' }
-				end
+			if os.istarget("windows") then
+				-- boost has an "autolinker" that links the appropriate .lib files through use
+				-- of `#pragma comment(lib)`. Unfortunately vcpkg disables it, requiring
+				-- us to specify the libs we want to link against.
+				-- (https://github.com/microsoft/vcpkg/blob/master/ports/boost-config/portfile.cmake)
+				local toolset = "vc140"
+				add_vcpkg_lib_paths()
+				add_default_links({
+					win_names = { "boost_filesystem-"..toolset.."-mt", "boost_system-"..toolset.."-mt" },
+					dbg_suffix = "-gd",
+					no_delayload = 1,
+				})
+			elseif os.istarget("macosx") then
 				add_default_lib_paths("boost")
 			end
 			add_default_links({
@@ -237,16 +263,20 @@ extern_lib_defs = {
 	enet = {
 		compile_settings = function()
 			if os.istarget("windows") then
-				add_default_include_paths("enet")
+				-- vcpkg doesn't emit a .pc file for this dependency :(
+				add_vcpkg_include_paths()
 			else
 				pkgconfig.find_system("libenet").add_includes()
 			end
 		end,
 		link_settings = function()
 			if os.istarget("windows") then
-				add_default_lib_paths("enet")
+				-- vcpkg doesn't emit a .pc file for this dependency :(
+				add_vcpkg_lib_paths()
 				add_default_links({
-					win_names  = { "enet" },
+					win_names  = { "enet", "ws2_32", "winmm" },
+					dbg_suffix = "",
+					no_delayload = 1,
 				})
 			else
 				pkgconfig.find_system("libenet").add_links()
@@ -276,9 +306,7 @@ extern_lib_defs = {
 	},
 	fmt = {
 		compile_settings = function()
-			if os.istarget("windows") then
-				add_default_include_paths("fmt")
-			elseif os.istarget("macosx") then
+			if os.istarget("windows") or os.istarget("macosx") then
 				pkgconfig.find_system("fmt").add_includes()
 			end
 
@@ -300,14 +328,7 @@ extern_lib_defs = {
 			-- same line as we currently use for osx
 		end,
 		link_settings = function()
-			if os.istarget("windows") then
-				add_default_lib_paths("fmt")
-				add_default_links({
-					win_names = { "fmt" },
-					dbg_suffix = "d",
-					no_delayload = 1,
-				})
-			elseif os.istarget("macosx") then
+			if os.istarget("windows") or os.istarget("macosx") then
 				-- See comment above as to why this is not also used on Linux or BSD.
 				pkgconfig.find_system("fmt").add_links()
 			else
@@ -319,33 +340,21 @@ extern_lib_defs = {
 	},
 	gloox = {
 		compile_settings = function()
-			if os.istarget("windows") then
-				add_default_include_paths("gloox")
-			else
-				pkgconfig.find_system("gloox").add_includes()
-			end
+			pkgconfig.find_system("gloox").add_includes()
 		end,
 		link_settings = function()
-			if os.istarget("windows") then
-				add_default_lib_paths("gloox")
-				add_default_links({
-					win_names  = { "gloox-1.0" },
-					no_delayload = 1,
-				})
-			else
-				pkgconfig.find_system("gloox").add_links()
+			pkgconfig.find_system("gloox").add_links()
 
-				if os.istarget("macosx") then
-					-- gloox depends on gnutls, but doesn't identify this via pkg-config
-					pkgconfig.find_system("gnutls").add_links()
-				end
+			if os.istarget("macosx") then
+				-- gloox depends on gnutls, but doesn't identify this via pkg-config
+				pkgconfig.find_system("gnutls").add_links()
 			end
 		end,
 	},
 	iconv = {
 		compile_settings = function()
 			if os.istarget("windows") then
-				add_default_include_paths("iconv")
+				add_vcpkg_include_paths()
 				defines { "HAVE_ICONV_CONST" }
 				defines { "ICONV_CONST=const" }
 				defines { "LIBICONV_STATIC" }
@@ -358,11 +367,13 @@ extern_lib_defs = {
 			end
 		end,
 		link_settings = function()
-			if os.istarget("windows") or os.istarget("macosx") then
+			if os.istarget("windows") then
+				add_vcpkg_lib_paths()
+			elseif os.istarget("macosx") then
 				add_default_lib_paths("iconv")
 			end
 			add_default_links({
-				win_names  = { "libiconv" },
+				win_names  = { "iconv" },
 				osx_names = { "iconv" },
 				dbg_suffix = "",
 				no_delayload = 1,
@@ -372,77 +383,47 @@ extern_lib_defs = {
 	},
 	icu = {
 		compile_settings = function()
-			if os.istarget("windows") then
-				add_default_include_paths("icu")
-			else
-				pkgconfig.find_system("icu-i18n").add_includes()
-			end
+			pkgconfig.find_system("icu-i18n").add_includes()
 		end,
 		link_settings = function()
-			if os.istarget("windows") then
-				add_default_lib_paths("icu")
-				add_default_links({
-					win_names  = { "icuuc", "icuin" },
-					dbg_suffix = "",
-					no_delayload = 1,
-				})
-			else
-				pkgconfig.find_system("icu-i18n").add_links()
-			end
+			pkgconfig.find_system("icu-i18n").add_links()
 		end,
 	},
 	libcurl = {
 		compile_settings = function()
-			if os.istarget("windows") then
-				add_default_include_paths("libcurl")
-			else
-				pkgconfig.find_system("libcurl").add_includes()
-			end
+			pkgconfig.find_system("libcurl").add_includes()
 		end,
 		link_settings = function()
-			if os.istarget("windows") then
-				add_default_lib_paths("libcurl")
-			else
-				pkgconfig.find_system("libcurl").add_links()
-			end
+			pkgconfig.find_system("libcurl").add_links()
 			add_default_links({
-				win_names  = { "libcurl" },
 				osx_frameworks = { "Security" }, -- Not supplied by curl's pkg-config
 			})
 		end,
 	},
 	libpng = {
 		compile_settings = function()
-			if os.istarget("windows") then
-				add_default_include_paths("libpng")
-			else
-				pkgconfig.find_system("libpng").add_includes()
-			end
+			pkgconfig.find_system("libpng").add_includes()
 		end,
 		link_settings = function()
-			if os.istarget("windows") then
-				add_default_lib_paths("libpng")
-				add_default_links({
-					win_names  = { "libpng16" },
-				})
-			else
-				pkgconfig.find_system("libpng").add_links()
-			end
+			pkgconfig.find_system("libpng").add_links()
 		end,
 	},
 	libsodium = {
 		compile_settings = function()
 			if os.istarget("windows") then
-				add_default_include_paths("libsodium")
+				-- vcpkg doesn't emit a .pc file for this dependency :(
+				add_vcpkg_include_paths()
 			else
 				pkgconfig.find_system("libsodium").add_includes()
 			end
 		end,
 		link_settings = function()
 			if os.istarget("windows") then
-				add_default_lib_paths("libsodium")
+				-- vcpkg doesn't emit a .pc file for this dependency :(
+				add_vcpkg_lib_paths()
 				add_default_links({
 					win_names  = { "libsodium" },
+					dbg_suffix = "",
 				})
 			else
 				pkgconfig.find_system("libsodium").add_links()
@@ -451,35 +432,23 @@ extern_lib_defs = {
 	},
 	libxml2 = {
 		compile_settings = function()
-			if os.istarget("windows") then
-				add_default_include_paths("libxml2")
-			else
-				pkgconfig.find_system("libxml-2.0").add_includes()
+			pkgconfig.find_system("libxml-2.0").add_includes()
 
-				if os.istarget("macosx") then
-					-- libxml2 needs _REENTRANT or __MT__ for thread support;
-					-- OS X doesn't get either set by default, so do it manually
-					defines { "_REENTRANT" }
-				end
+			if os.istarget("macosx") then
+				-- libxml2 needs _REENTRANT or __MT__ for thread support;
+				-- OS X doesn't get either set by default, so do it manually
+				defines { "_REENTRANT" }
 			end
 		end,
 		link_settings = function()
-			if os.istarget("windows") then
-				add_default_lib_paths("libxml2")
-				filter "Debug"
-					links { "libxml2" }
-				filter "Release"
-					links { "libxml2" }
-				filter { }
-			else
-				pkgconfig.find_system("libxml-2.0").add_links()
-			end
+			pkgconfig.find_system("libxml-2.0").add_links()
 		end,
 	},
 	miniupnpc = {
 		compile_settings = function()
 			if os.istarget("windows") then
-				add_default_include_paths("miniupnpc")
+				-- vcpkg doesn't emit a .pc file for this dependency :(
+				add_vcpkg_include_paths()
 			elseif os.istarget("macosx") then
 				pkgconfig.find_system("miniupnpc").add_includes()
 			end
@@ -501,9 +470,11 @@ extern_lib_defs = {
 		end,
 		link_settings = function()
 			if os.istarget("windows") then
-				add_default_lib_paths("miniupnpc")
+				-- vcpkg doesn't emit a .pc file for this dependency :(
+				add_vcpkg_lib_paths()
 				add_default_links({
 					win_names  = { "miniupnpc" },
+					dbg_suffix = "",
 				})
 			elseif os.istarget("macosx") then
 				pkgconfig.find_system("miniupnpc").add_links()
@@ -537,21 +508,12 @@ extern_lib_defs = {
 	},
 	openal = {
 		compile_settings = function()
-			if os.istarget("windows") then
-				add_default_include_paths("openal")
-			elseif not os.istarget("macosx") then
+			if not os.istarget("macosx") then
 				pkgconfig.find_system("openal").add_includes()
 			end
 		end,
 		link_settings = function()
-			if os.istarget("windows") then
-				add_default_lib_paths("openal")
-				add_default_links({
-					win_names  = { "openal32" },
-					dbg_suffix = "",
-					no_delayload = 1, -- delayload seems to cause errors on startup
-				})
-			elseif os.istarget("macosx") then
+			if os.istarget("macosx") then
 				add_default_links({
 					osx_frameworks = { "OpenAL" },
 				})
@@ -561,9 +523,17 @@ extern_lib_defs = {
 		end,
 	},
 	opengl = {
+		-- On MacOS: OpenGL comes from Apple (and has been deprecated).
+		-- On Windows: headers come from the Kronos Group's opengl-registry; libs from Mesa3D.
+		-- On Linux: OpenGL comes from Mesa3D and libglvnd.
+		--
+		-- In April 2019, pkg-config support was moved from Mesa3D to libglvnd
+		-- (mesa 19.1 & libglvnd 1.2).
+		--
+		-- Mesa3D is still capable of providing a .pc file for OpenGL - but only on Android.
 		compile_settings = function()
 			if os.istarget("windows") then
-				add_default_include_paths("opengl")
+				add_vcpkg_include_paths()
 			elseif _OPTIONS["gles"] then
 				pkgconfig.find_system("glesv2").add_includes()
 			elseif not os.istarget("macosx") then
@@ -572,12 +542,9 @@ extern_lib_defs = {
 		end,
 		link_settings = function()
 			if os.istarget("windows") then
-				add_default_lib_paths("opengl")
-				add_default_links({
-					win_names  = { "opengl32", "gdi32" },
-					dbg_suffix = "",
-					no_delayload = 1, -- delayload seems to cause errors on startup
-				})
+				-- Use `links` directly as we don't want delayload or a dbg_suffix
+				add_vcpkg_lib_paths()
+				links { "opengl32", "gdi32", }
 			elseif os.istarget("macosx") then
 				add_default_links({
 					osx_frameworks = { "OpenGL" },
@@ -591,16 +558,12 @@ extern_lib_defs = {
 	},
 	sdl = {
 		compile_settings = function()
-			if os.istarget("windows") then
-				includedirs { libraries_dir .. "sdl2/include/SDL" }
-			elseif not _OPTIONS["android"] then
+			if not _OPTIONS["android"] then
 				pkgconfig.find_system("sdl2").add_includes()
 			end
 		end,
 		link_settings = function()
-			if os.istarget("windows") then
-				add_default_lib_paths("sdl2")
-			elseif not _OPTIONS["android"] then
+			if not _OPTIONS["android"] then
 				pkgconfig.find_system("sdl2").add_links()
 			end
 		end,
@@ -612,18 +575,7 @@ extern_lib_defs = {
 					pkgconfig.find_system("mozjs-78").add_includes()
 				end
 			else
-				library_name = "mozjs78-ps"
-				if os.istarget("windows") then
-					include_dir = "include-win32"
-					buildoptions { "/FI\"js/RequiredDefines.h\"" }
-					filter "Debug"
-						sysincludedirs { libraries_source_dir.."spidermonkey/"..include_dir.."-debug" }
-					filter "Release"
-						sysincludedirs { libraries_source_dir.."spidermonkey/"..include_dir.."-release" }
-					filter { }
-				else
-					pkgconfig.find_system(library_name).add_includes()
-				end
+				pkgconfig.find_system("mozjs78-ps").add_includes()
 			end
 		end,
 		link_settings = function()
@@ -634,17 +586,7 @@ extern_lib_defs = {
 					pkgconfig.find_system("mozjs-78").add_links()
 				end
 			else
-				library_name = "mozjs78-ps"
-				if os.istarget("windows") then
-					add_source_lib_paths("spidermonkey")
-					filter "Debug"
-						links { library_name.."-debug" }
-					filter "Release"
-						links { library_name.."-release" }
-					filter { }
-				else
-					pkgconfig.find_system(library_name).add_links()
-				end
+				pkgconfig.find_system("mozjs78-ps").add_links()
 			end
 
 		end,
@@ -661,20 +603,11 @@ extern_lib_defs = {
 	},
 	vorbis = {
 		compile_settings = function()
-			if os.istarget("windows") then
-				add_default_include_paths("vorbis")
-			else
-				pkgconfig.find_system("ogg").add_includes()
-				pkgconfig.find_system("vorbisfile").add_includes()
-			end
+			pkgconfig.find_system("ogg").add_includes()
+			pkgconfig.find_system("vorbisfile").add_includes()
 		end,
 		link_settings = function()
-			if os.istarget("windows") then
-				add_default_lib_paths("vorbis")
-				add_default_links({
-					win_names  = { "libvorbisfile" },
-				})
-			elseif os.getversion().description == "OpenBSD" then
+			if os.getversion().description == "OpenBSD" then
 				-- TODO: We need to force linking with these as currently
 				-- they need to be loaded explicitly on execution
 				add_default_links({
@@ -688,8 +621,7 @@ extern_lib_defs = {
 	wxwidgets = {
 		compile_settings = function()
 			if os.istarget("windows") then
-				includedirs { libraries_dir.."wxwidgets/include/msvc" }
-				add_default_include_paths("wxwidgets")
+				add_vcpkg_include_paths()
 			else
 				-- wxwidgets does not come with a definition file for pkg-config,
 				-- so we have to use wxwidgets' own config tool
@@ -699,7 +631,16 @@ extern_lib_defs = {
 		end,
 		link_settings = function()
 			if os.istarget("windows") then
-				libdirs { libraries_dir.."wxwidgets/lib/vc_lib" }
+				-- When being used within a project being built with MSVC, wxWidgets ordinarily
+				-- uses `#pragma comment(lib)` to specify libs to link against. Annoyingly,
+				-- vcpkg removes the header file that facilitates this. Thus we must manually
+				-- specify the libs we need.
+				add_vcpkg_lib_paths()
+				filter "Debug"
+					links { "wxbase31ud", "wxbase31ud_xml", "wxmsw31ud_core", "wxmsw31ud_gl", }
+				filter "Release"
+					links { "wxbase31u", "wxbase31u_xml", "wxmsw31u_core", "wxmsw31u_gl", }
+				filter { }
 			else
 				wx_config_path = os.getenv("WX_CONFIG") or "wx-config"
 				pkgconfig.find_system(nil, wx_config_path).add_links("--unicode=yes --libs std,gl")
@@ -720,22 +661,10 @@ extern_lib_defs = {
 	},
 	zlib = {
 		compile_settings = function()
-			if os.istarget("windows") then
-				add_default_include_paths("zlib")
-			else
-				pkgconfig.find_system("zlib").add_includes()
-			end
+			pkgconfig.find_system("zlib").add_includes()
 		end,
 		link_settings = function()
-			if os.istarget("windows") then
-				add_default_lib_paths("zlib")
-				add_default_links({
-					win_names  = { "zlib1" },
-					no_delayload = 1,
-				})
-			else
-				pkgconfig.find_system("zlib").add_links()
-			end
+			pkgconfig.find_system("zlib").add_links()
 		end,
 	},
 }

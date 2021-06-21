@@ -4,6 +4,7 @@ Import custom functions.
 #>
 . .\scripts\Expand-TarArchive.ps1
 . .\scripts\Get-FileFromUrl.ps1
+. .\scripts\Insert-Line.ps1
 . .\scripts\Merge-ChildItems.ps1
 . .\scripts\builtHandling.ps1
 . .\scripts\vcpkg.ps1
@@ -35,10 +36,10 @@ if (!(Test-Path -Path $PC_DIR)) {
 }
 
 <#
-Create a folder where .dll and .pdb files are stored temporarily.
+Create a folder to collate .dll and .pdb files as they are built.
 
-Once the build process is complete, these can be transferred to `binaries/system` to live with
-the built pyrogenesis.exe.
+Once the final pyrogenesis executables are built, they can be scanned to determine which .dlls
+(and thus .pdbs) are actually needed, and these can be transferred over.
 
  $PSScriptRoot
   '- bin
@@ -49,6 +50,7 @@ $BIN_DIR             = "$PSScriptRoot\bin"
 $env:BIN_DIR_RELEASE = "$BIN_DIR\release"
 $env:BIN_DIR_DEBUG   = "$BIN_DIR\debug"
 if (!(Test-Path -Path $BIN_DIR)) {
+  New-Item -Path $BIN_DIR             -ItemType Directory | Out-Null
   New-Item -Path $env:BIN_DIR_RELEASE -ItemType Directory | Out-Null
   New-Item -Path $env:BIN_DIR_DEBUG   -ItemType Directory | Out-Null
 }

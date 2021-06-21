@@ -1,4 +1,4 @@
-/* Copyright (C) 2010 Wildfire Games.
+/* Copyright (C) 2021 Wildfire Games.
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -21,7 +21,7 @@
  */
 
 /*
- * bring in OpenAL header+library, with compatibility fixes
+ * Bring in OpenAL header, with compatibility fixes
  */
 
 #ifndef INCLUDED_OPENAL
@@ -41,10 +41,6 @@
 typedef ALCchar* alcString;
 #else
 typedef ALCubyte* alcString;
-#endif
-
-#if MSC_VERSION
-# pragma comment(lib, "openal32.lib")
 #endif
 
 #endif	// #ifndef INCLUDED_OPENAL

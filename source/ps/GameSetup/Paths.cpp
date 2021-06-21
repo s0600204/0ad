@@ -1,4 +1,4 @@
-/* Copyright (C) 2012 Wildfire Games.
+/* Copyright (C) 2021 Wildfire Games.
  * This file is part of 0 A.D.
  *
  * 0 A.D. is free software: you can redistribute it and/or modify
@@ -176,7 +176,11 @@ Paths::Paths(const CmdLineArgs& args)
 		WARN_IF_ERR(StatusFromErrno());
 	}
 
-	for(size_t i = 0; i < 2; i++)	// remove "system/name.exe"
+#if OS_WIN
+	for(size_t i = 0; i < 3; i++)	// remove "system/{release|debug}/{name}.exe"
+#else
+	for(size_t i = 0; i < 2; i++)	// remove "system/{name}"
+#endif
 		pathname = pathname.Parent();
 	return pathname;
 
