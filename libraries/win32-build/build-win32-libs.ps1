@@ -65,5 +65,5 @@ are built by downloading and building specifically.
 # (Not available in a x86-compatible form via vcpkg at this time)
 & ..\source\nvtt\build.ps1
 
-# @todo:
-# - spidermonkey
+# spidermonkey
+& ..\source\spidermonkey\build.ps1
