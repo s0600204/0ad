@@ -164,12 +164,25 @@ Start-Process cmd.exe `
 
 
 Write-Output ""
-Write-Output "Export build artifacts"
+Write-Output "Look at build artifacts"
 Write-Output "---------------------------------------"
-# *.dll and *.pdp files are transferred to where they need to be by build.sh
-New-Item -Path $env:INSTALL_DIR\include -Name 'mozilla' -ItemType Directory | Out-Null
-Merge-ChildItems -Path include-win32-release -Include *.h   -Destination $env:INSTALL_DIR\include\mozilla
-Merge-ChildItems -Path lib                   -Include *.lib -Destination $env:INSTALL_DIR\lib
-Write-Output "Done."
+# List current directory items
+(Get-ChildItem -Path .).FullName
+echo ""
+# List specific directory items, recursively
+(Get-ChildItem -Path .\include -Recurse).FullName
+echo ""
+(Get-ChildItem -Path .\lib -Recurse).FullName
+
+
+#~ Write-Output ""
+#~ Write-Output "Export build artifacts"
+#~ Write-Output "---------------------------------------"
+#~ # *.dll and *.pdp files are transferred to where they need to be by build.sh
+#~ New-Item -Path $env:INSTALL_DIR\include -Name 'mozilla' -ItemType Directory | Out-Null
+#~ Merge-ChildItems -Path include-win32-release -Include *.h   -Destination $env:INSTALL_DIR\include\mozilla
+#~ Merge-ChildItems -Path lib                   -Include *.lib -Destination $env:INSTALL_DIR\lib
+#~ Write-Output "Done."
+
 
 Pop-Location

@@ -174,17 +174,17 @@ if [ "${OS}" = "Windows_NT" ]; then
   # Move headers to where extern_libs5.lua can find them
   # By having the (version-tracked) windows headers in a separate folder, we don't replace them
   # when building on Linux/BSD/OSX, as this might lead to mistakenly committing the replaced headers.
-  mv include/${LIB_NAME}-debug   include-win32-debug
-  mv include/${LIB_NAME}-release include-win32-release
+  #mv include/${LIB_NAME}-debug   include-win32-debug
+  #mv include/${LIB_NAME}-release include-win32-release
 
   # Copy DLLs and debug symbols to binaries/system
-  cp -L lib/*.dll ${pyrogenesis_dir}
-  cp -L lib/*.pdb ${pyrogenesis_dir}
+  #cp -L lib/*.dll ${pyrogenesis_dir}
+  #cp -L lib/*.pdb ${pyrogenesis_dir}
 
   # Windows need some additional libraries for posix emulation.
-  cp -L ${FOLDER}/build-release/dist/bin/nspr4.dll ${pyrogenesis_dir}
-  cp -L ${FOLDER}/build-release/dist/bin/plc4.dll  ${pyrogenesis_dir}
-  cp -L ${FOLDER}/build-release/dist/bin/plds4.dll ${pyrogenesis_dir}
+  cp -L ${FOLDER}/build-release/dist/bin/nspr4.dll lib/
+  cp -L ${FOLDER}/build-release/dist/bin/plc4.dll  lib/
+  cp -L ${FOLDER}/build-release/dist/bin/plds4.dll lib/
 
 else
   LIB_SUFFIX=.so
