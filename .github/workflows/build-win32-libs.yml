@@ -1,0 +1,56 @@
+name: Win32 Deps Build
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - build-win32-libs
+
+jobs:
+  build:
+    name: Build dependencies
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+        - windows-2019
+        #- windows-2016
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
+
+    # Remove items not needed for building dependencies to clear space on the VM
+    # (The VM has 14 GB drives, 0AD consumes ~9.8 GB, the below clears ~9.4 GB)
+    - name: Remove unnecessary items
+      run: |
+        Remove-Item -Path ${{ github.workspace }}\.git -Recurse -Force
+        Remove-Item -Path ${{ github.workspace }}\binaries\data\mods\public -Recurse
+
+    - name: Check disk space
+      run: |
+        (Get-Item $PSScriptRoot).PSDrive
+
+    - name: Run script file
+      run: |
+        cd ${{ github.workspace }}\libraries\win32-build
+        .\build-win32-libs.ps1
+
+    - name: Check disk space
+      run: |
+        (Get-Item $PSScriptRoot).PSDrive
+
+    - name: Print 'install' folder contents
+      if: ${{ always() }}
+      run: |
+        (Get-ChildItem -Path "${{ github.workspace }}\libraries\win32-build\install" -Recurse).FullName
+
+    - name: Export to archive
+      uses: actions/upload-artifact@v2
+      with:
+        name: built
+        path: ${{ github.workspace }}/libraries/win32-build/install
+      
