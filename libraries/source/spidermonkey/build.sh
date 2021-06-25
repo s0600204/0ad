@@ -5,7 +5,7 @@ set -e
 # This should match the version in config/milestone.txt
 FOLDER="mozjs-78.6.0"
 # If same-version changes are needed, increment this.
-LIB_VERSION="78.6.0+2"
+LIB_VERSION="78.6.0+3"
 LIB_NAME="mozjs78-ps"
 
 # Since this script is called by update-workspaces.sh, we want to quickly
@@ -29,6 +29,7 @@ else
   MAKE=${MAKE:="make"}
 fi
 
+INSTALL_DIR=$(pwd)
 MAKE_OPTS="${JOBS}"
 
 # Standalone SpiderMonkey can not use jemalloc (see https://bugzilla.mozilla.org/show_bug.cgi?id=1465038)
@@ -38,6 +39,7 @@ CONF_OPTS="--disable-tests
            --disable-js-shell
            --without-intl-api
            --enable-shared-js
+           --prefix=${INSTALL_DIR}
            --disable-jitspew"
 
 if [ "${OS}" = "Windows_NT" ]
@@ -98,11 +100,26 @@ then
     download="$(command -v wget || echo "curl -L -o "${FOLDER}.tar.bz2"")"
     $download "https://github.com/wraitii/spidermonkey-tarballs/releases/download/v78.6.0/${FOLDER}.tar.bz2"
   fi
+
+  echo "Uncompressing archive..."
   tar xjf "${FOLDER}.tar.bz2"
 
-  # Clean up header files that may be left over by earlier versions of SpiderMonkey
-  rm -rf include-unix-debug
-  rm -rf include-unix-release
+  # Clean up files that may be left over by earlier versions of SpiderMonkey
+  if [ "${OS}" = "Windows_NT" ]; then
+    rm -rf include-win32-debug
+    rm -rf include-win32-release
+    rm -rf lib/
+  else
+    rm -rf include-unix-debug
+    rm -rf include-unix-release
+    
+    # Remove everything except the Windows libs
+    rm -rf lib/*.so*
+    rm -rf lib/*.a
+    rm -rf lib/pkgconfig
+  fi
+  rm -rf bin
+  rm -rf include
 
   # Apply patches
   cd "$FOLDER"
@@ -126,7 +143,7 @@ if [ "$(uname -s)" != "FreeBSD" ]; then
     --enable-debug \
     --disable-optimize \
     --enable-gczeal
-  ${MAKE} ${MAKE_OPTS}
+  ${MAKE} ${MAKE_OPTS} && ${MAKE} install
   cd ..
 fi
 
@@ -136,97 +153,58 @@ CXXFLAGS="${CXXFLAGS}" ../js/src/configure AUTOCONF="ls" \
   LLVM_OBJDUMP="${LLVM_OBJDUMP}" \
   ${CONF_OPTS} \
   --enable-optimize
-${MAKE} ${MAKE_OPTS}
+${MAKE} ${MAKE_OPTS} && ${MAKE} install
 cd ..
 
 cd ..
 
-if [ "${OS}" = "Windows_NT" ]
-then
-  INCLUDE_DIR_DEBUG=include-win32-debug
-  INCLUDE_DIR_RELEASE=include-win32-release
-  LIB_PREFIX=
-  LIB_SUFFIX=.dll
-  STATIC_LIB_SUFFIX=.lib
-else
-  INCLUDE_DIR_DEBUG=include-unix-debug
-  INCLUDE_DIR_RELEASE=include-unix-release
-  LIB_PREFIX=lib
-  LIB_SUFFIX=.so
-  STATIC_LIB_SUFFIX=.a
-  if [ "`uname -s`" = "OpenBSD" ];
-  then
-    LIB_SUFFIX=.so.1.0
-  elif [ "`uname -s`" = "Darwin" ];
-  then
-    LIB_SUFFIX=.a
-  fi
-fi
+pyrogenesis_dir="../../../binaries/system/"
 
-if [ "${OS}" = "Windows_NT" ]
-then
+if [ "${OS}" = "Windows_NT" ]; then
   # Bug #776126
   # SpiderMonkey uses a tweaked zlib when building, and it wrongly copies its own files to include dirs
   # afterwards, so we have to remove them to not have them conflicting with the regular zlib
-  pushd "${FOLDER}/build-release/dist/include"
+  pushd include/${LIB_NAME}-debug/
   rm -f mozzconf.h zconf.h zlib.h
   popd
-  pushd "${FOLDER}/build-debug/dist/include"
+  pushd include/${LIB_NAME}-release/
   rm -f mozzconf.h zconf.h zlib.h
   popd
-fi
 
-# Copy files into the necessary locations for building and running the game
+  # Move headers to where extern_libs5.lua can find them
+  # By having the (version-tracked) windows headers in a separate folder, we don't replace them
+  # when building on Linux/BSD/OSX, as this might lead to mistakenly committing the replaced headers.
+  mv include/${LIB_NAME}-debug   include-win32-debug
+  mv include/${LIB_NAME}-release include-win32-release
 
-# js-config.h is different for debug and release builds, so we need different include directories for both
-mkdir -p "${INCLUDE_DIR_RELEASE}"
-cp -R -L "${FOLDER}"/build-release/dist/include/* "${INCLUDE_DIR_RELEASE}/"
+  # Copy DLLs and debug symbols to binaries/system
+  cp -L lib/*.dll ${pyrogenesis_dir}
+  cp -L lib/*.pdb ${pyrogenesis_dir}
 
-if [ "$(uname -s)" != "FreeBSD" ]; then
-  mkdir -p "${INCLUDE_DIR_DEBUG}"
-  cp -R -L "${FOLDER}"/build-debug/dist/include/* "${INCLUDE_DIR_DEBUG}/"
-fi
-
-# These align the ligns below, making it easier to check for mistakes.
-DEB="debug"
-REL="release"
-
-mkdir -p lib/
-
-# Fetch the jsrust static library. Path is grepped from the build file as it varies by rust toolset.
-rust_path=$(grep jsrust < "${FOLDER}/build-release/js/src/build/backend.mk" | cut -d = -f 2 | cut -c2-)
-cp -L "${rust_path}" "lib/${LIB_PREFIX}${LIB_NAME}-rust${STATIC_LIB_SUFFIX}"
-
-if [ "`uname -s`" = "Darwin" ]
-then
-  # On MacOS, copy the static libraries only.
-  cp -L "${FOLDER}/build-${DEB}/js/src/build/${LIB_PREFIX}js_static${LIB_SUFFIX}" "lib/${LIB_PREFIX}${LIB_NAME}-${DEB}${LIB_SUFFIX}"
-  cp -L "${FOLDER}/build-${REL}/js/src/build/${LIB_PREFIX}js_static${LIB_SUFFIX}" "lib/${LIB_PREFIX}${LIB_NAME}-${REL}${LIB_SUFFIX}"
-elif [ "${OS}" = "Windows_NT" ]
-then
-  # Windows needs DLLs to binaries/, static stubs to lib/ and debug symbols
-  cp -L "${FOLDER}/build-${DEB}/js/src/build/${LIB_PREFIX}${LIB_NAME}-${DEB}${LIB_SUFFIX}" "../../../binaries/system/${LIB_PREFIX}${LIB_NAME}-${DEB}${LIB_SUFFIX}"
-  cp -L "${FOLDER}/build-${REL}/js/src/build/${LIB_PREFIX}${LIB_NAME}-${REL}${LIB_SUFFIX}" "../../../binaries/system/${LIB_PREFIX}${LIB_NAME}-${REL}${LIB_SUFFIX}"
-  cp -L "${FOLDER}/build-${DEB}/js/src/build/${LIB_PREFIX}${LIB_NAME}-${DEB}${STATIC_LIB_SUFFIX}" "lib/${LIB_PREFIX}${LIB_NAME}-${DEB}${STATIC_LIB_SUFFIX}"
-  cp -L "${FOLDER}/build-${REL}/js/src/build/${LIB_PREFIX}${LIB_NAME}-${REL}${STATIC_LIB_SUFFIX}" "lib/${LIB_PREFIX}${LIB_NAME}-${REL}${STATIC_LIB_SUFFIX}"
-  # Copy debug symbols as well.
-  cp -L "${FOLDER}/build-${DEB}/js/src/build/${LIB_PREFIX}${LIB_NAME}-${DEB}.pdb" "../../../binaries/system/${LIB_PREFIX}${LIB_NAME}-${DEB}.pdb"
-  cp -L "${FOLDER}/build-${REL}/js/src/build/${LIB_PREFIX}${LIB_NAME}-${REL}.pdb" "../../../binaries/system/${LIB_PREFIX}${LIB_NAME}-${REL}.pdb"
-  # Copy the debug jsrust library.
-  rust_path=$(grep jsrust < "${FOLDER}/build-debug/js/src/build/backend.mk" | cut -d = -f 2 | cut -c2-)
-  cp -L "${rust_path}" "lib/${LIB_PREFIX}${LIB_NAME}-rust-debug${STATIC_LIB_SUFFIX}"
   # Windows need some additional libraries for posix emulation.
-  cp -L "${FOLDER}/build-release/dist/bin/${LIB_PREFIX}nspr4.dll" "../../../binaries/system/${LIB_PREFIX}nspr4.dll"
-  cp -L "${FOLDER}/build-release/dist/bin/${LIB_PREFIX}plc4.dll" "../../../binaries/system/${LIB_PREFIX}plc4.dll"
-  cp -L "${FOLDER}/build-release/dist/bin/${LIB_PREFIX}plds4.dll" "../../../binaries/system/${LIB_PREFIX}plds4.dll"
+  cp -L ${FOLDER}/build-release/dist/bin/nspr4.dll ${pyrogenesis_dir}
+  cp -L ${FOLDER}/build-release/dist/bin/plc4.dll  ${pyrogenesis_dir}
+  cp -L ${FOLDER}/build-release/dist/bin/plds4.dll ${pyrogenesis_dir}
+
 else
-  # Copy shared libs to both lib/ and binaries/ so the compiler and executable (resp.) can find them.
-  cp -L "${FOLDER}/build-${REL}/js/src/build/${LIB_PREFIX}${LIB_NAME}-${REL}${LIB_SUFFIX}" "lib/${LIB_PREFIX}${LIB_NAME}-${REL}${LIB_SUFFIX}"
-  cp -L "${FOLDER}/build-${REL}/js/src/build/${LIB_PREFIX}${LIB_NAME}-${REL}${LIB_SUFFIX}" "../../../binaries/system/${LIB_PREFIX}${LIB_NAME}-${REL}${LIB_SUFFIX}"
-  if [ "$(uname -s)" != "FreeBSD" ]; then
-    cp -L "${FOLDER}/build-${DEB}/js/src/build/${LIB_PREFIX}${LIB_NAME}-${DEB}${LIB_SUFFIX}" "../../../binaries/system/${LIB_PREFIX}${LIB_NAME}-${DEB}${LIB_SUFFIX}"
-    cp -L "${FOLDER}/build-${DEB}/js/src/build/${LIB_PREFIX}${LIB_NAME}-${DEB}${LIB_SUFFIX}" "lib/${LIB_PREFIX}${LIB_NAME}-${DEB}${LIB_SUFFIX}"
+  LIB_SUFFIX=.so
+  if [ "`uname -s`" = "OpenBSD" ]; then
+    LIB_SUFFIX=.so.1.0
   fi
+
+  # Copy the .pc files to somewhere that pkg-config can find them
+  if [ $PC_DIR ]; then
+    cp -L lib/pkgconfig/*.pc "${PC_DIR}"
+  fi
+
+  # Create hard links of shared libraries so as to save space, but still allow bundling to be possible (in theory)
+  if [ "`uname -s`" != "Darwin" ]; then
+    ln -f lib/*${LIB_SUFFIX} ${pyrogenesis_dir}
+  fi
+
+  # Remove a copy of a static library we don't use to save ~650 MiB file space
+  rm lib/libjs_static.ajs
+
 fi
 
 # Flag that it's already been built successfully so we can skip it next time
