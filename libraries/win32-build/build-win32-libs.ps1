@@ -16,8 +16,8 @@ we expect `vswhere.exe` to be (a) installed, and (b) on the %PATH%.
 An alternate approach might be to download and use the `VSSetup` module for PowerShell. However
 this doesn't provide as efficient way to find the components as `vswhere`.
 #>
-$env:devenv  = vswhere -latest -requires Microsoft.VisualStudio.Workload.NativeDesktop -find Common7\IDE\devenv.com
-$env:msbuild = vswhere -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
+#~ $env:devenv  = vswhere -latest -requires Microsoft.VisualStudio.Workload.NativeDesktop -find Common7\IDE\devenv.com
+#~ $env:msbuild = vswhere -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
 
 <#
 Create a directory-tree where build artifacts are placed. (Based on the output from vcpkg.)
@@ -53,17 +53,17 @@ are built by downloading and building specifically.
 #>
 # boost-filesystem boost-system enet fmt curl icu libiconv libpng libsodium libvorbis
 # libxml2 mesa miniupnpc openal-soft opengl-registry pkgconf sdl2 wxwidgets zlib
-& .\vcpkg\build.ps1
+#~ & .\vcpkg\build.ps1
 
 # gloox
-& .\gloox\build.ps1
+#~ & .\gloox\build.ps1
 
 # FCollada
-& ..\source\fcollada\build.ps1
+#~ & ..\source\fcollada\build.ps1
 
 # nvtt
 # (Not available in a x86-compatible form via vcpkg at this time)
-& ..\source\nvtt\build.ps1
+#~ & ..\source\nvtt\build.ps1
 
 # spidermonkey
 & ..\source\spidermonkey\build.ps1

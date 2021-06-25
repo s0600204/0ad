@@ -48,9 +48,9 @@ jobs:
       run: |
         (Get-ChildItem -Path "${{ github.workspace }}\libraries\win32-build\install" -Recurse).FullName
 
-    - name: Export to archive
-      uses: actions/upload-artifact@v2
-      with:
-        name: built
-        path: ${{ github.workspace }}/libraries/win32-build/install
+    #~ - name: Export to archive
+      #~ uses: actions/upload-artifact@v2
+      #~ with:
+        #~ name: built
+        #~ path: ${{ github.workspace }}/libraries/win32-build/install
       
