@@ -173,16 +173,20 @@ echo ""
 (Get-ChildItem -Path .\include -Recurse).FullName
 echo ""
 (Get-ChildItem -Path .\lib -Recurse).FullName
+echo ""
+(Get-ChildItem -Path '.\mozjs-78.6.0\build-release\dist\bin' -Recurse).FullName
+echo ""
+Get-Content -Path .\lib\pkgconfig\mozjs78-ps-debug.pc
+echo ""
+Get-Content -Path .\lib\pkgconfig\mozjs78-ps-release.pc
 
-
-#~ Write-Output ""
-#~ Write-Output "Export build artifacts"
-#~ Write-Output "---------------------------------------"
-#~ # *.dll and *.pdp files are transferred to where they need to be by build.sh
-#~ New-Item -Path $env:INSTALL_DIR\include -Name 'mozilla' -ItemType Directory | Out-Null
-#~ Merge-ChildItems -Path include-win32-release -Include *.h   -Destination $env:INSTALL_DIR\include\mozilla
-#~ Merge-ChildItems -Path lib                   -Include *.lib -Destination $env:INSTALL_DIR\lib
-#~ Write-Output "Done."
+Write-Output ""
+Write-Output "Export build artifacts"
+Write-Output "---------------------------------------"
+Merge-ChildItems -Path lib     -Include *.dll, *.pdb -Destination $env:INSTALL_DIR\bin
+Merge-ChildItems -Path include -Include *.h          -Destination $env:INSTALL_DIR\include
+Merge-ChildItems -Path lib     -Include *.lib, *.pc  -Destination $env:INSTALL_DIR\lib
+Write-Output "Done."
 
 
 Pop-Location

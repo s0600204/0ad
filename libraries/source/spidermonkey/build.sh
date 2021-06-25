@@ -182,9 +182,9 @@ if [ "${OS}" = "Windows_NT" ]; then
   #cp -L lib/*.pdb ${pyrogenesis_dir}
 
   # Windows need some additional libraries for posix emulation.
-  cp -L ${FOLDER}/build-release/dist/bin/nspr4.dll lib/
-  cp -L ${FOLDER}/build-release/dist/bin/plc4.dll  lib/
-  cp -L ${FOLDER}/build-release/dist/bin/plds4.dll lib/
+  #cp -L ${FOLDER}/build-release/dist/bin/nspr4.dll lib/
+  #cp -L ${FOLDER}/build-release/dist/bin/plc4.dll  lib/
+  #cp -L ${FOLDER}/build-release/dist/bin/plds4.dll lib/
 
 else
   LIB_SUFFIX=.so
