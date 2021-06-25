@@ -171,31 +171,22 @@ if [ "${OS}" = "Windows_NT" ]; then
   rm -f mozzconf.h zconf.h zlib.h
   popd
 
-  # Move headers to where extern_libs5.lua can find them
-  # By having the (version-tracked) windows headers in a separate folder, we don't replace them
-  # when building on Linux/BSD/OSX, as this might lead to mistakenly committing the replaced headers.
-  mv include/${LIB_NAME}-debug   include-win32-debug
-  mv include/${LIB_NAME}-release include-win32-release
-
-  # Copy DLLs and debug symbols to binaries/system
-  cp -L lib/*.dll ${pyrogenesis_dir}
-  cp -L lib/*.pdb ${pyrogenesis_dir}
+  # Export .dll files
+  if [ $BIN_DIR_RELEASE ]; then
+    cp -L lib/*release.dll ${BIN_DIR_RELEASE}
+    cp -L lib/*debug.dll   ${BIN_DIR_DEBUG}
+  fi
 
   # Windows need some additional libraries for posix emulation.
-  cp -L ${FOLDER}/build-release/dist/bin/nspr4.dll ${pyrogenesis_dir}
-  cp -L ${FOLDER}/build-release/dist/bin/plc4.dll  ${pyrogenesis_dir}
-  cp -L ${FOLDER}/build-release/dist/bin/plds4.dll ${pyrogenesis_dir}
+  # Commented out for now, as the build process doesn't seem to actually generate them.
+  #~ cp -L ${FOLDER}/build-release/dist/bin/nspr4.dll ${BIN_DIR_RELEASE}
+  #~ cp -L ${FOLDER}/build-release/dist/bin/plc4.dll  ${BIN_DIR_RELEASE}
+  #~ cp -L ${FOLDER}/build-release/dist/bin/plds4.dll ${BIN_DIR_RELEASE}
 
 else
   LIB_SUFFIX=.so
   if [ "`uname -s`" = "OpenBSD" ]; then
     LIB_SUFFIX=.so.1.0
-  fi
-
-  # Copy the .pc files to somewhere that pkg-config can find them
-  if [ $PC_DIR_RELEASE ]; then
-    cp -L lib/pkgconfig/${LIB_NAME}-Release.pc ${PC_DIR_RELEASE}/${LIB_NAME}.pc
-    cp -L lib/pkgconfig/${LIB_NAME}-Debug.pc   ${PC_DIR_DEBUG}/${LIB_NAME}.pc
   fi
 
   # Create hard links of shared libraries so as to save space, but still allow bundling to be possible (in theory)
@@ -206,6 +197,12 @@ else
   # Remove a copy of a static library we don't use to save ~650 MiB file space
   rm lib/libjs_static.ajs
 
+fi
+
+# Copy the .pc files to somewhere that pkg-config can find them
+if [ $PC_DIR_RELEASE ]; then
+  cp -L lib/pkgconfig/${LIB_NAME}-Release.pc ${PC_DIR_RELEASE}/${LIB_NAME}.pc
+  cp -L lib/pkgconfig/${LIB_NAME}-Debug.pc   ${PC_DIR_DEBUG}/${LIB_NAME}.pc
 fi
 
 # Flag that it's already been built successfully so we can skip it next time
