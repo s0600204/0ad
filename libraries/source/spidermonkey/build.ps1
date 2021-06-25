@@ -115,78 +115,74 @@ finally {
 }
 
 
-#~ Write-Output ""
-#~ Write-Output "Install LLVM ($LLVM_VERSION)"
-#~ Write-Output "---------------------------------------"
-#~ New-Item -Path . -Name $LLVM_DIRECTORY -ItemType Directory | Out-Null
-#~ switch ([intptr]::Size)
-#~ {
-  #~ 4 { $LLVM_EXE = $LLVM_EXE_32 } # x86 system
-  #~ 8 { $LLVM_EXE = $LLVM_EXE_64 } # x86_64 system
-#~ }
-#~ Get-FileFromUrl -FileName $LLVM_EXE -Url $LLVM_URL$LLVM_EXE
-#~ Write-Output "-- Installing"
-#~ Start-Process -FilePath .\$LLVM_EXE -ArgumentList "/S","/D=$PSScriptRoot\$LLVM_DIRECTORY" -Wait -NoNewWindow
+Write-Output ""
+Write-Output "Install LLVM ($LLVM_VERSION)"
+Write-Output "---------------------------------------"
+New-Item -Path . -Name $LLVM_DIRECTORY -ItemType Directory | Out-Null
+switch ([intptr]::Size)
+{
+  4 { $LLVM_EXE = $LLVM_EXE_32 } # x86 system
+  8 { $LLVM_EXE = $LLVM_EXE_64 } # x86_64 system
+}
+Get-FileFromUrl -FileName $LLVM_EXE -Url $LLVM_URL$LLVM_EXE
+Write-Output "-- Installing"
+Start-Process -FilePath .\$LLVM_EXE -ArgumentList "/S","/D=$PSScriptRoot\$LLVM_DIRECTORY" -Wait -NoNewWindow
 
 
-#~ Write-Output ""
-#~ Write-Output "Install & setup rust toolchains"
-#~ Write-Output "---------------------------------------"
-#~ # Note: These install to the user's directory (~\.rustup\toolchains)
-#~ switch ([intptr]::Size)
-#~ {
-  #~ 4 { # x86 system
-    #~ Write-Output "-- Installing stable-i686-pc-windows-msvc"
-    #~ rustup toolchain install stable-i686-pc-windows-msvc
-  #~ }
+Write-Output ""
+Write-Output "Install & setup rust toolchains"
+Write-Output "---------------------------------------"
+# Note: These install to the user's directory (~\.rustup\toolchains)
+switch ([intptr]::Size)
+{
+  4 { # x86 system
+    Write-Output "-- Installing stable-i686-pc-windows-msvc"
+    rustup toolchain install stable-i686-pc-windows-msvc
+  }
 
-  #~ 8 { # x86_64 system
-    #~ Write-Output "-- Installing stable-x86_64-pc-windows-msvc"
-    #~ rustup toolchain install stable-x86_64-pc-windows-msvc
-    #~ Write-Output "-- Adding i686-pc-windows-msvc as a target"
-    #~ rustup target add i686-pc-windows-msvc
-  #~ }
-#~ }
+  8 { # x86_64 system
+    Write-Output "-- Installing stable-x86_64-pc-windows-msvc"
+    rustup toolchain install stable-x86_64-pc-windows-msvc
+    Write-Output "-- Adding i686-pc-windows-msvc as a target"
+    rustup target add i686-pc-windows-msvc
+  }
+}
 
 
 Write-Output ""
 Write-Output "Build SpiderMonkey"
 Write-Output "---------------------------------------"
 $CurrentUnixPath = Convert-PathToUnix .
-#~ $LLVMUnixPath = Convert-PathToUnix $LLVM_DIRECTORY\bin
+$LLVMUnixPath = Convert-PathToUnix $LLVM_DIRECTORY\bin
 Start-Process cmd.exe `
   -NoNewWindow `
   -Wait `
   -ArgumentList `
     '/c', `
     ".\$MOZBUILD_DIRECTORY\start-shell.bat", `
-    "cd $CurrentUnixPath; PATH=${LLVMUnixPath}:`$PATH; env"
+    "cd $CurrentUnixPath; PATH=${LLVMUnixPath}:`$PATH; ./build.sh"
 
 
 Write-Output ""
 Write-Output "Look at build artifacts"
 Write-Output "---------------------------------------"
 # List current directory items
-(Get-ChildItem -Path .).FullName
-echo ""
-# List specific directory items, recursively
-(Get-ChildItem -Path .\include -Recurse).FullName
-echo ""
-(Get-ChildItem -Path .\lib -Recurse).FullName
-echo ""
 (Get-ChildItem -Path '.\mozjs-78.6.0\build-release\dist\bin' -Recurse).FullName
-echo ""
-Get-Content -Path .\lib\pkgconfig\mozjs78-ps-debug.pc
-echo ""
-Get-Content -Path .\lib\pkgconfig\mozjs78-ps-release.pc
 
-Write-Output ""
-Write-Output "Export build artifacts"
-Write-Output "---------------------------------------"
-Merge-ChildItems -Path lib     -Include *.dll, *.pdb -Destination $env:INSTALL_DIR\bin
-Merge-ChildItems -Path include -Include *.h          -Destination $env:INSTALL_DIR\include
-Merge-ChildItems -Path lib     -Include *.lib, *.pc  -Destination $env:INSTALL_DIR\lib
-Write-Output "Done."
+
+#~ Write-Output ""
+#~ Write-Output "Export build artifacts"
+#~ Write-Output "---------------------------------------"
+
+#~ Merge-ChildItems -Path .\lib -Include *release.dll,*release.pdb -Destination $env:BIN_DIR
+#~ Merge-ChildItems -Path .\lib -Include *debug.dll,*debug.pdb     -Destination $env:BIN_DIR_DEBUG
+
+#~ Copy-Item -Path .\lib\pkgconfig\mozjs78-ps-release.pc -Destination $env:PC_DIR
+#~ Copy-Item -Path .\lib\pkgconfig\mozjs78-ps-debug.pc   -Destination $env:PC_DIR_DEBUG
+
+#~ Merge-ChildItems -Path include -Include *.h          -Destination $env:INSTALL_DIR\include
+#~ Merge-ChildItems -Path lib     -Include *.lib, *.pc  -Destination $env:INSTALL_DIR\lib
+#~ Write-Output "Done."
 
 
 Pop-Location

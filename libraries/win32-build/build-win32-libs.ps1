@@ -16,34 +16,37 @@ we expect `vswhere.exe` to be (a) installed, and (b) on the %PATH%.
 An alternate approach might be to download and use the `VSSetup` module for PowerShell. However
 this doesn't provide as efficient way to find the components as `vswhere`.
 #>
-#~ $env:devenv  = vswhere -latest -requires Microsoft.VisualStudio.Workload.NativeDesktop -find Common7\IDE\devenv.com
-#~ $env:msbuild = vswhere -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
+$env:devenv  = vswhere -latest -requires Microsoft.VisualStudio.Workload.NativeDesktop -find Common7\IDE\devenv.com
+$env:msbuild = vswhere -latest -requires Microsoft.Component.MSBuild -find MSBuild\**\Bin\MSBuild.exe
 
 <#
-Create a directory-tree where build artifacts are placed. (Based on the output from vcpkg.)
+Folder where .pc files end up.
 
- $env:INSTALL_DIR
-  |- bin
-  |- debug
-  |   |-bin
-  |   '-lib
-  |      '- pkgconfig
-  |- include
-  |- lib
-  '- tools
+Keep this in sync with the path set in build/workspaces/update-workspaces.sh
 #>
-$env:INSTALL_DIR = "$PSScriptRoot\install"
-Remove-Item -Path $env:INSTALL_DIR -Recurse -ErrorAction SilentlyContinue
-New-Item    -Path $env:INSTALL_DIR                             -ItemType Directory | Out-Null
-New-Item    -Path $env:INSTALL_DIR           -Name 'bin'       -ItemType Directory | Out-Null
-New-Item    -Path $env:INSTALL_DIR           -Name 'debug'     -ItemType Directory | Out-Null
-New-Item    -Path $env:INSTALL_DIR\debug     -Name 'bin'       -ItemType Directory | Out-Null
-New-Item    -Path $env:INSTALL_DIR\debug     -Name 'lib'       -ItemType Directory | Out-Null
-New-Item    -Path $env:INSTALL_DIR\debug\lib -Name 'pkgconfig' -ItemType Directory | Out-Null
-New-Item    -Path $env:INSTALL_DIR           -Name 'include'   -ItemType Directory | Out-Null
-New-Item    -Path $env:INSTALL_DIR           -Name 'lib'       -ItemType Directory | Out-Null
-New-Item    -Path $env:INSTALL_DIR\lib       -Name 'pkgconfig' -ItemType Directory | Out-Null
-New-Item    -Path $env:INSTALL_DIR           -Name 'tools'     -ItemType Directory | Out-Null
+$env:PC_DIR       = "$PSScriptRoot\..\source\pkgconfig"
+$env:PC_DIR_DEBUG = "$env:PC_DIR\debug"
+if (!(Test-Path -Path $env:PC_DIR)) {
+  New-Item -Path $env:PC_DIR       -ItemType Directory | Out-Null
+  New-Item -Path $env:PC_DIR_DEBUG -ItemType Directory | Out-Null
+}
+
+<#
+Create a folder where .dll and .pdb files are stored temporarily.
+
+Once the build process is complete, these can be transferred to `binaries/system` to live with
+the built pyrogenesis.exe.
+
+ $PSScriptRoot
+  '- bin
+      '- debug
+#>
+$env:BIN_DIR       = "$PSScriptRoot\bin"
+$env:BIN_DIR_DEBUG = "$env:BIN_DIR\debug"
+if (!(Test-Path -Path $env:BIN_DIR)) {
+  New-Item -Path $env:BIN_DIR       -ItemType Directory | Out-Null
+  New-Item -Path $env:BIN_DIR_DEBUG -ItemType Directory | Out-Null
+}
 
 <#
 And finally, build the dependencies.
@@ -53,17 +56,17 @@ are built by downloading and building specifically.
 #>
 # boost-filesystem boost-system enet fmt curl icu libiconv libpng libsodium libvorbis
 # libxml2 mesa miniupnpc openal-soft opengl-registry pkgconf sdl2 wxwidgets zlib
-#~ & .\vcpkg\build.ps1
+& .\vcpkg\build.ps1
 
 # gloox
-#~ & .\gloox\build.ps1
+& .\gloox\build.ps1
 
 # FCollada
-#~ & ..\source\fcollada\build.ps1
+& ..\source\fcollada\build.ps1
 
 # nvtt
 # (Not available in a x86-compatible form via vcpkg at this time)
-#~ & ..\source\nvtt\build.ps1
+& ..\source\nvtt\build.ps1
 
 # spidermonkey
 & ..\source\spidermonkey\build.ps1

@@ -38,12 +38,29 @@ Install-FromVCPKG `
 Write-Output ""
 Write-Output "Export build artifacts"
 Write-Output "---------------------------------------"
-$BuildLocation = "$LIB_DIRECTORY\$VCPKG_TRIPLET"
-Merge-ChildItems -Path $BuildLocation\bin     -Destination $env:INSTALL_DIR\bin
-Merge-ChildItems -Path $BuildLocation\debug   -Destination $env:INSTALL_DIR\debug
-Merge-ChildItems -Path $BuildLocation\include -Destination $env:INSTALL_DIR\include
-Merge-ChildItems -Path $BuildLocation\lib     -Destination $env:INSTALL_DIR\lib
-Merge-ChildItems -Path $BuildLocation\tools   -Destination $env:INSTALL_DIR\tools
+$BuildLocation = Resolve-Path $LIB_DIRECTORY\$VCPKG_TRIPLET
+
+# These should eventually end up in the same directory as .\pyrogenesis.exe
+Merge-ChildItems -Path $BuildLocation\bin       -Destination $env:BIN_DIR
+Merge-ChildItems -Path $BuildLocation\debug\bin -Destination $env:BIN_DIR_DEBUG
+
+# Amend .pc files, and move them to an appropriate location
+foreach ($PcFile in (Get-ChildItem -Path $BuildLocation\lib\pkgconfig).FullName) {
+  $PcFileName = Split-Path -Path $PcFile -Leaf
+  (Get-Content $PcFile) `
+    -Replace '${pcfiledir}/../..', $BuildLocation
+    | Set-Content $env:PC_DIR\$PcFileName
+}
+foreach ($PcFile in (Get-ChildItem -Path $BuildLocation\debug\lib\pkgconfig).FullName) {
+  $PcFileName = Split-Path -Path $PcFile -Leaf
+  (Get-Content $PcFile) `
+    -Replace '${pcfiledir}/../..', "$BuildLocation/debug"
+    | Set-Content $env:PC_DIR_DEBUG\$PcFileName
+}
+
+# Export pkg-config executable
+New-Item -Path $env:INSTALL_DIR\pkgconf -ItemType Directory | Out-Null
+Copy-Item -Path $BuildLocation\tools\pkgconf -Destination $env:INSTALL_DIR\pkgconf
 
 
 Pop-Location

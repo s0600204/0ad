@@ -43,10 +43,10 @@ jobs:
       run: |
         (Get-Item $PSScriptRoot).PSDrive
 
-    - name: Print 'install' folder contents
+    - name: Print folder contents
       if: ${{ always() }}
       run: |
-        (Get-ChildItem -Path "${{ github.workspace }}\libraries\win32-build\install" -Recurse).FullName
+        (Get-ChildItem -Path "${{ github.workspace }}\libraries\source\pkgconfig" -Recurse).FullName
 
     #~ - name: Export to archive
       #~ uses: actions/upload-artifact@v2

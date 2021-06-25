@@ -45,30 +45,25 @@ Write-Output ""
 Write-Output "Export build artifacts"
 Write-Output "---------------------------------------"
 (Get-Content $LIB_DIRECTORY\gloox.pc.in) `
-  -Replace '@prefix@',      '${pcfiledir}/../..' `
+  -Replace '@prefix@',      (Resolve-Path $LIB_DIRECTORY) `
   -Replace '@exec_prefix@', '${prefix}' `
   -Replace '@libdir@',      '${prefix}/lib' `
+  -Replace '@includedir@',  '${prefix}/include' `
   -Replace '@VERSION@',     $LIB_VERSION `
   -Replace '@LIBS@',        '' `
   -Replace '@CPPFLAGS@',    '' `
   | Set-Content $LIB_DIRECTORY\gloox.pc
 
-New-Item -Path $env:INSTALL_DIR\include -Name 'gloox' -ItemType Directory | Out-Null
-Merge-ChildItems -Path $LIB_DIRECTORY\src -Include *.h -Destination $env:INSTALL_DIR\include\gloox
-
-Copy-Item -Path $LIB_DIRECTORY\Debug\gloox-1.0.dll -Destination $env:INSTALL_DIR\debug\bin\gloox-1.0d.dll
-Copy-Item -Path $LIB_DIRECTORY\Debug\gloox-1.0.lib -Destination $env:INSTALL_DIR\debug\lib\gloox-1.0d.lib
+Copy-Item -Path $LIB_DIRECTORY\Debug\gloox-1.0.dll -Destination $env:BIN_DIR_DEBUG\gloox-1.0d.dll
 (Get-Content $LIB_DIRECTORY\gloox.pc) `
-  -Replace '@includedir@', '${prefix}/../include' `
   -Replace '-lgloox',      '-lgloox-1.0d' `
-  | Set-Content $env:INSTALL_DIR\debug\lib\pkgconfig\gloox.pc
+  | Set-Content $env:PC_DIR\gloox.pc
 
-Copy-Item -Path $LIB_DIRECTORY\Release\gloox-1.0.dll -Destination $env:INSTALL_DIR\bin\
-Copy-Item -Path $LIB_DIRECTORY\Release\gloox-1.0.lib -Destination $env:INSTALL_DIR\lib\
+Copy-Item -Path $LIB_DIRECTORY\Release\gloox-1.0.dll -Destination $env:BIN_DIR
 (Get-Content $LIB_DIRECTORY\gloox.pc) `
-  -Replace '@includedir@', '${prefix}/include' `
   -Replace '-lgloox',      '-lgloox-1.0' `
-  | Set-Content $env:INSTALL_DIR\lib\pkgconfig\gloox.pc
+  | Set-Content $env:PC_DIR_DEBUG\gloox.pc
+
 Write-Output "Done."
 
 

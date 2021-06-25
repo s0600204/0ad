@@ -26,12 +26,10 @@ Write-Output "---------------------------------------"
 
 
 Write-Output ""
-Write-Output "Export build artifacts"
+Write-Output "Export dynamic libraries"
 Write-Output "---------------------------------------"
-Merge-ChildItems -Path "$LIB_DIRECTORY\Output\Release DLL Win32\FCollada" -Include *.dll,*.pdb -Destination $env:INSTALL_DIR\bin
-Merge-ChildItems -Path "$LIB_DIRECTORY\Output\Debug DLL Win32\FCollada"   -Include *.dll,*.pdb -Destination $env:INSTALL_DIR\bin
-Merge-ChildItems -Path $LIB_DIRECTORY                                     -Include *.h,*.hpp   -Destination $env:INSTALL_DIR\include
-Merge-ChildItems -Path $LIB_DIRECTORY\Output                              -Include *.lib       -Destination $env:INSTALL_DIR\lib
+Merge-ChildItems -Path "$LIB_DIRECTORY\Output\Release DLL Win32\FCollada" -Include *.dll,*.pdb -Destination $env:BIN_DIR
+Merge-ChildItems -Path "$LIB_DIRECTORY\Output\Debug DLL Win32\FCollada"   -Include *.dll,*.pdb -Destination $env:BIN_DIR_DEBUG
 Write-Output "Done."
 
 
