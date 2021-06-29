@@ -39,12 +39,13 @@ end
 
 pkgconfig = require "pkgconfig"
 
--- Configure pkgconfig for MacOSX systems
+-- Configure pkgconfig
+pkgconfig.additional_pc_path_release = libraries_source_dir .. "pkgconfig/release/"
+pkgconfig.additional_pc_path_debug   = libraries_source_dir .. "pkgconfig/debug/"
 if os.istarget("macosx") then
-	pkgconfig.additional_pc_path = libraries_dir .. "pkgconfig/"
+	pkgconfig.additional_pc_path_release = libraries_dir .. "pkgconfig/release/"
+	pkgconfig.additional_pc_path_debug   = libraries_dir .. "pkgconfig/debug/"
 	pkgconfig.static_link_libs = true
-elseif not os.istarget("windows") then
-	pkgconfig.additional_pc_path = libraries_source_dir .. "pkgconfig/"
 end
 
 local function add_delayload(name, suffix, def)
@@ -238,7 +239,7 @@ extern_lib_defs = {
 			if os.istarget("windows") then
 				add_default_include_paths("enet")
 			else
-				pkgconfig.add_includes("libenet")
+				pkgconfig.find_system("libenet").add_includes()
 			end
 		end,
 		link_settings = function()
@@ -248,7 +249,7 @@ extern_lib_defs = {
 					win_names  = { "enet" },
 				})
 			else
-				pkgconfig.add_links("libenet")
+				pkgconfig.find_system("libenet").add_links()
 			end
 		end,
 	},
@@ -336,7 +337,7 @@ extern_lib_defs = {
 
 				if os.istarget("macosx") then
 					-- gloox depends on gnutls, but doesn't identify this via pkg-config
-					pkgconfig.add_links("gnutls")
+					pkgconfig.find_system("gnutls").add_links()
 				end
 			end
 		end,
@@ -395,14 +396,14 @@ extern_lib_defs = {
 			if os.istarget("windows") then
 				add_default_include_paths("libcurl")
 			else
-				pkgconfig.add_includes("libcurl")
+				pkgconfig.find_system("libcurl").add_includes()
 			end
 		end,
 		link_settings = function()
 			if os.istarget("windows") then
 				add_default_lib_paths("libcurl")
 			else
-				pkgconfig.add_links("libcurl")
+				pkgconfig.find_system("libcurl").add_links()
 			end
 			add_default_links({
 				win_names  = { "libcurl" },
@@ -434,7 +435,7 @@ extern_lib_defs = {
 			if os.istarget("windows") then
 				add_default_include_paths("libsodium")
 			else
-				pkgconfig.add_includes("libsodium")
+				pkgconfig.find_system("libsodium").add_includes()
 			end
 		end,
 		link_settings = function()
@@ -444,7 +445,7 @@ extern_lib_defs = {
 					win_names  = { "libsodium" },
 				})
 			else
-				pkgconfig.add_links("libsodium")
+				pkgconfig.find_system("libsodium").add_links()
 			end
 		end,
 	},
@@ -480,7 +481,7 @@ extern_lib_defs = {
 			if os.istarget("windows") then
 				add_default_include_paths("miniupnpc")
 			elseif os.istarget("macosx") then
-				pkgconfig.add_includes("miniupnpc")
+				pkgconfig.find_system("miniupnpc").add_includes()
 			end
 
 			-- On Linux and BSD systems we assume miniupnpc is installed in a standard location.
@@ -505,7 +506,7 @@ extern_lib_defs = {
 					win_names  = { "miniupnpc" },
 				})
 			elseif os.istarget("macosx") then
-				pkgconfig.add_links("miniupnpc")
+				pkgconfig.find_system("miniupnpc").add_links()
 			else
 				-- Once miniupnpc v2.1 or better becomes near-universal (see above comment),
 				-- we can use pkg-config for Linux and BSD.
@@ -539,7 +540,7 @@ extern_lib_defs = {
 			if os.istarget("windows") then
 				add_default_include_paths("openal")
 			elseif not os.istarget("macosx") then
-				pkgconfig.add_includes("openal")
+				pkgconfig.find_system("openal").add_includes()
 			end
 		end,
 		link_settings = function()
@@ -555,7 +556,7 @@ extern_lib_defs = {
 					osx_frameworks = { "OpenAL" },
 				})
 			else
-				pkgconfig.add_links("openal")
+				pkgconfig.find_system("openal").add_links()
 			end
 		end,
 	},
@@ -564,9 +565,9 @@ extern_lib_defs = {
 			if os.istarget("windows") then
 				add_default_include_paths("opengl")
 			elseif _OPTIONS["gles"] then
-				pkgconfig.add_includes("glesv2")
+				pkgconfig.find_system("glesv2").add_includes()
 			elseif not os.istarget("macosx") then
-				pkgconfig.add_includes("gl")
+				pkgconfig.find_system("gl").add_includes()
 			end
 		end,
 		link_settings = function()
@@ -582,9 +583,9 @@ extern_lib_defs = {
 					osx_frameworks = { "OpenGL" },
 				})
 			elseif _OPTIONS["gles"] then
-				pkgconfig.add_links("glesv2")
+				pkgconfig.find_system("glesv2").add_links()
 			else
-				pkgconfig.add_links("gl")
+				pkgconfig.find_system("gl").add_links()
 			end
 		end,
 	},
@@ -615,24 +616,14 @@ extern_lib_defs = {
 				if os.istarget("windows") then
 					include_dir = "include-win32"
 					buildoptions { "/FI\"js/RequiredDefines.h\"" }
-				end
-
-				filter "Debug"
-					if os.istarget("windows") then
+					filter "Debug"
 						sysincludedirs { libraries_source_dir.."spidermonkey/"..include_dir.."-debug" }
-					else
-						pkgconfig.add_includes(library_name.."-debug")
-					end
-					defines { "DEBUG" }
-
-				filter "Release"
-					if os.istarget("windows") then
+					filter "Release"
 						sysincludedirs { libraries_source_dir.."spidermonkey/"..include_dir.."-release" }
-					else
-						pkgconfig.add_includes(library_name.."-release")
-					end
-
-				filter { }
+					filter { }
+				else
+					pkgconfig.find_system(library_name).add_includes()
+				end
 			end
 		end,
 		link_settings = function()
@@ -646,23 +637,14 @@ extern_lib_defs = {
 				library_name = "mozjs78-ps"
 				if os.istarget("windows") then
 					add_source_lib_paths("spidermonkey")
-				end
-
-				filter "Debug"
-					if os.istarget("windows") then
+					filter "Debug"
 						links { library_name.."-debug" }
-					else
-						pkgconfig.add_links(library_name.."-debug")
-					end
-
-				filter "Release"
-					if os.istarget("windows") then
+					filter "Release"
 						links { library_name.."-release" }
-					else
-						pkgconfig.add_links(library_name.."-release")
-					end
-
-				filter { }
+					filter { }
+				else
+					pkgconfig.find_system(library_name).add_links()
+				end
 			end
 
 		end,
@@ -682,8 +664,8 @@ extern_lib_defs = {
 			if os.istarget("windows") then
 				add_default_include_paths("vorbis")
 			else
-				pkgconfig.add_includes("ogg")
-				pkgconfig.add_includes("vorbisfile")
+				pkgconfig.find_system("ogg").add_includes()
+				pkgconfig.find_system("vorbisfile").add_includes()
 			end
 		end,
 		link_settings = function()
@@ -699,7 +681,7 @@ extern_lib_defs = {
 					unix_names = { "ogg", "vorbis" },
 				})
 			else
-				pkgconfig.add_links("vorbisfile")
+				pkgconfig.find_system("vorbisfile").add_links()
 			end
 		end,
 	},
@@ -741,7 +723,7 @@ extern_lib_defs = {
 			if os.istarget("windows") then
 				add_default_include_paths("zlib")
 			else
-				pkgconfig.add_includes("zlib")
+				pkgconfig.find_system("zlib").add_includes()
 			end
 		end,
 		link_settings = function()
@@ -752,7 +734,7 @@ extern_lib_defs = {
 					no_delayload = 1,
 				})
 			else
-				pkgconfig.add_links("zlib")
+				pkgconfig.find_system("zlib").add_links()
 			end
 		end,
 	},

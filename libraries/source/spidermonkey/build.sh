@@ -193,8 +193,9 @@ else
   fi
 
   # Copy the .pc files to somewhere that pkg-config can find them
-  if [ $PC_DIR ]; then
-    cp -L lib/pkgconfig/*.pc "${PC_DIR}"
+  if [ $PC_DIR_RELEASE ]; then
+    cp -L lib/pkgconfig/${LIB_NAME}-Release.pc ${PC_DIR_RELEASE}/${LIB_NAME}.pc
+    cp -L lib/pkgconfig/${LIB_NAME}-Debug.pc   ${PC_DIR_DEBUG}/${LIB_NAME}.pc
   fi
 
   # Create hard links of shared libraries so as to save space, but still allow bundling to be possible (in theory)

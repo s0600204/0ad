@@ -134,11 +134,15 @@ cd "$(dirname $0)"
 # Now in libraries/osx/ (where we assume this script resides)
 
 # Create a location to create copies of dependencies' *.pc files, so they can be found by pkg-config
-PC_PATH="$(pwd)/pkgconfig/"
+# These need to match the paths set in update-workspaces.sh
+PC_PATH_RELEASE="$(pwd)/pkgconfig/release/"
+PC_PATH_DEBUG="$(pwd)/pkgconfig/debug/"
 if [[ "$force_rebuild" = "true" ]]; then
-  rm -rf $PC_PATH
+  rm -rf $PC_PATH_RELEASE
+  rm -rf $PC_PATH_DEBUG
 fi
-mkdir -p $PC_PATH
+mkdir -p $PC_PATH_RELEASE
+mkdir -p $PC_PATH_DEBUG
 
 # --------------------------------------------------------------
 echo -e "Building zlib..."
@@ -170,7 +174,7 @@ then
     && make ${JOBS} && make install) || die "zlib build failed"
 
   popd
-  cp -f lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH_RELEASE
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -229,7 +233,7 @@ then
     && make ${JOBS} && make install) || die "libcurl build failed"
 
   popd
-  cp -f lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH_RELEASE
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -306,7 +310,7 @@ then
     && make ${JOBS} && make install) || die "libxml2 build failed"
 
   popd
-  cp -f lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH_RELEASE
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -350,7 +354,7 @@ then
     && make $JOBS && make install) || die "SDL2 build failed"
 
   popd
-  cp -f lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH_RELEASE
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -492,7 +496,7 @@ then
     && make ${JOBS} && make install) || die "libpng build failed"
 
   popd
-  cp -f lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH_RELEASE
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -528,7 +532,7 @@ then
     && make ${JOBS} && make install) || die "libogg build failed"
 
   popd
-  cp -f lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH_RELEASE
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -565,7 +569,7 @@ then
     && make ${JOBS} && make install) || die "libvorbis build failed"
 
   popd
-  cp -f lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH_RELEASE
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -608,7 +612,7 @@ then
     && make ${JOBS} && make install) || die "GMP build failed"
 
   popd
-  cp -f lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH_RELEASE
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -656,7 +660,7 @@ then
     && make ${JOBS} && make install) || die "Nettle build failed"
 
   popd
-  cp -f lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH_RELEASE
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -714,7 +718,7 @@ then
     && make ${JOBS} LDFLAGS= install) || die "GnuTLS build failed"
 
   popd
-  cp -f lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH_RELEASE
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -761,7 +765,7 @@ then
     && make ${JOBS} && make install) || die "gloox build failed"
 
   popd
-  cp -f lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH_RELEASE
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -806,7 +810,7 @@ then
 
   popd
   popd
-  cp -f lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH_RELEASE
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -842,7 +846,7 @@ then
     && make clean && make ${JOBS} && make install) || die "ENet build failed"
 
   popd
-  cp -f lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH_RELEASE
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -879,7 +883,7 @@ then
   popd
   # TODO: how can we not build the dylibs?
   rm -f lib/*.dylib
-  cp -f lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH_RELEASE
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -919,7 +923,7 @@ then
   ) || die "libsodium build failed"
 
   popd
-  cp -f lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH_RELEASE
   echo "$LIB_VERSION" > .already-built
 else
   already_built
@@ -961,7 +965,7 @@ then
 
   popd
   popd
-  cp -f lib/pkgconfig/* $PC_PATH
+  cp -f lib/pkgconfig/* $PC_PATH_RELEASE
   echo "$FMT_VERSION" > .already-built
 else
   already_built
@@ -981,7 +985,7 @@ then
 fi
 
 # Use the regular build script for SM.
-JOBS="$JOBS" ZLIB_DIR="$ZLIB_DIR" PC_DIR="$PC_PATH" ./build.sh || die "Error building spidermonkey"
+JOBS="$JOBS" ZLIB_DIR="$ZLIB_DIR" PC_DIR_RELEASE="$PC_PATH_RELEASE" PC_DIR_DEBUG="$PC_PATH_DEBUG" ./build.sh || die "Error building spidermonkey"
 
 popd > /dev/null
 
