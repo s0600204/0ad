@@ -285,7 +285,7 @@ extern_lib_defs = {
 			--
 			-- When fmt 5.3 (or better) becomes more widely used, then we can safely use the
 			-- following line:
-			-- pkgconfig.add_includes("fmt")
+			-- pkgconfig.find_system("fmt").add_includes()
 		end,
 		link_settings = function()
 			if os.istarget("windows") or os.istarget("macosx") then
@@ -304,7 +304,7 @@ extern_lib_defs = {
 				})
 
 				-- See comment above as to why this is commented out.
-				-- pkgconfig.add_links("fmt")
+				-- pkgconfig.find_system("fmt").add_links()
 			end
 		end
 	},
@@ -315,7 +315,7 @@ extern_lib_defs = {
 			else
 				-- Support GLOOX_CONFIG for overriding the default (pkg-config --cflags gloox)
 				-- i.e. on OSX where it gets set in update-workspaces.sh
-				pkgconfig.add_includes("gloox", os.getenv("GLOOX_CONFIG"))
+				pkgconfig.find_system("gloox", os.getenv("GLOOX_CONFIG")).add_includes()
 			end
 		end,
 		link_settings = function()
@@ -326,7 +326,7 @@ extern_lib_defs = {
 					no_delayload = 1,
 				})
 			else
-				pkgconfig.add_links("gloox", os.getenv("GLOOX_CONFIG"))
+				pkgconfig.find_system("gloox", os.getenv("GLOOX_CONFIG")).add_links()
 
 				if os.istarget("macosx") then
 					-- Manually add gnutls dependencies, those are not present in gloox's pkg-config
@@ -375,7 +375,7 @@ extern_lib_defs = {
 			else
 				-- Support ICU_CONFIG for overriding the default (pkg-config --cflags icu-i18n)
 				-- i.e. on OSX where it gets set in update-workspaces.sh
-				pkgconfig.add_includes("icu-i18n", os.getenv("ICU_CONFIG"), "--cppflags")
+				pkgconfig.find_system("icu-i18n", os.getenv("ICU_CONFIG")).add_includes("--cppflags")
 			end
 		end,
 		link_settings = function()
@@ -387,7 +387,7 @@ extern_lib_defs = {
 					no_delayload = 1,
 				})
 			else
-				pkgconfig.add_links("icu-i18n", os.getenv("ICU_CONFIG"), "--ldflags-searchpath --ldflags-libsonly --ldflags-system")
+				pkgconfig.find_system("icu-i18n", os.getenv("ICU_CONFIG")).add_links("--ldflags-searchpath --ldflags-libsonly --ldflags-system")
 			end
 		end,
 	},
@@ -416,7 +416,7 @@ extern_lib_defs = {
 			else
 				-- Support LIBPNG_CONFIG for overriding the default (pkg-config --cflags libpng)
 				-- i.e. on OSX where it gets set in update-workspaces.sh
-				pkgconfig.add_includes("libpng", os.getenv("LIBPNG_CONFIG"))
+				pkgconfig.find_system("libpng", os.getenv("LIBPNG_CONFIG")).add_includes()
 			end
 		end,
 		link_settings = function()
@@ -426,7 +426,7 @@ extern_lib_defs = {
 					win_names  = { "libpng16" },
 				})
 			else
-				pkgconfig.add_links("libpng", os.getenv("LIBPNG_CONFIG"), "--ldflags")
+				pkgconfig.find_system("libpng", os.getenv("LIBPNG_CONFIG")).add_links("--ldflags")
 			end
 		end,
 	},
@@ -453,7 +453,7 @@ extern_lib_defs = {
 			else
 				-- Support XML2_CONFIG for overriding the default (pkg-config --cflags libxml-2.0)
 				-- i.e. on OSX where it gets set in update-workspaces.sh
-				pkgconfig.add_includes("libxml-2.0", os.getenv("XML2_CONFIG"))
+				pkgconfig.find_system("libxml-2.0", os.getenv("XML2_CONFIG")).add_includes()
 			end
 			if os.istarget("macosx") then
 				-- libxml2 needs _REENTRANT or __MT__ for thread support;
@@ -470,7 +470,7 @@ extern_lib_defs = {
 					links { "libxml2" }
 				filter { }
 			else
-				pkgconfig.add_links("libxml-2.0", os.getenv("XML2_CONFIG"))
+				pkgconfig.find_system("libxml-2.0", os.getenv("XML2_CONFIG")).add_links()
 			end
 		end,
 	},
@@ -561,14 +561,14 @@ extern_lib_defs = {
 			elseif not _OPTIONS["android"] then
 				-- Support SDL2_CONFIG for overriding the default (pkg-config sdl2)
 				-- i.e. on OSX where it gets set in update-workspaces.sh
-				pkgconfig.add_includes("sdl2", os.getenv("SDL2_CONFIG"))
+				pkgconfig.find_system("sdl2", os.getenv("SDL2_CONFIG")).add_includes()
 			end
 		end,
 		link_settings = function()
 			if os.istarget("windows") then
 				add_default_lib_paths("sdl2")
 			elseif not _OPTIONS["android"] then
-				pkgconfig.add_links("sdl2", os.getenv("SDL2_CONFIG"))
+				pkgconfig.find_system("sdl2", os.getenv("SDL2_CONFIG")).add_links()
 			end
 		end,
 	},
@@ -576,7 +576,7 @@ extern_lib_defs = {
 		compile_settings = function()
 			if _OPTIONS["with-system-mozjs"] then
 				if not _OPTIONS["android"] then
-					pkgconfig.add_includes("mozjs-78")
+					pkgconfig.find_system("mozjs-78").add_includes()
 				end
 			else
 				if os.istarget("windows") then
@@ -598,7 +598,7 @@ extern_lib_defs = {
 				if _OPTIONS["android"] then
 					links { "mozjs-78" }
 				else
-					pkgconfig.add_links("mozjs-78")
+					pkgconfig.find_system("mozjs-78").add_links()
 				end
 			else
 				filter { "Debug", "action:vs*" }
@@ -665,7 +665,7 @@ extern_lib_defs = {
 				-- wxwidgets does not come with a definition file for pkg-config,
 				-- so we have to use wxwidgets' own config tool
 				wx_config_path = os.getenv("WX_CONFIG") or "wx-config"
-				pkgconfig.add_includes(nil, wx_config_path, "--unicode=yes --cxxflags")
+				pkgconfig.find_system(nil, wx_config_path).add_includes("--unicode=yes --cxxflags")
 			end
 		end,
 		link_settings = function()
@@ -673,19 +673,19 @@ extern_lib_defs = {
 				libdirs { libraries_dir.."wxwidgets/lib/vc_lib" }
 			else
 				wx_config_path = os.getenv("WX_CONFIG") or "wx-config"
-				pkgconfig.add_links(nil, wx_config_path, "--unicode=yes --libs std,gl")
+				pkgconfig.find_system(nil, wx_config_path).add_links("--unicode=yes --libs std,gl")
 			end
 		end,
 	},
 	x11 = {
 		compile_settings = function()
 			if not os.istarget("windows") and not os.istarget("macosx") then
-				pkgconfig.add_includes("x11")
+				pkgconfig.find_system("x11").add_includes()
 			end
 		end,
 		link_settings = function()
 			if not os.istarget("windows") and not os.istarget("macosx") then
-				pkgconfig.add_links("x11")
+				pkgconfig.find_system("x11").add_links()
 			end
 		end,
 	},
