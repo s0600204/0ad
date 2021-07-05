@@ -76,6 +76,43 @@ jobs:
       run: |
         (Get-ChildItem $env:INSTALL_DIR -recurse).FullName
 
+    - name: Script test
+      run: |
+        function Insert-Line {
+          param (
+            [Parameter(Mandatory, ValueFromPipeline)]
+            [AllowEmptyString()]
+              [string[]]$Haystack,
+            [Parameter(Mandatory)]
+              [string]$Needle,
+            [Parameter(Mandatory)]
+              [string]$Thread
+          )
+          PROCESS {
+            return $Haystack | ForEach-Object {
+              $_
+              if ($_ -match $Needle) {
+                $Thread
+              }
+            }
+          }
+        }
+        
+        $pcpath = "$env:INSTALL_DIR\x86-windows\lib\pkgconfig"
+        echo $pcpath
+        echo "----------------"
+        Get-Content $pcpath\sdl2.pc
+        echo "----------------"
+        (Get-Content $pcpath\sdl2.pc).Replace(
+          '-L"${libdir}"', '-L"${libdir}" -L"${libdir2}" -lSDL2main'
+        )
+        echo "----------------"
+        (Get-Content $pcpath\sdl2.pc
+          | Insert-Line -Needle 'libdir=' -Thread 'libdir2=${exec_prefix}/lib/manual-link'
+        ).Replace(
+          '-L"${libdir}"', '-L"${libdir}" -L"${libdir2}" -lSDL2main'
+        ) 
+
     #~ - name: Package
       #~ uses: actions/upload-artifact@v2
       #~ with:
