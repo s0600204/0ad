@@ -26,7 +26,7 @@ env:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2016
 
     steps:
 
@@ -47,8 +47,7 @@ jobs:
         & $env:VCPKG_ROOT\vcpkg install
         --x-install-root=$env:INSTALL_DIR
         --debug
-        pkgconf
-        opengl-registry
+        sdl2
 
         #~ boost
         #~ enet
@@ -68,6 +67,14 @@ jobs:
         #~ pkgconf
         #~ wxwidgets
         #~ zlib
+
+    - name: Print Locations
+      run: |
+        (Get-ChildItem $env:VCPKG_ROOT -recurse).FullName
+
+    - name: Print Locations
+      run: |
+        (Get-ChildItem $env:INSTALL_DIR -recurse).FullName
 
     #~ - name: Package
       #~ uses: actions/upload-artifact@v2
