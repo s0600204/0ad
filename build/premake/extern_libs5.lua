@@ -278,7 +278,7 @@ extern_lib_defs = {
 			if os.istarget("windows") then
 				add_default_include_paths("fmt")
 			elseif os.istarget("macosx") then
-				pkgconfig.add_includes("fmt")
+				pkgconfig.find_system("fmt").add_includes()
 			end
 
 			-- With Linux & BSD, we assume that fmt is installed in a standard location.
@@ -308,7 +308,7 @@ extern_lib_defs = {
 				})
 			elseif os.istarget("macosx") then
 				-- See comment above as to why this is not also used on Linux or BSD.
-				pkgconfig.add_links("fmt")
+				pkgconfig.find_system("fmt").add_links()
 			else
 				add_default_links({
 					unix_names = { "fmt" },
@@ -321,7 +321,7 @@ extern_lib_defs = {
 			if os.istarget("windows") then
 				add_default_include_paths("gloox")
 			else
-				pkgconfig.add_includes("gloox")
+				pkgconfig.find_system("gloox").add_includes()
 			end
 		end,
 		link_settings = function()
@@ -332,7 +332,7 @@ extern_lib_defs = {
 					no_delayload = 1,
 				})
 			else
-				pkgconfig.add_links("gloox")
+				pkgconfig.find_system("gloox").add_links()
 
 				if os.istarget("macosx") then
 					-- gloox depends on gnutls, but doesn't identify this via pkg-config
@@ -374,7 +374,7 @@ extern_lib_defs = {
 			if os.istarget("windows") then
 				add_default_include_paths("icu")
 			else
-				pkgconfig.add_includes("icu-i18n")
+				pkgconfig.find_system("icu-i18n").add_includes()
 			end
 		end,
 		link_settings = function()
@@ -386,7 +386,7 @@ extern_lib_defs = {
 					no_delayload = 1,
 				})
 			else
-				pkgconfig.add_links("icu-i18n")
+				pkgconfig.find_system("icu-i18n").add_links()
 			end
 		end,
 	},
@@ -415,7 +415,7 @@ extern_lib_defs = {
 			if os.istarget("windows") then
 				add_default_include_paths("libpng")
 			else
-				pkgconfig.add_includes("libpng")
+				pkgconfig.find_system("libpng").add_includes()
 			end
 		end,
 		link_settings = function()
@@ -425,7 +425,7 @@ extern_lib_defs = {
 					win_names  = { "libpng16" },
 				})
 			else
-				pkgconfig.add_links("libpng")
+				pkgconfig.find_system("libpng").add_links()
 			end
 		end,
 	},
@@ -453,7 +453,7 @@ extern_lib_defs = {
 			if os.istarget("windows") then
 				add_default_include_paths("libxml2")
 			else
-				pkgconfig.add_includes("libxml-2.0")
+				pkgconfig.find_system("libxml-2.0").add_includes()
 
 				if os.istarget("macosx") then
 					-- libxml2 needs _REENTRANT or __MT__ for thread support;
@@ -471,7 +471,7 @@ extern_lib_defs = {
 					links { "libxml2" }
 				filter { }
 			else
-				pkgconfig.add_links("libxml-2.0")
+				pkgconfig.find_system("libxml-2.0").add_links()
 			end
 		end,
 	},
@@ -593,14 +593,14 @@ extern_lib_defs = {
 			if os.istarget("windows") then
 				includedirs { libraries_dir .. "sdl2/include/SDL" }
 			elseif not _OPTIONS["android"] then
-				pkgconfig.add_includes("sdl2")
+				pkgconfig.find_system("sdl2").add_includes()
 			end
 		end,
 		link_settings = function()
 			if os.istarget("windows") then
 				add_default_lib_paths("sdl2")
 			elseif not _OPTIONS["android"] then
-				pkgconfig.add_links("sdl2")
+				pkgconfig.find_system("sdl2").add_links()
 			end
 		end,
 	},
@@ -608,7 +608,7 @@ extern_lib_defs = {
 		compile_settings = function()
 			if _OPTIONS["with-system-mozjs"] then
 				if not _OPTIONS["android"] then
-					pkgconfig.add_includes("mozjs-78")
+					pkgconfig.find_system("mozjs-78").add_includes()
 				end
 			else
 				library_name = "mozjs78-ps"
@@ -640,7 +640,7 @@ extern_lib_defs = {
 				if _OPTIONS["android"] then
 					links { "mozjs-78" }
 				else
-					pkgconfig.add_links("mozjs-78")
+					pkgconfig.find_system("mozjs-78").add_links()
 				end
 			else
 				library_name = "mozjs78-ps"
@@ -712,7 +712,7 @@ extern_lib_defs = {
 				-- wxwidgets does not come with a definition file for pkg-config,
 				-- so we have to use wxwidgets' own config tool
 				wx_config_path = os.getenv("WX_CONFIG") or "wx-config"
-				pkgconfig.add_includes(nil, wx_config_path, "--unicode=yes --cxxflags")
+				pkgconfig.find_system(nil, wx_config_path).add_includes("--unicode=yes --cxxflags")
 			end
 		end,
 		link_settings = function()
@@ -720,19 +720,19 @@ extern_lib_defs = {
 				libdirs { libraries_dir.."wxwidgets/lib/vc_lib" }
 			else
 				wx_config_path = os.getenv("WX_CONFIG") or "wx-config"
-				pkgconfig.add_links(nil, wx_config_path, "--unicode=yes --libs std,gl")
+				pkgconfig.find_system(nil, wx_config_path).add_links("--unicode=yes --libs std,gl")
 			end
 		end,
 	},
 	x11 = {
 		compile_settings = function()
 			if not os.istarget("windows") and not os.istarget("macosx") then
-				pkgconfig.add_includes("x11")
+				pkgconfig.find_system("x11").add_includes()
 			end
 		end,
 		link_settings = function()
 			if not os.istarget("windows") and not os.istarget("macosx") then
-				pkgconfig.add_links("x11")
+				pkgconfig.find_system("x11").add_links()
 			end
 		end,
 	},
