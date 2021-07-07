@@ -45,6 +45,17 @@ jobs:
     - name: Install some packages
       run: >
         & $env:VCPKG_ROOT\vcpkg install
+        --clean-buildtrees-after-build
+        --clean-packages-after-build
+        --x-install-root=$env:INSTALL_DIR
+        --debug
+        wxwidgets
+
+    - name: Install the same packages again
+      run: >
+        & $env:VCPKG_ROOT\vcpkg install
+        --clean-buildtrees-after-build
+        --clean-packages-after-build
         --x-install-root=$env:INSTALL_DIR
         --debug
         wxwidgets
