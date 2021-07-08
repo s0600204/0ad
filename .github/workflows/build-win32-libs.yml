@@ -97,17 +97,6 @@ jobs:
       run: |
         (Get-ChildItem -Path "${{ github.workspace }}\binaries\system" -Recurse).FullName
 
-    - name: Run test (Debug)
-      run: |
-        chdir binaries\system\debug
-        Start-Process -FilePath .\test_dbg.exe -Wait -NoNewWindow
-
-    - name: Run test (Release)
-      if: ${{ always() }}
-      run: |
-        chdir binaries\system\release
-        Start-Process -FilePath .\test.exe -Wait -NoNewWindow
-
     - name: Package
       uses: actions/upload-artifact@v2
       with:
