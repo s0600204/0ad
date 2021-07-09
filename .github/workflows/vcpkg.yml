@@ -37,27 +37,42 @@ jobs:
 
     steps:
 
-    - name: Find dumpbin (VCTools)
-      if: ${{ always() }}
-      run: |
-        echo $(vswhere -latest -requires Microsoft.VisualStudio.Workload.VCTools -find **\dumpbin.exe)
-
-    - name: Find dumpbin (MSBuildTools)
-      if: ${{ always() }}
-      run: |
-        echo $(vswhere -latest -requires Microsoft.VisualStudio.Workload.MSBuildTools -find **\dumpbin.exe)
-
-    - name: Find dumpbin (VC.Tools)
+    - name: Find dumpbin (**\)
       if: ${{ always() }}
       run: |
         echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find **\dumpbin.exe)
 
-    - name: Find dumpbin (VC.Modules)
+    - name: Find dumpbin (bin\**\)
       if: ${{ always() }}
       run: |
-        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Modules.x86.x64 -find **\dumpbin.exe)
+        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find bin\**\dumpbin.exe)
 
-    - name: Find dumpbin (generic)
+    - name: Find dumpbin (HostX64\**\)
       if: ${{ always() }}
       run: |
-        echo $(vswhere -latest -find bin\**\dumpbin.exe)
+        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find HostX64\**\dumpbin.exe)
+
+    - name: Find dumpbin (**\HostX64\**\)
+      if: ${{ always() }}
+      run: |
+        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find **\HostX64\**\dumpbin.exe)
+
+    - name: Find dumpbin (HostX64\x86\)
+      if: ${{ always() }}
+      run: |
+        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find HostX64\x86\dumpbin.exe)
+
+    - name: Find dumpbin (bin\HostX64\x86\)
+      if: ${{ always() }}
+      run: |
+        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find bin\HostX64\x86\dumpbin.exe)
+
+    - name: Find dumpbin (**\bin\HostX64\x86\)
+      if: ${{ always() }}
+      run: |
+        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find **\bin\HostX64\x86\dumpbin.exe)
+
+    - name: Find dumpbin (**\HostX64\x86\)
+      if: ${{ always() }}
+      run: |
+        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find **\HostX64\x86\dumpbin.exe)
