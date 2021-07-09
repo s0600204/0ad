@@ -37,42 +37,19 @@ jobs:
 
     steps:
 
-    - name: Find dumpbin (**\)
-      if: ${{ always() }}
-      run: |
-        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find **\dumpbin.exe)
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 1
 
-    - name: Find dumpbin (bin\**\)
-      if: ${{ always() }}
+    - name: Find dumpbin
       run: |
-        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find bin\**\dumpbin.exe)
-
-    - name: Find dumpbin (HostX64\**\)
-      if: ${{ always() }}
-      run: |
-        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find HostX64\**\dumpbin.exe)
-
-    - name: Find dumpbin (**\HostX64\**\)
-      if: ${{ always() }}
-      run: |
-        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find **\HostX64\**\dumpbin.exe)
-
-    - name: Find dumpbin (HostX64\x86\)
-      if: ${{ always() }}
-      run: |
-        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find HostX64\x86\dumpbin.exe)
-
-    - name: Find dumpbin (bin\HostX64\x86\)
-      if: ${{ always() }}
-      run: |
-        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find bin\HostX64\x86\dumpbin.exe)
-
-    - name: Find dumpbin (**\bin\HostX64\x86\)
-      if: ${{ always() }}
-      run: |
-        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find **\bin\HostX64\x86\dumpbin.exe)
-
-    - name: Find dumpbin (**\HostX64\x86\)
-      if: ${{ always() }}
-      run: |
-        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find **\HostX64\x86\dumpbin.exe)
+        echo $host
+        $hoststr = 'HostX64'
+        $targetstr = 'x86'
+        $dumpbin = $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find **\$hoststr\$targetstr\dumpbin.exe)[-1]
+        
+        chdir '.\binaries\system'
+        & $dumpbin .\pyrogenesis.exe
+        echo " --- "
+        & $dumpbin /DEPENDENTS .\pyrogenesis.exe
