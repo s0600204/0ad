@@ -97,20 +97,40 @@ jobs:
       run: |
         (Get-ChildItem -Path "${{ github.workspace }}\binaries\system" -Recurse).FullName
 
-    - name: Package
-      uses: actions/upload-artifact@v2
-      with:
-        name: pyrogenesis_debug
-        path: |
-          binaries\system\debug\*.exe
-          binaries\system\debug\*.dll
-          binaries\system\debug\*.pdb
+    - name: Run pyrogenesis
+      run: |
+        chdir binaries\system\release
+        Start-Process -FilePath .\pyrogenesis.exe -NoNewWindow
+        Start-Sleep 30
 
-    - name: Package
-      uses: actions/upload-artifact@v2
-      with:
-        name: pyrogenesis_release
-        path: |
-          binaries\system\release\*.exe
-          binaries\system\release\*.dll
-          binaries\system\release\*.pdb
+    - name: Print logs
+      if: ${{ always() }}
+      run: |
+        chdir C:\Users\runneradmin\AppData\Local\0ad\
+        Get-ChildItem -Path . -Recurse |
+        ForEach-Object {
+          if (!($_ -is [System.IO.DirectoryInfo])) {
+            echo $_.FullName ;
+            echo '--------';
+            Get-Content $_;
+            echo "";
+          }
+        }
+
+    #~ - name: Package
+      #~ uses: actions/upload-artifact@v2
+      #~ with:
+        #~ name: pyrogenesis_debug
+        #~ path: |
+          #~ binaries\system\debug\*.exe
+          #~ binaries\system\debug\*.dll
+          #~ binaries\system\debug\*.pdb
+
+    #~ - name: Package
+      #~ uses: actions/upload-artifact@v2
+      #~ with:
+        #~ name: pyrogenesis_release
+        #~ path: |
+          #~ binaries\system\release\*.exe
+          #~ binaries\system\release\*.dll
+          #~ binaries\system\release\*.pdb
