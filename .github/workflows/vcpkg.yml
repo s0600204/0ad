@@ -1,10 +1,10 @@
-name: vcpkg tests
+name: dumpbin tests
 
 on:
   workflow_dispatch:
   push:
     branches:
-    - vcpkg
+    - dumpbin
 
 env:
   VCPKG_ROOT: '${{ github.workspace }}\vc'
@@ -32,7 +32,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-        - windows-2019
+        #- windows-2019
         - windows-2016
 
     steps:
@@ -41,13 +41,13 @@ jobs:
       run: |
         Invoke-WebRequest -Uri 'https://trac.wildfiregames.com/export/25821/ps/trunk/binaries/system/pyrogenesis.exe' -Method Get -OutFile 'pyrogenesis.exe'
 
-    - name: Find dumpbin
+    - name: Find dumpbin and run it
       run: |
         $HostArch = 'HostX64'
         $TargetArch = 'x86'
         $dumpbin = @(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find **\$HostArch\$TargetArch\dumpbin.exe)[-1]
         echo $dumpbin
         echo ""
-        & $dumpbin .\pyrogenesis.exe
-        echo ""
-        & $dumpbin /DEPENDENTS .\pyrogenesis.exe
+        & $dumpbin /DEPENDENTS .\pyrogenesis.exe | ForEach-Object {
+          echo $_
+        }
