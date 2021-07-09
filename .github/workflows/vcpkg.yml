@@ -37,19 +37,17 @@ jobs:
 
     steps:
 
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 1
+    - name: Acquire pyrogenesis.exe
+      run: |
+        Invoke-WebRequest -Uri 'https://trac.wildfiregames.com/export/25821/ps/trunk/binaries/system/pyrogenesis.exe' -Method Get -OutFile 'pyrogenesis.exe'
 
     - name: Find dumpbin
       run: |
-        echo $host
-        $hoststr = 'HostX64'
-        $targetstr = 'x86'
-        $dumpbin = $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find **\$hoststr\$targetstr\dumpbin.exe)[-1]
-        
-        chdir '.\binaries\system'
+        $HostArch = 'HostX64'
+        $TargetArch = 'x86'
+        $dumpbin = @(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find **\$HostArch\$TargetArch\dumpbin.exe)[-1]
+        echo $dumpbin
+        echo ""
         & $dumpbin .\pyrogenesis.exe
-        echo " --- "
+        echo ""
         & $dumpbin /DEPENDENTS .\pyrogenesis.exe
