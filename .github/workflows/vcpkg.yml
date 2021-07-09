@@ -26,52 +26,38 @@ env:
 
 jobs:
   build:
-    runs-on: windows-2016
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+        - windows-2019
+        - windows-2016
 
     steps:
 
-    - name: Install and Build vcpkg locally
+    - name: Find dumpbin (VCTools)
+      if: ${{ always() }}
       run: |
-        md $env:VCPKG_ROOT
-        cd $env:VCPKG_ROOT
-        git clone --depth=1 https://github.com/Microsoft/vcpkg.git --branch=2021.05.12 .
-        .\bootstrap-vcpkg.bat -disableMetrics
+        echo $(vswhere -latest -requires Microsoft.VisualStudio.Workload.VCTools -find **\dumpbin.exe)
 
-    - name: Run `vcpkg help`
+    - name: Find dumpbin (MSBuildTools)
+      if: ${{ always() }}
       run: |
-        & $env:VCPKG_ROOT\vcpkg help
+        echo $(vswhere -latest -requires Microsoft.VisualStudio.Workload.MSBuildTools -find **\dumpbin.exe)
 
-    # Not available from vcpkg: FCollada, Gloox, SpiderMonkey
-    - name: Install some packages
-      run: >
-        & $env:VCPKG_ROOT\vcpkg install
-        --clean-buildtrees-after-build
-        --clean-packages-after-build
-        --x-install-root=$env:INSTALL_DIR
-        --debug
-        wxwidgets
-
-    - name: Install the same packages again
-      run: >
-        & $env:VCPKG_ROOT\vcpkg install
-        --clean-buildtrees-after-build
-        --clean-packages-after-build
-        --x-install-root=$env:INSTALL_DIR
-        --debug
-        wxwidgets
-
-    - name: Print Locations
+    - name: Find dumpbin (VC.Tools)
+      if: ${{ always() }}
       run: |
-        (Get-ChildItem $env:VCPKG_ROOT -recurse).FullName
+        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find **\dumpbin.exe)
 
-    - name: Print Locations
+    - name: Find dumpbin (VC.Modules)
+      if: ${{ always() }}
       run: |
-        (Get-ChildItem $env:INSTALL_DIR -recurse).FullName
+        echo $(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Modules.x86.x64 -find **\dumpbin.exe)
 
-    #~ - name: Package
-      #~ uses: actions/upload-artifact@v2
-      #~ with:
-        #~ name: vcpkg
-        #~ path: |
-          #~ ${{ env.INSTALL_DIR }}\x86-windows
-          #~ !${{ env.INSTALL_DIR }}\x86-windows\share
+    - name: Find dumpbin (generic)
+      if: ${{ always() }}
+      run: |
+        echo $(vswhere -latest -find bin\**\dumpbin.exe)
