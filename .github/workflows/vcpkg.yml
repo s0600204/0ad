@@ -48,6 +48,11 @@ jobs:
         $dumpbin = @(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find **\$HostArch\$TargetArch\dumpbin.exe)[-1]
         echo $dumpbin
         echo ""
+        $dlls = @()
         & $dumpbin /DEPENDENTS .\pyrogenesis.exe | ForEach-Object {
-          echo $_
+          if ($_ -like '*.dll') {
+            $dlls += $_.trim().toLower()
+          }
         }
+        echo ""
+        echo $dlls
