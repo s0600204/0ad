@@ -38,7 +38,7 @@ jobs:
       run: |
         (Get-Item $PSScriptRoot).PSDrive
 
-    - name: Run script file
+    - name: Build dependencies
       run: |
         cd ${{ github.workspace }}\libraries\win32
         .\build-win32-libs.ps1
@@ -92,10 +92,19 @@ jobs:
       run: |
         (Get-Item $PSScriptRoot).PSDrive
 
+    - name: "'Install' the .dlls"
+      run: |
+        cd ${{ github.workspace }}\libraries\win32
+        .\install-win32-libs.ps1
+
     - name: Print folder contents
       if: ${{ always() }}
       run: |
         (Get-ChildItem -Path "${{ github.workspace }}\binaries\system" -Recurse).FullName
+
+    - name: Check disk space
+      run: |
+        (Get-Item $PSScriptRoot).PSDrive
 
     - name: Run pyrogenesis
       run: |
@@ -106,7 +115,7 @@ jobs:
     - name: Print logs
       if: ${{ always() }}
       run: |
-        chdir C:\Users\runneradmin\AppData\Local\0ad\
+        chdir C:\Users\runneradmin\AppData\Local\0ad\logs\
         Get-ChildItem -Path . -Recurse |
         ForEach-Object {
           if (!($_ -is [System.IO.DirectoryInfo])) {
@@ -117,20 +126,20 @@ jobs:
           }
         }
 
-    #~ - name: Package
-      #~ uses: actions/upload-artifact@v2
-      #~ with:
-        #~ name: pyrogenesis_debug
-        #~ path: |
-          #~ binaries\system\debug\*.exe
-          #~ binaries\system\debug\*.dll
-          #~ binaries\system\debug\*.pdb
+    - name: Package
+      uses: actions/upload-artifact@v2
+      with:
+        name: pyrogenesis_debug
+        path: |
+          binaries\system\debug\*.exe
+          binaries\system\debug\*.dll
+          binaries\system\debug\*.pdb
 
-    #~ - name: Package
-      #~ uses: actions/upload-artifact@v2
-      #~ with:
-        #~ name: pyrogenesis_release
-        #~ path: |
-          #~ binaries\system\release\*.exe
-          #~ binaries\system\release\*.dll
-          #~ binaries\system\release\*.pdb
+    - name: Package
+      uses: actions/upload-artifact@v2
+      with:
+        name: pyrogenesis_release
+        path: |
+          binaries\system\release\*.exe
+          binaries\system\release\*.dll
+          binaries\system\release\*.pdb

@@ -41,6 +41,8 @@ Create a folder to collate .dll and .pdb files as they are built.
 Once the final pyrogenesis executables are built, they can be scanned to determine which .dlls
 (and thus .pdbs) are actually needed, and these can be transferred over.
 
+Keep these in sync with install-win32-libs.ps1
+
  $PSScriptRoot
   '- bin
       |- debug
