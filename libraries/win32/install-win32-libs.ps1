@@ -1,5 +1,10 @@
 
 <#
+Run script common to both build-win32-libs.sh and install-win32-libs.sh
+#>
+.\scripts\common.ps1
+
+<#
 Import custom cmdlets.
 #>
 . .\scripts\Install-Binaries.ps1
@@ -8,15 +13,19 @@ Import custom cmdlets.
 Locate dumpbin.exe
 
 If more than one found, we use the last one (typically the most current).
-#>
-$HostArch = 'HostX64'
-$TargetArch = 'x86'
-$env:dumpbin = @(vswhere -latest -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -find **\$HostArch\$TargetArch\dumpbin.exe)[-1]
 
-# These should be the same as those set in build-win32-libs.ps1
-$BIN_DIR             = "$PSScriptRoot\bin"
-$env:BIN_DIR_RELEASE = "$BIN_DIR\release"
-$env:BIN_DIR_DEBUG   = "$BIN_DIR\debug"
+Known possible values for the host architecture:
+  HostX68, HostX64
+
+Known possible values for the target architecture:
+  x68, x64, arm, arm64
+#>
+$HostArch = 'Host' + $env:HostArchitecture.toUpper()
+$env:dumpbin = @(
+  vswhere -latest `
+          -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 `
+          -find **\$HostArch\$env:TargetArchitecture\dumpbin.exe
+)[-1]
 
 # These should match the paths set in build\premake\premake5.lua
 $PYRO_DIR = Resolve-Path "$PSScriptRoot\..\..\binaries\system"

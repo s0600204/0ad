@@ -27,7 +27,7 @@ Write-Output "---------------------------------------"
 New-Item -Path . -Name 'build' -ItemType Directory | Out-Null
 Push-Location '.\build'
 cmake ..\src `
-  -A Win32 `
+  -A $env:MSVCPlatform `
   -DCMAKE_INSTALL_PREFIX="$PSScriptRoot" `
   -DPNG_PNG_INCLUDE_DIR="$VcpkgOutLocation\include" `
   -DPNG_LIBRARY="$VcpkgOutLocation\lib\libpng16.lib" `

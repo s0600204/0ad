@@ -25,13 +25,13 @@ Write-Output "---------------------------------------"
 Write-Output ""
 Write-Output "Build (Debug)"
 Write-Output "---------------------------------------"
-& $env:msbuild $LIB_DIRECTORY\FCollada.vcxproj /v:q /t:Clean,Rebuild /p:PlatformToolset=v141_xp /p:Configuration="Debug DLL" /p:Platform="Win32"
+& $env:msbuild $LIB_DIRECTORY\FCollada.vcxproj /v:q /t:Clean,Rebuild /p:PlatformToolset=v141_xp /p:Configuration="Debug DLL" /p:Platform=$env:MSVCPlatform
 
 
 Write-Output ""
 Write-Output "Build (Release)"
 Write-Output "---------------------------------------"
-& $env:msbuild $LIB_DIRECTORY\FCollada.vcxproj /v:q /t:Clean,Rebuild /p:PlatformToolset=v141_xp /p:Configuration="Release DLL" /p:Platform="Win32"
+& $env:msbuild $LIB_DIRECTORY\FCollada.vcxproj /v:q /t:Clean,Rebuild /p:PlatformToolset=v141_xp /p:Configuration="Release DLL" /p:Platform=$env:MSVCPlatform
 
 
 Write-Output ""

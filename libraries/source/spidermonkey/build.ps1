@@ -126,10 +126,10 @@ Write-Output "---------------------------------------"
 if (Test-NeedsBuilding -LibVersion $LLVM_VERSION -Path $LLVM_DIRECTORY) {
   Remove-Item -Path $LLVM_DIRECTORY -Recurse -ErrorAction SilentlyContinue
   New-Item -Path . -Name $LLVM_DIRECTORY -ItemType Directory | Out-Null
-  switch ([intptr]::Size)
+  switch ($env:HostArchitecture)
   {
-    4 { $LLVM_EXE = $LLVM_EXE_32 } # x86 system
-    8 { $LLVM_EXE = $LLVM_EXE_64 } # x86_64 system
+    'x86' { $LLVM_EXE = $LLVM_EXE_32 }
+    'x64' { $LLVM_EXE = $LLVM_EXE_64 }
   }
   Get-FileFromUrl -FileName $LLVM_EXE -Url $LLVM_URL$LLVM_EXE
   Write-Output "-- Installing"
@@ -142,21 +142,32 @@ Write-Output ""
 Write-Output "Install & setup rust toolchains"
 Write-Output "---------------------------------------"
 # Note: These install to the user's directory (~\.rustup\toolchains)
-switch ([intptr]::Size)
+switch ($env:HostArchitecture)
 {
-  4 { # x86 system
+  'x86' {
     Write-Output "-- Installing stable-i686-pc-windows-msvc"
     rustup toolchain install stable-i686-pc-windows-msvc
   }
-
-  8 { # x86_64 system
+  'x64' {
     Write-Output "-- Installing stable-x86_64-pc-windows-msvc"
     rustup toolchain install stable-x86_64-pc-windows-msvc
-    Write-Output "-- Adding i686-pc-windows-msvc as a target"
-    rustup target add i686-pc-windows-msvc
   }
 }
-
+switch ($env:TargetArchitecture)
+{
+  'x86' {
+    if ($env:HostArchitecture -ne 'x86') {
+      Write-Output "-- Adding i686-pc-windows-msvc as a target"
+      rustup target add i686-pc-windows-msvc
+    }
+  }
+  'x64' {
+    if ($env:HostArchitecture -ne 'x64') {
+      Write-Output "-- Adding x86_64-pc-windows-msvc as a target"
+      rustup target add x86_64-pc-windows-msvc
+    }
+  }
+}
 
 Write-Output ""
 Write-Output "Build SpiderMonkey"

@@ -1,5 +1,10 @@
 
 <#
+Run script common to both build-win32-libs.sh and install-win32-libs.sh
+#>
+.\scripts\common.ps1
+
+<#
 Import custom functions.
 #>
 . .\scripts\Expand-TarArchive.ps1
@@ -36,25 +41,13 @@ if (!(Test-Path -Path $PC_DIR)) {
 }
 
 <#
-Create a folder to collate .dll and .pdb files as they are built.
+Conditionally clear the folders where .dlls are placed after they're built.
 
-Once the final pyrogenesis executables are built, they can be scanned to determine which .dlls
-(and thus .pdbs) are actually needed, and these can be transferred over.
-
-Keep these in sync with install-win32-libs.ps1
-
- $PSScriptRoot
-  '- bin
-      |- debug
-      '- release
+@see scripts\common.ps1
 #>
-$BIN_DIR             = "$PSScriptRoot\bin"
-$env:BIN_DIR_RELEASE = "$BIN_DIR\release"
-$env:BIN_DIR_DEBUG   = "$BIN_DIR\debug"
-if (!(Test-Path -Path $BIN_DIR)) {
-  New-Item -Path $BIN_DIR             -ItemType Directory | Out-Null
-  New-Item -Path $env:BIN_DIR_RELEASE -ItemType Directory | Out-Null
-  New-Item -Path $env:BIN_DIR_DEBUG   -ItemType Directory | Out-Null
+if ($env:force_rebuild) {
+  Remove-Item -Path $env:BIN_DIR_RELEASE\* -Recurse
+  Remove-Item -Path $env:BIN_DIR_DEBUG\*   -Recurse
 }
 
 <#

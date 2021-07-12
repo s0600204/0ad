@@ -2,7 +2,14 @@
 New-Variable -Visibility Public  -Name 'VCPKG_VERSION'   -Value '2021.05.12'
 New-Variable -Visibility Private -Name 'VCPKG_DIRECTORY' -Value 'vcpkg'
 New-Variable -Visibility Private -Name 'VCPKG_GIT_URL'   -Value 'https://github.com/Microsoft/vcpkg.git'
-New-Variable -Visibility Public  -Name 'VCPKG_TRIPLET'   -Value 'x86-windows'
+
+<#
+https://github.com/microsoft/vcpkg/tree/master/triplets
+
+Of possible utility:
+  x86-windows, x64-windows, arm-windows, arm64-windows
+#>
+New-Variable -Visibility Public  -Name 'VCPKG_TRIPLET'   -Value "$env:TargetArchitecture-windows"
 
 function Install-VcpkgIfNeeded {
   if (Test-Path "$PSScriptRoot\$VCPKG_DIRECTORY") { return }
