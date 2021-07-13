@@ -27,6 +27,8 @@ $env:dumpbin = @(
           -find **\$HostArch\$env:TargetArchitecture\dumpbin.exe
 )[-1]
 
+echo $env:dumpbin
+
 # These should match the paths set in build\premake\premake5.lua
 $PYRO_DIR = Resolve-Path "$PSScriptRoot\..\..\binaries\system"
 $env:PYRO_DIR_RELEASE = "$PYRO_DIR\release"
