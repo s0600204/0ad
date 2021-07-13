@@ -33,5 +33,5 @@ $env:PYRO_DIR_RELEASE = "$PYRO_DIR\release"
 $env:PYRO_DIR_DEBUG   = "$PYRO_DIR\debug"
 
 
-Install-Binaries -PyroPath $env:PYRO_RELEASE -PyroExe 'pyrogenesis.exe'     -BinPath $env:BIN_DIR_RELEASE
-Install-Binaries -PyroPath $env:PYRO_DEBUG   -PyroExe 'pyrogenesis_dbg.exe' -BinPath $env:BIN_DIR_DEBUG
+Install-Binaries -PyroPath $env:PYRO_DIR_RELEASE -PyroExe 'pyrogenesis.exe'     -BinPath $env:BIN_DIR_RELEASE
+Install-Binaries -PyroPath $env:PYRO_DIR_DEBUG   -PyroExe 'pyrogenesis_dbg.exe' -BinPath $env:BIN_DIR_DEBUG

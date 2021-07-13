@@ -16,15 +16,15 @@ Function Install-Binaries {
       The parenthesis are needed, else `-or` gets read as an argument of Test-Path.
       Check existence in PyroPath first as there are fewer items there to check.
       #>
-      if ((Test-Path $PyroPath\$dll) -or !(Test-Path $BinPath\$dll)) {
+      if ((Test-Path "$PyroPath\$dll") -or !(Test-Path "$BinPath\$dll")) {
         continue
       }
-      Copy-Item -Path $BinPath\$dll -Destination $PyroPath\$dll
+      Copy-Item -Path "$BinPath\$dll" -Destination "$PyroPath\$dll"
 
       # Copy debug symbols if they also exist
       $pdb = ($dll.split('.')[0] + '.pdb')
-      if ((Test-Path $BinPath\$pdb) -and !(Test-Path $PyroPath\$pdb)) {
-        Copy-Item -Path $BinPath\$pdb -Destination $PyroPath\$pdb
+      if ((Test-Path "$BinPath\$pdb") -and !(Test-Path "$PyroPath\$pdb")) {
+        Copy-Item -Path "$BinPath\$pdb" -Destination "$PyroPath\$pdb"
       }
     }
   }
